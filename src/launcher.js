@@ -8,22 +8,22 @@ fs = require('fs'); // FileSystem Module
 express.set('view engine', 'ejs');
 express.get('/', function(req, res)
 {
-	res.render('../html/index.ejs');
+	res.render('index.ejs');
 }).get('/login', function(req, res)
 {
-	res.render('../html/login.ejs');
+	res.render('login.ejs');
 }).get('/logout', function(req, res)
 {
-	res.render('../html/logout.ejs');
+	res.render('logout.ejs');
 }).get('/verifyAuth', function(req, res)
 {
-	res.render('../html/auth.ejs',
+	res.render('auth.ejs',
 	{
 		param : req.parameters
 	});
 }).get('/getUserPrivateKey', function(req, res)
 {
-	res.render('../html/userPK.ejs');
+	res.render('userPK.ejs');
 }).use(function(req, res, next)
 {
 	res.setHeader('Content-Type', 'text/plain');
