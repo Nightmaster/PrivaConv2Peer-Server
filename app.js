@@ -1,13 +1,15 @@
-
 /**
+* @auth : Gael B.
+**/
+
+/*
  * Module dependencies.
  */
-
-var express = require('express');
-var routes = require('./routes');
-var user = require('./routes/user');
-var http = require('http');
-var path = require('path');
+var express = require('express'), // Express modume
+routes = require('./routes'), // Router directory
+user = require('./routes/user'), // User module
+http = require('http'), // HTTP Server module
+path = require('path'); // Path module
 
 var app = express();
 
@@ -24,13 +26,24 @@ app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
-if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
+if ('development' == app.get('env'))
+{
+	app.use(express.errorHandler());
 }
 
 app.get('/', routes.index);
 app.get('/users', user.list);
+app.get('/login', routes.login);
+app.get('/logout', routes.logout);
+app.get('/verifyAuth', routes.auth);
+app.get('/getUserPrivateKey', routes.userPrK);
+app.use(function(req, res, next)
+{
+	res.setHeader('Content-Type', 'text/plain');
+	res.send(404, 'Page introuvable !');
+});
 
-http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
+http.createServer(app).listen(app.get('port'), function()
+{
+	console.log('Express server listening on port ' + app.get('port'));
 });
