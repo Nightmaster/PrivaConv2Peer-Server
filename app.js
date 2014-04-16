@@ -18,6 +18,7 @@ app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(express.favicon());
+app.use(express.cookieParser());
 app.use(express.logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded());
@@ -27,11 +28,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
 if ('development' == app.get('env'))
-{
 	app.use(express.errorHandler());
-}
+
+// https://www.npmjs.org/package/connect-mysql
 
 app.get('/', routes.index);
+app.get('/auth', routes.auth);
 app.get('/users', user.list);
 app.get('/login', routes.login);
 app.get('/logout', routes.logout);

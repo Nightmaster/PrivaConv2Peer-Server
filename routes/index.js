@@ -6,6 +6,6 @@ exports.index = function(req, res)
 {
 	res.render('index',
 	{
-		title : 'PrivaConv2Peer web site'
+		title : 'PrivaConv2Peer site web'
 	});
 };

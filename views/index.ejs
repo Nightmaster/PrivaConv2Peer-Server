@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
+	<head>
+		<title><%= title + ' - '  %>Accueil</title>
+		<link rel='stylesheet' href='/stylesheets/style.css' />
+	</head>
+	<body>
+		<h1>Bienvenue sur le site de l'application <%= title %></h1>
+		<p>Si vous n'êtes pas inscrits, nous vous invitons à aller sur <a href='./auth'>cette page</a> pour le faire</p>
+	</body>
 </html>

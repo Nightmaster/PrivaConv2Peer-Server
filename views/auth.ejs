@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title><%= title + ' - ' %>Login</title>
+		<link rel='stylesheet' href='/stylesheets/style.css' />
+	</head>
+	<body>
+		<% if (error) { %><p>Erreur: <%= error %></p><% } %>
+		<form method="post">
+			<p>Pseudonyme ou Email :</p>
+			<input type="text" name="uname" placeholder="Type your login" autofocus required<% if (username) { %> value="<%= username %>"<% } %>/>
+			<p>Mot de passe :</p>
+			<input type="password" name="pw" required/>
+			<br/>
+			<input type="submit" value="Validez"/>
+		</form>
+	</body>
+</html>
