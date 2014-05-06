@@ -1,4 +1,5 @@
 /**
+* @author Gael B.
 * GET authentification verification JSON.
 **/
 

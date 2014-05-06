@@ -6,6 +6,11 @@
  * Module dependencies.
  */
 var express = require('express'), // Express modume
+cookieParser = require('cookie-parser'), // Cookie Parser module
+session = require('express-session'), // Session manager for Express module
+favicon = require('static-favicon'), // Favicon module
+bodyParser = require('body-parser'), // Body Parser module
+connectMysql = require('connect-mysql'), // Connect for MySQL module
 routes = require('./routes'), // Router directory
 user = require('./routes/user'), // User module
 http = require('http'), // HTTP Server module
@@ -17,13 +22,17 @@ var app = express();
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-app.use(express.favicon());
-app.use(express.cookieParser());
+app.use(cookieParser());
+app.use(bodyParser());
+app.use(favicon());
+app.use(session(
+{
+	secret : require('saltsForApp').session
+}));
 app.use(express.logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
-app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
@@ -34,6 +43,7 @@ if ('development' == app.get('env'))
 
 app.get('/', routes.index);
 app.get('/auth', routes.auth);
+app.post('/verifAuth', routes.verifAuth)
 app.get('/users', user.list);
 app.get('/login', routes.login);
 app.get('/logout', routes.logout);
@@ -42,7 +52,7 @@ app.get('/getUserPrivateKey', routes.userPrK);
 app.use(function(req, res, next)
 {
 	res.setHeader('Content-Type', 'text/plain');
-	res.send(404, 'Page introuvable !');
+	res.send(404, 'Le page demandée est introuvable ou n\'existe pas !');
 });
 
 http.createServer(app).listen(app.get('port'), function()
