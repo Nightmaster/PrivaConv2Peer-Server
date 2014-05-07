@@ -30,7 +30,7 @@ app.use(bodyParser());
 app.use(favicon());
 app.use(session(
 {
-	secret : require('saltsForApp').session
+	secret : require('./saltsForApp').session
 }));
 app.use(express.logger('dev'));
 app.use(express.json());
