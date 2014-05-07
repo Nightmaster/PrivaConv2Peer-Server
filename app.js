@@ -42,10 +42,11 @@ if ('development' == app.get('env'))
 // https://www.npmjs.org/package/connect-mysql
 
 app.get('/', routes.index);
-app.get('/auth', routes.auth);
-app.post('/verifAuth', routes.verifAuth)
+app.get('/signin', routes.signin);
+app.post('/registration', routes.registration);
 app.get('/users', user.list);
 app.get('/login', routes.login);
+app.post('/verifAuth', routes.verifAuth);
 app.get('/logout', routes.logout);
 app.get('/verifyAuth', routes.auth);
 app.get('/getUserPrivateKey', routes.userPrK);

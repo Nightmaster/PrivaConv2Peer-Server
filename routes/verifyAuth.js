@@ -3,7 +3,7 @@
 * POST from auth view. Check informations and treat them
 **/
 
-var salts = require('../saltsForApp'), // Salts for the passwords
+var salts = require('../lib/saltsForApp'), // Salts for the passwords
 mysql = require('mysql');
 
 exports.verifyAuth = function(req, res)
@@ -17,17 +17,17 @@ exports.verifyAuth = function(req, res)
 	}), login, email, pw, id;
 	if ( -1 < req.body.uname.indexOf('@'))
 	{
-		email = req.body.uname;
+		email = connection.escape(req.body.uname);
 		login = undefined;
 		id = 'email';
 	}
 	else
 	{
 		email = undefined;
-		login = req.body.uname;
+		login = connection.escape(req.body.uname);
 		id = 'login';
 	}
-	pw = require('../lib/password').saltAndHash(req.body.pw);
+	pw = require('../lib/password').saltAndHash(connection.escape(req.body.pw));
 
 	connection.connect(function(err)
 	{
@@ -42,7 +42,20 @@ exports.verifyAuth = function(req, res)
 	{
 		if (err)
 			throw err;
-		// TODO Vérifier contenu des données récupérées et comparer à celles envoyées pour le PW !
+		else if (rows)
+			if (rows[0][id] === email || rows[0][id] === login)
+				if (rows[0].hash_pw === pw)
+					connection.query('Update Table user Set user_connected = 1 Where ?? = ??', [inserts[0], inserts[2]], function(err, rows, fields)
+					{
+						if (err)
+							throw err;
+						else
+							; // TODO renvoyer un validation de connexion
+					});
+				else
+					; // TODO renvoyer un message d'erreur de PW
+			else
+				; // TODO renvoyer un message d'erreur d'identifiant
 	});
 	connection.end(function(err)
 	{

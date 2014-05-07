@@ -1,9 +1,12 @@
 /**
-* GET logIn page.
+* @author Gael B.
+* GET authentification verification JSON.
 **/
 
 exports.index = function(req, res)
 {
-	res.setHeader('Content-Type', 'application/json');
-	res.render('auth');
+	res.render('verifyAuth',
+	{
+		param : req.parameters
+	});
 };
