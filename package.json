@@ -1,20 +1,33 @@
 {
-	"name":"PrivaConv2Peer-Server",
-	"description":"Server part of the PrivaConv2Peer application",
-	"version":"0.0.1",
-	"author":"AID <info@aid.fr> (www.aid.fr)",
-	"contributors":[
+	"name": "PrivaConv2Peer-Server",
+	"description": "Server part of the PrivaConv2Peer application",
+	"version": "0.0.1",
+	"author": "AID <info@aid.fr> (www.aid.fr)",
+	"contributors": 
+	[
 		"gblaise <gblaise@aid.fr>"
 	],
-	"private":true,
-	"scripts":{
-		"start":"node app.js"
+
+	"private": true,
+	"scripts": 
+	{
+		"start": "node app.js"
 	},
-	"engines":{
-		"node":">= 0.10.0"
-	}
-	"dependencies":{
-		"express":">=4.0.0",
-		"ejs":"*"
+
+	"engines": 
+	{
+		"node": ">= 0.10.0"
+	},
+
+	"dependencies": 
+	{
+		"express": ">=4.0.0",
+		"ejs": ">=1.0.0",
+		"body-parser": ">=1.0.0",
+		"cookie-parser": ">=1.0.0",
+		"express-session": ">=1.0.0",
+		"static-favicon": ">=1.0.0",
+		"mysql": ">=2.1.0",
+		"connect-mysql": ">=2.0.0"
 	}
 }

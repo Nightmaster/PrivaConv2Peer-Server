@@ -14,7 +14,8 @@ connectMysql = require('connect-mysql'), // Connect for MySQL module
 routes = require('./routes'), // Router directory
 user = require('./routes/user'), // User module
 http = require('http'), // HTTP Server module
-path = require('path'); // Path module
+path = require('path'), // Path module
+global.utils = require('./lib/utils'); // Utils module set as global object
 
 var app = express();
 
