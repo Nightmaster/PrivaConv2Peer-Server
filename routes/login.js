@@ -3,7 +3,7 @@
 * GET authentification verification JSON.
 **/
 
-exports.index = function(req, res)
+exports.login = function(req, res)
 {
 	res.render('verifyAuth',
 	{

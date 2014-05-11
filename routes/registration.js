@@ -25,15 +25,34 @@ exports.registration = function(req, res)
 			pw = require('../lib/password').saltAndHash(connection.escape(body.password));
 		}
 		else
-			; // TODO renvoyer un message d'erreur !
+			res.render('resgister',
+			{
+				error : 'Les 2 mots de passe et les 2 e-mail doivent être identiques !'
+			}); // TODO renvoyer un message d'erreur !
+	else if (undefined === body.firstname === body.name === body.username === body.email === body['email-verif'] === body.password === body['poassword-verif'])
+		res.render('register');
 	else
-		; // TODO renvoyer un message d'erreur !
+	{
+		var json =
+		{
+			error : 'Tous les champs doivent être remplis !',
+			name : body.name,
+			firstname : body.firstname,
+			username : body.username,
+			email : body.email
+		};
+		for ( var verif in json)
+			if (json.hasOwnProperty(verif))
+				if (undefined === json[verif] || null === json[verif])
+					delete json[verif];
+		res.render('register', json);
+	}
 
 	connection.connect(function(err)
 	{
 		if (err)
 		{
-			console.error('error connecting: ' + err.stack);; // TODO renvoyer un message d'erreur !
+			console.error('error connecting: ' + err.stack); // TODO renvoyer un message d'erreur !
 		}
 	});
 	var query = 'Insert Into User (nom, prenom, login, email, hash_pw) Values (?? , ?? , ?? , ?? , ?? );', inserts = [fName, lName, username, email, pw];
@@ -47,4 +66,4 @@ exports.registration = function(req, res)
 		if (err)
 			throw err;
 	});
-}
+};

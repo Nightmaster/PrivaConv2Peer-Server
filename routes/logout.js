@@ -2,7 +2,7 @@
 * GET logout JSON.
 **/
 
-exports.index = function(req, res)
+exports.logout = function(req, res)
 {
 	res.render('logout');
 };

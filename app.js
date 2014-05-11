@@ -1,5 +1,6 @@
 /**
 * @auth : Gael B.
+* Coeur de l'application
 **/
 
 /*
@@ -8,7 +9,7 @@
 var express = require('express'), // Express modume
 connectMysql = require('connect-mysql'), // Connect for MySQL module
 routes = require('./routes'), // Router directory
-user = require('./routes/user'), // User module
+api = require('./routes/api'), // User module
 http = require('http'), // HTTP Server module
 path = require('path'), // Path module
 utils = require('./lib/utils'); // Utils module set as global object
@@ -40,6 +41,7 @@ if ('development' == app.get('env'))
 
 // https://www.npmjs.org/package/connect-mysql
 
+/* Partie serveur web */
 app.get('/', routes.index);
 app.get('/signin', routes.signin);
 app.get('/registration', routes.registration);
@@ -49,6 +51,15 @@ app.get('/verifAuth', routes.verifAuth);
 app.get('/logout', routes.logout);
 app.get('/verifyAuth', routes.auth);
 app.get('/getUserPrivateKey', routes.userPrK);
+
+/* Partie API web */
+app.get('/webAPI/register', api.register);
+app.get('/webAPI/connect', api.connection);
+app.get('/webAPI/updateInfos', api.modifyProfile);
+app.get('/webAPI/getPrivAndPubKey', api.getKey);
+app.get('/webAPI/getPubKey/:user', api.getPubKey);
+
+/* Erreur '404 not found', en cas de besoin */
 app.use(function(req, res, next)
 {
 	res.setHeader('Content-Type', 'text/plain');

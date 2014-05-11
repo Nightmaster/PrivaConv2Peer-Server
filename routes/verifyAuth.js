@@ -37,7 +37,7 @@ exports.verifyAuth = function(req, res)
 			return;
 		}
 	});
-	var query = 'Select ?? , hash_pw From user Where ?? = ?? ;', inserts = [id, id, ('email' === id) ? email : login];
+	var query = 'Select ?? , hash_pw From user Where ?? = ?? ;', inserts = [id, id, 'email' === id ? email : login];
 	connection.query(mysql.format(query + inserts), function(err, rows, fields)
 	{
 		if (err)
@@ -62,4 +62,4 @@ exports.verifyAuth = function(req, res)
 		if (err)
 			throw err;
 	});
-}
+};
