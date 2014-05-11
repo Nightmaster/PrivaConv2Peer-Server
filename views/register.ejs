@@ -11,17 +11,17 @@
 		<form method="post" action="/registration">
 			<p>Nom</p>
 			<input type="text" name="name" placeholder="Votre nom" required  <%if(name){%>value="<%= name %>"<%}%>/>
-			<p>PrÃ©nom</p>
+			<p>Prénom</p>
 			<input type="text" name="firstname" required  <%if(firstname){%>value="<%= firstname %>"<%}%>/>
 			<p>Pseudonyme :</p>
 			<input type="text" name="username" required <%if(username){%>value="<%= username %>"<%}%>/>
 			<p>Adresse Email :</p>
 			<input type="email" name="email" placeholder="email@exemple.fr" required <%if(email){%>value="<%= email %>"<%}%>/>
-			<p>VÃ©rification de votre adresse Email :</p>
+			<p>Vérification de votre adresse Email :</p>
 			<input type="email" name="email-verif" required <%if(email){%>value="<%= email %>"<%}%>/>
 			<p>Mot de passe :</p>
 			<input type="password" name="password" required/>
-			<p>VÃ©rification du mot de passe :</p>
+			<p>Vérification du mot de passe :</p>
 			<input type="password" name="password-verif" required/>
 		</form>
 	</body>
