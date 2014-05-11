@@ -2,13 +2,13 @@
 	"name": "PrivaConv2Peer-Server",
 	"description": "Server part of the PrivaConv2Peer application",
 	"version": "0.0.1",
-	"author": "AID <info@aid.fr> (www.aid.fr)",
+	"author": "PrivaConv2Peer",
 	"contributors": 
 	[
-		"gblaise <gblaise@aid.fr>"
+		"gblaise <blaise_g12@myges.fr>"
 	],
 
-	"private": true,
+	"private": false,
 	"scripts": 
 	{
 		"start": "node app.js"
@@ -21,13 +21,9 @@
 
 	"dependencies": 
 	{
-		"express": ">=4.0.0",
+		"express": "3.6.0",
 		"ejs": ">=1.0.0",
-		"body-parser": ">=1.0.0",
-		"cookie-parser": ">=1.0.0",
-		"express-session": ">=1.0.0",
-		"static-favicon": ">=1.0.0",
-		"mysql": ">=2.1.0",
-		"connect-mysql": ">=2.0.0"
+		"mysql": "~2.1.0",
+		"connect-mysql": "~2.0.0"
 	}
 }

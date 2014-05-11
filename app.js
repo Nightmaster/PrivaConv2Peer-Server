@@ -6,10 +6,6 @@
  * Module dependencies.
  */
 var express = require('express'), // Express modume
-cookieParser = require('cookie-parser'), // Cookie Parser module
-session = require('express-session'), // Session manager for Express module
-favicon = require('static-favicon'), // Favicon module
-bodyParser = require('body-parser'), // Body Parser module
 connectMysql = require('connect-mysql'), // Connect for MySQL module
 routes = require('./routes'), // Router directory
 user = require('./routes/user'), // User module
@@ -22,21 +18,21 @@ global.utils = utils;
 var app = express();
 
 // all environments
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 8080);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-app.use(cookieParser());
-app.use(bodyParser());
-app.use(favicon());
-app.use(session(
+app.use(express.favicon());
+app.use(express.logger('dev'));
+app.use(express.cookieParser());
+app.use(express.bodyParser());
+app.use(express.urlencoded());
+app.use(express.methodOverride());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.session(
 {
 	secret : require('./saltsForApp').session
 }));
-app.use(express.logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded());
-app.use(express.methodOverride());
-app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
 if ('development' == app.get('env'))
@@ -46,10 +42,10 @@ if ('development' == app.get('env'))
 
 app.get('/', routes.index);
 app.get('/signin', routes.signin);
-app.post('/registration', routes.registration);
+app.get('/registration', routes.registration);
 app.get('/users', user.list);
 app.get('/login', routes.login);
-app.post('/verifAuth', routes.verifAuth);
+app.get('/verifAuth', routes.verifAuth);
 app.get('/logout', routes.logout);
 app.get('/verifyAuth', routes.auth);
 app.get('/getUserPrivateKey', routes.userPrK);
