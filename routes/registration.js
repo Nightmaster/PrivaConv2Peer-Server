@@ -60,6 +60,7 @@ exports.registration = function(req, res)
 	{
 		if (err)
 			throw err;
+		res.redirect('/');
 	});
 	connection.end(function(err)
 	{
