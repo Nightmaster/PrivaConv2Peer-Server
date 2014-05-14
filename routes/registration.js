@@ -55,11 +55,12 @@ exports.registration = function(req, res)
 			console.error('error connecting: ' + err.stack); // TODO renvoyer un message d'erreur !
 		}
 	});
-	var query = 'Insert Into User (nom, prenom, login, email, hash_pw) Values (?? , ?? , ?? , ?? , ?? );', inserts = [fName, lName, username, email, pw];
-	connection.query(mysql.format(query + inserts), function(err, rows, fields)
+	var query = 'Insert Into User (nom, prenom, login, email, hash_pw) Values (' + fName + ', ' + lName + ', ' + username + ', ' + email + ', ' + pw + ';';
+	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
-			throw err;
+			console.error(err);
+		// XXX retourne une erreur dans le cas où les infos données existent déjà ==> faire test existence des valeurs pour chaque champs pour savoir lesquels existent !
 		res.redirect('/');
 	});
 	connection.end(function(err)
