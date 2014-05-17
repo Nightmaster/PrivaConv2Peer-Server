@@ -4,7 +4,8 @@
 **/
 
 var salts = require('../lib/saltsForApp'), // Salts for the passwords
-mysql = require('mysql'), utils = require('../lib/utils');
+mysql = require('mysql'), // MySQL Connector
+utils = require('../lib/utils'); // utils lib
 
 exports.registration = function(req, res)
 {
@@ -18,17 +19,22 @@ exports.registration = function(req, res)
 	if (utils.isDefined(body.firstname) && utils.isDefined(body.name) && utils.isDefined(body.username) && utils.isDefined(body.email) && utils.isDefined(body)['email-verif'] && utils.isDefined(body.password) && utils.isDefined(body['poassword-verif']))
 		if (body.password === body['password-verif'] && body.email === body['email-verif'])
 		{
-			fName = connection.escape(body.firstname);
-			lName = connection.escape(body.name);
-			username = connection.escape(body.username);
-			email = connection.escape(body.email);
+			fName = mysql.escape(body.firstname);
+			lName = mysql.escape(body.name);
+			username = mysql.escape(body.username);
+			email = body.email;
 			pw = require('../lib/password').saltAndHash(connection.escape(body.password));
+			// TODO mise en place de regex pour username, mail & PW
 		}
 		else
 			res.render('resgister',
 			{
-				error : 'Les 2 mots de passe et les 2 e-mail doivent être identiques !'
-			}); // TODO renvoyer un message d'erreur !
+				error : 'Les 2 mots de passe et les 2 e-mail doivent être identiques !',
+				name : lName,
+				firstname : fName,
+				username : username,
+				email : email
+			});
 	else if (undefined === body.firstname === body.name === body.username === body.email === body['email-verif'] === body.password === body['poassword-verif'])
 		res.render('register');
 	else
@@ -36,10 +42,10 @@ exports.registration = function(req, res)
 		var json =
 		{
 			error : 'Tous les champs doivent être remplis !',
-			name : body.name,
-			firstname : body.firstname,
-			username : body.username,
-			email : body.email
+			name : lName,
+			firstname : fName,
+			username : username,
+			email : email
 		};
 		for ( var verif in json)
 			if (json.hasOwnProperty(verif))
@@ -59,9 +65,35 @@ exports.registration = function(req, res)
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
-			console.error(err);
+		{
+			err = err.message.split('\n')[0].split(':');
+			var duplication;
+			if ( -1 !== err[1].indexOf('Duplicate'))
+				duplication = err[1].substr(1);
+			if (username === duplication.split(' ')[2].replace('\'', ''))
+				res.render('registration',
+				{
+					error : 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.',
+					name : lName,
+					firstname : fName,
+					email : email
+
+				});
+			else if (email === duplication.split(' ')[2].replace('\'', ''))
+				res.render('registration',
+				{
+					error : 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.',
+					name : lName,
+					firstname : fName,
+					username : username
+
+				});
+			else
+				res.send(500);
+		}
 		// XXX retourne une erreur dans le cas où les infos données existent déjà ==> faire test existence des valeurs pour chaque champs pour savoir lesquels existent !
-		res.redirect('/');
+		res.location('/');
+		res.render('index');
 	});
 	connection.end(function(err)
 	{
