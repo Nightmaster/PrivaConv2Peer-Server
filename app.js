@@ -7,12 +7,12 @@
  * Module dependencies.
  */
 var express = require('express'), // Express modume
-connectMysql = require('connect-mysql'), // Connect for MySQL module
-routes = require('./routes'), // Router directory
-api = require('./routes/api'), // User module
-http = require('http'), // HTTP Server module
-path = require('path'), // Path module
-utils = require('./lib/utils'); // Utils module set as global object
+	connectMysql = require('connect-mysql'), // Connect for MySQL module
+	routes = require('./routes'), // Router directory
+	api = require('./routes/api'), // User module
+	http = require('http'), // HTTP Server module
+	path = require('path'), // Path module
+	utils = require('./lib/utils'); // Utils module set as global object
 
 global.utils = utils;
 
@@ -43,20 +43,16 @@ if ('development' == app.get('env'))
 
 /* Partie serveur web */
 app.get('/', routes.index);
-app.get('/signin', routes.signin);
-app.get('/registration', routes.registration);
-app.get('/users', user.list);
+app.get('/signin', routes.registration);
 app.get('/login', routes.login);
 app.get('/verifAuth', routes.verifAuth);
 app.get('/logout', routes.logout);
-app.get('/verifyAuth', routes.auth);
-app.get('/getUserPrivateKey', routes.userPrK);
 
 /* Partie API web */
 app.get('/webAPI/register', api.register);
 app.get('/webAPI/connect', api.connection);
-app.get('/webAPI/updateInfos', api.modifyProfile);
-app.get('/webAPI/getPrivAndPubKey', api.getKey);
+app.get('/webAPI/:user/updateInfos', api.modifyProfile);
+app.get('/webAPI/getPrivateKey/:user', api.getKey);
 app.get('/webAPI/getPubKey/:user', api.getPubKey);
 
 /* Erreur '404 not found', en cas de besoin */
