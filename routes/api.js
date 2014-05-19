@@ -140,16 +140,62 @@ function connection(req, res)
 }
 
 function modifyProfile(req, res)
-{}
+{
+	var login = req.body.username, email = req.body.email, fName = req.body.firstname, lName = req.body.name, hashPW = hasher(req.body.pw);
+	if (login) // FIXME remplacer par la gestion de cookie
+	{
+		if (login)
+			connection.query('Update user Set(login = )' + login + 'Where login = ' + login, function(err, rows, fields)
+			{
+				if (err)
+					console.error(err);
+			});
+		if (email)
+			connection.query('Update user Set(email = )' + email + 'Where login = ' + login, function(err, rows, fields)
+			{
+				if (err)
+					console.error(err);
+			});
+		if (fName)
+			connection.query('Update user Set(prenom = )' + fName + 'Where login = ' + login, function(err, rows, fields)
+			{
+				if (err)
+					console.error(err);
+			});
+		if (lName)
+			connection.query('Update user Set(nom = )' + lName + 'Where login = ' + login, function(err, rows, fields)
+			{
+				if (err)
+					console.error(err);
+			});
+		if (hashPW)
+			connection.query('Update user Set(hash_pw = )' + hashPW + 'Where login = ' + login, function(err, rows, fields)
+			{
+				if (err)
+					console.error(err);
+			});
+	}
+}
 
 function getKey(req, res)
 {
-// FIXME prévoir une vérification du demandeur
+	if (connected)
+		connection.query('Select path_to_keys From key where id = (Select id From user Where login = ' + login, function(err, rows, fields)
+		{
+			fs.readFile(rows[0].path_to_keys, function(err, result)
+			{
+				res.json(
+				{
+					error : false,
+					prKey : result
+				});
+			});
+		});
 }
 
 function getPubKey(req, res)
 {
-// FIXME prévoir une vérification des liens d'amitié
+// FIXME prévoir une vérification des liens d'amitié par cookie
 }
 
 function getCliIP(req, res)
@@ -183,6 +229,11 @@ function stayAlive(req, res)
 	mysql.query('Update Table user Set timeout = ' + new Date(new Date().getTime() + 15 * 60000));
 }
 
+function addFriend(req, res)
+{
+// FIXME voir la gestion de cookie pour cette partie
+}
+
 module.exports =
 {
 	register : register,
@@ -190,5 +241,7 @@ module.exports =
 	modifyProfile : modifyProfile,
 	getKey : getKey,
 	getPubKey : getPubKey,
-	getCliIP : getCliIP
+	getCliIP : getCliIP,
+	stayAlive : stayAlive,
+	addFriend : addFriend
 };
