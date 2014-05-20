@@ -28,7 +28,7 @@
 			/>
 			<p>Pseudonyme :</p>
 			<input type="text" name="username" required
-				<% if('undefined' !== username)
+				<% if('undefined' !== typeof username)
 				{%>
 					value="<%= username %>"
 				<% } %>
