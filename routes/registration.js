@@ -93,9 +93,11 @@ exports.registration = function(req, res)
 			else
 				res.send(500);
 		}
-		// XXX retourne une erreur dans le cas où les infos données existent déjà ==> faire test existence des valeurs pour chaque champs pour savoir lesquels existent !
-		res.location('/');
-		res.render('index');
+		/*
+		* res.location('/'); FIXME ==> ne fonctionne pas !!!
+		* res.render('index');
+		*/
+		res.redirect('/');
 	});
 	connection.end(function(err)
 	{
