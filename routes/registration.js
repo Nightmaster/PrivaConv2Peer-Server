@@ -98,7 +98,7 @@ exports.registration = function(req, res)
 					});
 			}
 			else
-				res.send(500);
+				res.send(500); // FIXME crash appli ici voir pk
 		}
 		/*
 		 * res.location('/'); FIXME ==> ne fonctionne pas !!! res.render('index');
