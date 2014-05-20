@@ -29,6 +29,7 @@ exports.registration = function(req, res)
 		else
 			res.render('resgister',
 			{
+				title : 'PriveConv2Peer',
 				error : 'Les 2 mots de passe et les 2 e-mail doivent être identiques !',
 				name : lName,
 				firstname : fName,
@@ -36,11 +37,15 @@ exports.registration = function(req, res)
 				email : email
 			});
 	else if (undefined === body.firstname === body.name === body.username === body.email === body['email-verif'] === body.password === body['poassword-verif'])
-		res.render('register');
+		res.render('register',
+		{
+			title : 'PriveConv2Peer'
+		});
 	else
 	{
 		var json =
 		{
+			title : 'PriveConv2Peer',
 			error : 'Tous les champs doivent être remplis !',
 			name : lName,
 			firstname : fName,
@@ -74,6 +79,7 @@ exports.registration = function(req, res)
 				if (username === duplication.split(' ')[2].replace('\'', ''))
 					res.render('registration',
 					{
+						title : 'PriveConv2Peer',
 						error : 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.',
 						name : lName,
 						firstname : fName,
@@ -83,6 +89,7 @@ exports.registration = function(req, res)
 				else if (email === duplication.split(' ')[2].replace('\'', ''))
 					res.render('registration',
 					{
+						title : 'PriveConv2Peer',
 						error : 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.',
 						name : lName,
 						firstname : fName,
@@ -94,9 +101,8 @@ exports.registration = function(req, res)
 				res.send(500);
 		}
 		/*
-		* res.location('/'); FIXME ==> ne fonctionne pas !!!
-		* res.render('index');
-		*/
+		 * res.location('/'); FIXME ==> ne fonctionne pas !!! res.render('index');
+		 */
 		res.redirect('/');
 	});
 	connection.end(function(err)
