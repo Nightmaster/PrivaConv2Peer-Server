@@ -52,7 +52,7 @@ function register(req, res)
 	});
 }
 
-function connection(req, res)
+function connect(req, res)
 {
 	var login = req.body.username, email = req.body.email, hashPW = req.body.pw, query;
 	if (login)
@@ -237,7 +237,7 @@ function addFriend(req, res)
 module.exports =
 {
 	register : register,
-	connection : connection,
+	connection : connect,
 	modifyProfile : modifyProfile,
 	getKey : getKey,
 	getPubKey : getPubKey,
