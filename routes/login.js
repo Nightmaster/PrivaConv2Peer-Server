@@ -5,7 +5,7 @@
 
 exports.login = function(req, res)
 {
-	res.render('verifyAuth',
+	res.render('auth',
 	{
 		param : req.parameters
 	});
