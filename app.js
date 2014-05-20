@@ -1,18 +1,18 @@
-/**
-* @auth : Gael B.
-* Coeur de l'application
-**/
+/*!
+ * @auth : Gael B.
+ * Coeur de l'application
+!*/
 
 /*
  * Module dependencies.
  */
 var express = require('express'), // Express modume
-	connectMysql = require('connect-mysql'), // Connect for MySQL module
-	routes = require('./routes'), // Router directory
-	api = require('./routes/api'), // User module
-	http = require('http'), // HTTP Server module
-	path = require('path'), // Path module
-	utils = require('./lib/utils'); // Utils module set as global object
+connectMysql = require('connect-mysql'), // Connect for MySQL module
+routes = require('./routes'), // Router directory
+api = require('./routes/api'), // User module
+http = require('http'), // HTTP Server module
+path = require('path'), // Path module
+utils = require('./lib/utils'); // Utils module set as global object
 
 global.utils = utils;
 
@@ -43,10 +43,10 @@ if ('development' == app.get('env'))
 
 /* Partie serveur web */
 app.get('/', routes.index);
-app.get('/signin', routes.registration);
-app.get('/login', routes.login);
-app.get('/verifAuth', routes.verifAuth);
-app.get('/logout', routes.logout);
+app.get('/signin', require('./routes/registration').registration);
+app.get('/login', require('./routes/login').login);
+app.get('/verifAuth', require('./routes/verifAuth').verifAuth);
+app.get('/logout', require('./routes/logout').logout);
 
 /* Partie API web */
 app.get('/webAPI/register', api.register);
