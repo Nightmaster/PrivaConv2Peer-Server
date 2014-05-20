@@ -3,7 +3,7 @@
 * POST from auth view. Check informations and treat them
 **/
 
-var salts = require('../lib/saltsForApp'), // Salts for the passwords
+var salts = require('../saltsForApp'), // Salts for the passwords
 mysql = require('mysql');
 
 exports.verifyAuth = function(req, res)
