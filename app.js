@@ -45,7 +45,7 @@ if ('development' == app.get('env'))
 app.get('/', routes.index);
 app.get('/signin', require('./routes/registration').registration);
 app.get('/login', require('./routes/login').login);
-app.get('/verifAuth', require('./routes/verifyAuth').verifAuth);
+app.get('/verifAuth', require('./routes/verifyAuth').verifyAuth);
 app.get('/logout', require('./routes/logout').logout);
 
 /* Partie API web */
