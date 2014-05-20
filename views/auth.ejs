@@ -14,7 +14,7 @@
 		<form method="post" action="/verifAuth">
 			<p>Pseudonyme ou Email :</p>
 			<input type="text" name="uname" placeholder="Type your login" autofocus required
-				<% if (true === global.utils.isDefined(username))
+				<% if ('undefined' !== typeof username)
 				{ %>
 					value="<%= username %>"
 				<% } %>
