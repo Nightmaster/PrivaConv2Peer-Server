@@ -69,25 +69,27 @@ exports.registration = function(req, res)
 			err = err.message.split('\n')[0].split(':');
 			var duplication;
 			if ( -1 !== err[1].indexOf('Duplicate'))
+			{
 				duplication = err[1].substr(1);
-			if (username === duplication.split(' ')[2].replace('\'', ''))
-				res.render('registration',
-				{
-					error : 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.',
-					name : lName,
-					firstname : fName,
-					email : email
+				if (username === duplication.split(' ')[2].replace('\'', ''))
+					res.render('registration',
+					{
+						error : 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.',
+						name : lName,
+						firstname : fName,
+						email : email
 
-				});
-			else if (email === duplication.split(' ')[2].replace('\'', ''))
-				res.render('registration',
-				{
-					error : 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.',
-					name : lName,
-					firstname : fName,
-					username : username
+					});
+				else if (email === duplication.split(' ')[2].replace('\'', ''))
+					res.render('registration',
+					{
+						error : 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.',
+						name : lName,
+						firstname : fName,
+						username : username
 
-				});
+					});
+			}
 			else
 				res.send(500);
 		}
