@@ -27,7 +27,12 @@
 				<% } %>
 			/>
 			<p>Pseudonyme :</p>
-			<input type="text" name="username" required <%if(username){%>value="<%= username %>"<% } %>/>
+			<input type="text" name="username" required
+				<% if('undefined' !== username)
+				{%>
+					value="<%= username %>"
+				<% } %>
+			/>
 			<p>Adresse Email :</p>
 			<input type="email" name="email" placeholder="email@exemple.fr" required
 				<% if('undefined' !== typeof email)
