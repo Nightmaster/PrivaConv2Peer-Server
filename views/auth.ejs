@@ -13,14 +13,14 @@
 		<% } %>
 		<form method="post" action="/verifAuth">
 			<p>Pseudonyme ou Email :</p>
-			<input type="text" name="uname" placeholder="Type your login" autofocus required
+			<input type="text" name="uname" placeholder="Votre identifiant" autofocus required
 				<% if ('undefined' !== typeof username)
 				{ %>
 					value="<%= username %>"
 				<% } %>
 			/>
 			<p>Mot de passe :</p>
-			<input type="password" name="pw" required/>
+			<input type="password" name="pw" placeholder="Mot de passe" required/>
 			<br/>
 			<input type="submit" value="Validez"/>
 		</form>
