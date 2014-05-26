@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  * @auth : Gael B.
  * Coeur de l'application
 !*/
