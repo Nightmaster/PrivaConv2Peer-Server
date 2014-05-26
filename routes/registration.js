@@ -61,10 +61,7 @@ exports.registration = function(req, res)
 
 	connection.connect(function(err)
 	{
-		if (err)
-		{
-			console.error('error connecting: ' + err.stack); // TODO renvoyer un message d'erreur !
-		}
+		if (err)console.error('error connecting: ' + err.stack); // TODO renvoyer un message d'erreur !
 	});
 	var query = 'Insert Into User (nom, prenom, login, email, hash_pw) Values (' + fName + ', ' + lName + ', ' + username + ', ' + email + ', ' + pw + ';';
 	connection.query(query, function(err, rows, fields)
@@ -98,7 +95,10 @@ exports.registration = function(req, res)
 					});
 			}
 			else
+			{
+				console.log('Renvoi du code 500');
 				res.send(500); // FIXME crash appli ici voir pk
+			}
 		}
 		/*
 		 * res.location('/'); FIXME ==> ne fonctionne pas !!! res.render('index');
