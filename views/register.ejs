@@ -20,14 +20,14 @@
 				<% } %>
 			/>
 			<p>Prénom</p>
-			<input type="text" name="firstname" required
+			<input type="text" name="firstname" placeholder="Votre prénom" required
 				<% if('undefined' !== typeof firstname)
 				{%>
 					value="<%= firstname %>"
 				<% } %>
 			/>
 			<p>Pseudonyme :</p>
-			<input type="text" name="username" required
+			<input type="text" name="username" placeholder="Votre nom d'utilisateur" required
 				<% if('undefined' !== typeof username)
 				{%>
 					value="<%= username %>"
@@ -41,16 +41,16 @@
 				<% } %>
 			/>
 			<p>Vérification de votre adresse Email :</p>
-			<input type="email" name="email-verif" required 
+			<input type="email" name="email-verif" placeholder="email@exemple.fr" required 
 				<% if('undefined' !== typeof email)
 				{ %>
 					value="<%= email %>"
 				<% } %>
 			/>
 			<p>Mot de passe :</p>
-			<input type="password" name="password" required/>
+			<input type="password" name="password" placeholder="mot de passe" required/>
 			<p>Vérification du mot de passe :</p>
-			<input type="password" name="password-verif" required/>
+			<input type="password" name="password-verif" placeholder="mot de passe"  required/>
 		</form>
 	</body>
 </html>
