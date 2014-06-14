@@ -7,7 +7,7 @@
  * Module dependencies.
  */
 var express = require('express'), // Express modume
-connectMysql = require('connect-mysql'), // Connect for MySQL module
+MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
 routes = require('./routes'), // Router directory
 api = require('./routes/api'), // User module
 http = require('http'), // HTTP Server module
@@ -16,7 +16,15 @@ utils = require('./lib/utils'); // Utils module set as global object
 
 global.utils = utils;
 
-var app = express();
+var app = express(), options =
+{
+	config :
+	{
+		user : 'pc2p',
+		password : 'esgi@123',
+		database : 'session'
+	}
+};
 
 // all environments
 app.set('port', process.env.PORT || 8080);
@@ -32,7 +40,8 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.session(
 {
-	secret : require('./saltsForApp').session
+	secret : require('./saltsForApp').session,
+	store : new MySQLStore(options)
 }));
 
 // development only
