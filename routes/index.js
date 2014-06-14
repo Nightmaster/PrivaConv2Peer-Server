@@ -9,3 +9,5 @@ exports.index = function(req, res)
 		title : 'PrivaConv2Peer site web'
 	});
 };
+
+// XXX utiliser ce fichier comme lieux des require plutôt que app.js

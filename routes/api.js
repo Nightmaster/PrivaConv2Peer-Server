@@ -10,7 +10,7 @@ connection = mysql.createConnection(
 	user : 'pc2p',
 	password : 'esgi@123',
 	database : 'PC2P'
-}), uuid = require('node-uuid');
+});
 
 function register(req, res)
 {
@@ -69,7 +69,9 @@ function connect(req, res)
 						connection : true,
 						validity : 15
 					});
-					connection.query
+					var cookieQuery = '', userQuery = ''; // TODO écrirer les requêtes d'update de connection et de créa de cookie user
+					connection.query(); // TODO faire query cookie ici
+					connection.query(); // TODO faire query user ici
 				}
 				else
 					res.json(
