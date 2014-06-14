@@ -10,7 +10,7 @@ connection = mysql.createConnection(
 	user : 'pc2p',
 	password : 'esgi@123',
 	database : 'PC2P'
-});
+}), uuid = require('node-uuid');
 
 function register(req, res)
 {
@@ -233,6 +233,10 @@ function addFriend(req, res)
 {
 // FIXME voir la gestion de cookie pour cette partie
 }
+function getConnectedList(req, res)
+{
+// FIXME voir la gestion de cookie pour cette partie
+}
 
 module.exports =
 {
@@ -243,5 +247,6 @@ module.exports =
 	getPubKey : getPubKey,
 	getCliIP : getCliIP,
 	stayAlive : stayAlive,
-	addFriend : addFriend
+	addFriend : addFriend,
+	getConnectedList : getConnectedList
 };
