@@ -1,19 +1,19 @@
 ﻿/*!
- * @auth : Gael B.
- * Coeur de l'application
+* @auth : Gael B.
+* Coeur de l'application
 !*/
 
 /*
- * Module dependencies.
- */
+* Module dependencies.
+*/
 var express = require('express'), // Express modume
-MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
-routes = require('./routes'), // Router directory
-api = require('./routes/api'), // User module
-http = require('http'), // HTTP Server module
-path = require('path'), // Path module
-utils = require('./lib/utils'), // Utils module set as global object
-uuid = require('node-uuid'); // UUID Generator
+	MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
+	routes = require('./routes'), // Router directory
+	api = require('./routes/api'), // User module
+	http = require('http'), // HTTP Server module
+	path = require('path'), // Path module
+	utils = require('./lib/utils'), // Utils module set as global object
+	uuid = require('node-uuid'); // UUID Generator
 
 global.utils = utils;
 
