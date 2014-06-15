@@ -2,9 +2,9 @@
 * GET all APIi pages
 **/
 var mysql = require('mysql'), // MySQL connection module
-fs = require('fs'), // File System library
-hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-connection = mysql.createConnection(
+	fs = require('fs'), // File System library
+	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+	connection = mysql.createConnection(
 {
 	host : 'localhost',
 	user : 'pc2p',
@@ -14,6 +14,7 @@ connection = mysql.createConnection(
 
 function register(req, res)
 {
+	console.log('HashPW: ' + req.body.pw);
 	var login = req.body.username, email = req.body.email, fName = req.body.firstname, lName = req.body.name, hashPW = hasher(req.body.pw), query = 'Insert Into User (nom, prenom, login, email, hash_pw) Values (' + fName + ', ' + lName + ', ' + login + ', ' + email + ', ' + hashPW + ';';
 	connection.query(query, function(err, rows, fields)
 	{
@@ -54,7 +55,7 @@ function register(req, res)
 
 function connect(req, res)
 {
-	var login = req.body.username, email = req.body.email, hashPW = req.body.pw, query;
+	var login = req.body.username, email = req.body.email, hashPW = req.body.pw, query, uuid = req.cookie.uuid || res.cookie.uuid;
 	if (login)
 	{
 		query = 'Select hash_pw From user Where login = ' + login;
@@ -69,7 +70,7 @@ function connect(req, res)
 						connection : true,
 						validity : 15
 					});
-					var cookieQuery = '', userQuery = ''; // TODO écrirer les requêtes d'update de connection et de créa de cookie user
+					var cookieQuery = '', userQuery = 'Update user\nSet cookieValue = ' + uuid + '\nWhere login = ' + login; // TODO écrire les requêtes d'update de connection et de créa de cookie user
 					connection.query(); // TODO faire query cookie ici
 					connection.query(); // TODO faire query user ici
 				}
@@ -147,31 +148,31 @@ function modifyProfile(req, res)
 	if (login) // FIXME remplacer par la gestion de cookie
 	{
 		if (login)
-			connection.query('Update user Set(login = )' + login + 'Where login = ' + login, function(err, rows, fields)
+			connection.query('Update user\nSet login = ' + login + '\nWhere login = ' + login, function(err, rows, fields)
 			{
 				if (err)
 					console.error(err);
 			});
 		if (email)
-			connection.query('Update user Set(email = )' + email + 'Where login = ' + login, function(err, rows, fields)
+			connection.query('Update user\nSet email = ' + email + '\nWhere login = ' + login, function(err, rows, fields)
 			{
 				if (err)
 					console.error(err);
 			});
 		if (fName)
-			connection.query('Update user Set(prenom = )' + fName + 'Where login = ' + login, function(err, rows, fields)
+			connection.query('Update user\nSet prenom = ' + fName + '\nWhere login = ' + login, function(err, rows, fields)
 			{
 				if (err)
 					console.error(err);
 			});
 		if (lName)
-			connection.query('Update user Set(nom = )' + lName + 'Where login = ' + login, function(err, rows, fields)
+			connection.query('Update user\nSet nom = ' + lName + '\nWhere login = ' + login, function(err, rows, fields)
 			{
 				if (err)
 					console.error(err);
 			});
 		if (hashPW)
-			connection.query('Update user Set(hash_pw = )' + hashPW + 'Where login = ' + login, function(err, rows, fields)
+			connection.query('Update user\nSet hash_pw = ' + hashPW + '\nWhere login = ' + login, function(err, rows, fields)
 			{
 				if (err)
 					console.error(err);
