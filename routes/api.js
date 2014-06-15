@@ -2,9 +2,9 @@
 * GET all APIi pages
 **/
 var mysql = require('mysql'), // MySQL connection module
-	fs = require('fs'), // File System library
-	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-	connection = mysql.createConnection(
+fs = require('fs'), // File System library
+hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+connection = mysql.createConnection(
 {
 	host : 'localhost',
 	user : 'pc2p',
@@ -14,7 +14,7 @@ var mysql = require('mysql'), // MySQL connection module
 
 function register(req, res)
 {
-	console.log('body: ' + JSON.stringify(req.body));
+	console.log('request: ' + JSON.stringify(req));
 	var login = req.body.username, email = req.body.email, fName = req.body.firstname, lName = req.body.name, hashPW = hasher(req.body.pw), query = 'Insert Into User (nom, prenom, login, email, hash_pw) Values (' + fName + ', ' + lName + ', ' + login + ', ' + email + ', ' + hashPW + ';';
 	connection.query(query, function(err, rows, fields)
 	{
@@ -70,7 +70,7 @@ function connect(req, res)
 						connection : true,
 						validity : 15
 					});
-					var cookieQuery = '', userQuery = 'Update user\nSet cookieValue = ' + uuid + '\nWhere login = ' + login; // TODO écrire les requêtes d'update de connection et de créa de cookie user
+					var cookieQuery = '', userQuery = 'Update user\nSet cookieValue = ' + uuid + 'validity = Date_Add(Now(), Interval 15 Minute)' + '\nWhere login = ' + login; // TODO écrire les requêtes d'update de connection et de créa de cookie user
 					connection.query(); // TODO faire query cookie ici
 					connection.query(); // TODO faire query user ici
 				}
