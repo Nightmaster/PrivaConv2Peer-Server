@@ -4,13 +4,13 @@
 !*/
 
 var salts = require('../saltsForApp'), // Salts for the passwords
-mysql = require('mysql'), // MySQL Connector
-utils = require('../lib/utils'), // utils lib
-title = 'PriveConv2Peer';
+	mysql = require('mysql'), // MySQL Connector
+	utils = require('../lib/utils'), // utils lib
+	title = 'PriveConv2Peer';
 
 exports.registration = function(req, res)
 {
-	var body = req.body, connection = mysql.createConnection(
+	var body = req.query, connection = mysql.createConnection(
 	{
 		host : 'localhost',
 		user : 'pc2p',

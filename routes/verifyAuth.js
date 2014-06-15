@@ -4,7 +4,7 @@
 **/
 
 var salts = require('../saltsForApp'), // Salts for the passwords
-mysql = require('mysql');
+	mysql = require('mysql');
 
 exports.verifyAuth = function(req, res)
 {
@@ -15,19 +15,19 @@ exports.verifyAuth = function(req, res)
 		password : 'esgi@123',
 		database : 'PC2P'
 	}), login, email, pw, id;
-	if ( -1 < req.body.uname.indexOf('@'))
+	if ( -1 < req.query.uname.indexOf('@'))
 	{
-		email = connection.escape(req.body.uname);
+		email = connection.escape(req.query.uname);
 		login = undefined;
 		id = 'email';
 	}
 	else
 	{
 		email = undefined;
-		login = connection.escape(req.body.uname);
+		login = connection.escape(req.query.uname);
 		id = 'login';
 	}
-	pw = require('../lib/password').saltAndHash(connection.escape(req.body.pw));
+	pw = require('../lib/password').saltAndHash(connection.escape(req.query.pw));
 
 	connection.connect(function(err)
 	{

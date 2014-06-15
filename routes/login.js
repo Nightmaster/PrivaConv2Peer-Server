@@ -8,6 +8,6 @@ exports.login = function(req, res)
 	res.render('auth',
 	{
 		title : 'PrivaConv2Peer',
-		param : req.body
+		param : req.query
 	});
 };
