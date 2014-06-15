@@ -6,7 +6,7 @@
 /*
 * Module dependencies.
 */
-var express = require('express'), // Express modume
+var express = require('express'), // Express module
 	MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
 	routes = require('./routes'), // Router directory
 	api = require('./routes/api'), // User module
@@ -66,6 +66,7 @@ if ('development' == app.get('env'))
 
 /* Partie serveur web */
 app.get('/', routes.index);
+// FIXME Modifier les pages en prenant en compte le fait que les formulaires sont envoyés en POST
 app.get('/signin', require('./routes/registration').registration);
 app.get('/login', require('./routes/login').login);
 app.get('/verifAuth', require('./routes/verifyAuth').verifyAuth);
