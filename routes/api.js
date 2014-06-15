@@ -14,7 +14,7 @@ var mysql = require('mysql'), // MySQL connection module
 
 function register(req, res)
 {
-	console.log('HashPW: ' + req.body.pw);
+	console.log('body: ' + JSON.stringify(req.body));
 	var login = req.body.username, email = req.body.email, fName = req.body.firstname, lName = req.body.name, hashPW = hasher(req.body.pw), query = 'Insert Into User (nom, prenom, login, email, hash_pw) Values (' + fName + ', ' + lName + ', ' + login + ', ' + email + ', ' + hashPW + ';';
 	connection.query(query, function(err, rows, fields)
 	{
