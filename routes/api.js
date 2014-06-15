@@ -14,8 +14,8 @@ connection = mysql.createConnection(
 
 function register(req, res)
 {
-	console.log('request: ' + JSON.stringify(req));
-	var login = req.body.username, email = req.body.email, fName = req.body.firstname, lName = req.body.name, hashPW = hasher(req.body.pw), query = 'Insert Into User (nom, prenom, login, email, hash_pw) Values (' + fName + ', ' + lName + ', ' + login + ', ' + email + ', ' + hashPW + ';';
+	console.log('request: ' + JSON.stringify(req.query));
+	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw), query = 'Insert Into User (nom, prenom, login, email, hash_pw) Values (' + fName + ', ' + lName + ', ' + login + ', ' + email + ', ' + hashPW + ';';
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
@@ -55,7 +55,7 @@ function register(req, res)
 
 function connect(req, res)
 {
-	var login = req.body.username, email = req.body.email, hashPW = req.body.pw, query, uuid = req.cookie.uuid || res.cookie.uuid;
+	var login = req.query.username, email = req.query.email, hashPW = req.query.pw, query, uuid = req.cookie.uuid || res.cookie.uuid;
 	if (login)
 	{
 		query = 'Select hash_pw From user Where login = ' + login;
@@ -144,7 +144,7 @@ function connect(req, res)
 
 function modifyProfile(req, res)
 {
-	var login = req.body.username, email = req.body.email, fName = req.body.firstname, lName = req.body.name, hashPW = hasher(req.body.pw);
+	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw);
 	if (login) // FIXME remplacer par la gestion de cookie
 	{
 		if (login)
