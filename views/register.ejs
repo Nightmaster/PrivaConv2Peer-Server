@@ -11,7 +11,7 @@
 		{ %>
 			<p>Erreur: <%= error %></p>
 		<% } %>
-		<form method="post" action="/registration">
+		<form action="/registration">
 			<p>Nom</p>
 			<input type="text" name="name" placeholder="Votre nom" required
 				<% if('undefined' !== typeof name)

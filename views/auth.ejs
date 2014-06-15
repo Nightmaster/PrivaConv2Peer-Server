@@ -11,7 +11,7 @@
 		{ %>
 			<p>Erreur: <%= error %></p>
 		<% } %>
-		<form method="post" action="/verifAuth">
+		<form action="/verifAuth">
 			<p>Pseudonyme ou Email :</p>
 			<input type="text" name="uname" placeholder="Votre identifiant" autofocus required
 				<% if ('undefined' !== typeof username)
