@@ -7,12 +7,13 @@
  * Module dependencies.
  */
 var express = require('express'), // Express modume
-MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
-routes = require('./routes'), // Router directory
-api = require('./routes/api'), // User module
-http = require('http'), // HTTP Server module
-path = require('path'), // Path module
-utils = require('./lib/utils'); // Utils module set as global object
+	MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
+	routes = require('./routes'), // Router directory
+	api = require('./routes/api'), // User module
+	http = require('http'), // HTTP Server module
+	path = require('path'), // Path module
+	utils = require('./lib/utils'), // Utils module set as global object
+	uuid = require('node-uuid'); // UUID Generator
 
 global.utils = utils;
 
@@ -43,6 +44,19 @@ app.use(express.session(
 	secret : require('./saltsForApp').session,
 	store : new MySQLStore(options)
 }));
+app.use(function(req, res, next)
+{
+	// check if client sent cookie
+	var cookie = req.cookies.cookieName;
+	if (cookie === undefined)
+		// no: set a new cookie
+		res.cookie('sessId', randomNumber,
+		{
+			uuid : uuid.v4(),
+			httpOnly : true
+		});
+	next();
+});
 
 // development only
 if ('development' == app.get('env'))
@@ -58,7 +72,7 @@ app.get('/verifAuth', require('./routes/verifyAuth').verifyAuth);
 app.get('/logout', require('./routes/logout').logout);
 
 /* Partie API web */
-app.get('/webAPI/register', api.register);
+app.get('/ 	/register', api.register);
 app.get('/webAPI/connect', api.connection);
 app.get('/webAPI/:user/updateInfos', api.modifyProfile);
 app.get('/webAPI/getPrivateKey/:user', api.getKey);

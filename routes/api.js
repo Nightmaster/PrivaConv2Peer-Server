@@ -69,7 +69,9 @@ function connect(req, res)
 						connection : true,
 						validity : 15
 					});
-					connection.query
+					var cookieQuery = '', userQuery = ''; // TODO écrirer les requêtes d'update de connection et de créa de cookie user
+					connection.query(); // TODO faire query cookie ici
+					connection.query(); // TODO faire query user ici
 				}
 				else
 					res.json(
@@ -233,6 +235,10 @@ function addFriend(req, res)
 {
 // FIXME voir la gestion de cookie pour cette partie
 }
+function getConnectedList(req, res)
+{
+// FIXME voir la gestion de cookie pour cette partie
+}
 
 module.exports =
 {
@@ -243,5 +249,6 @@ module.exports =
 	getPubKey : getPubKey,
 	getCliIP : getCliIP,
 	stayAlive : stayAlive,
-	addFriend : addFriend
+	addFriend : addFriend,
+	getConnectedList : getConnectedList
 };
