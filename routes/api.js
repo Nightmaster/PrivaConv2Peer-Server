@@ -2,20 +2,20 @@
 * GET all APIi pages
 **/
 var mysql = require('mysql'), // MySQL connection module
-fs = require('fs'), // File System library
-hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-connection = mysql.createConnection(
-{
-	host : 'localhost',
-	user : 'pc2p',
-	password : 'esgi@123',
-	database : 'PC2P'
-});
+	fs = require('fs'), // File System library
+	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+	connection = mysql.createConnection(
+	{
+		host : 'localhost',
+		user : 'pc2p',
+		password : 'esgi@123',
+		database : 'PC2P'
+	});
 
 function register(req, res)
 {
 	console.log('request: ' + JSON.stringify(req.query));
-	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw), query = 'Insert Into User (nom, prenom, login, email, hash_pw) Values (' + fName + ', ' + lName + ', ' + login + ', ' + email + ', ' + hashPW + ';';
+	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw), query = 'Insert Into user (nom, prenom, login, email, hash_pw) Values (' + fName + ', ' + lName + ', ' + login + ', ' + email + ', ' + hashPW + ';';
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
@@ -70,7 +70,7 @@ function connect(req, res)
 						connection : true,
 						validity : 15
 					});
-					var cookieQuery = '', userQuery = 'Update user\nSet cookieValue = ' + uuid + 'validity = Date_Add(Now(), Interval 15 Minute)' + '\nWhere login = ' + login; // TODO écrire les requêtes d'update de connection et de créa de cookie user
+					var cookieQuery = 'Insert Into cookie (value, validity)\nValues (' + uuid + ', Date_Add(Now(), Interval 15 Minute));', userQuery = 'Update user\nSet cookieValue = ' + uuid + '\nWhere login = ' + login + ';'; // TODO écrire les requêtes d'update de connection et de créa de cookie user
 					connection.query(); // TODO faire query cookie ici
 					connection.query(); // TODO faire query user ici
 				}
