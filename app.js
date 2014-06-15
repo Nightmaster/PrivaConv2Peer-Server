@@ -7,13 +7,13 @@
  * Module dependencies.
  */
 var express = require('express'), // Express modume
-	MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
-	routes = require('./routes'), // Router directory
-	api = require('./routes/api'), // User module
-	http = require('http'), // HTTP Server module
-	path = require('path'), // Path module
-	utils = require('./lib/utils'), // Utils module set as global object
-	uuid = require('node-uuid'); // UUID Generator
+MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
+routes = require('./routes'), // Router directory
+api = require('./routes/api'), // User module
+http = require('http'), // HTTP Server module
+path = require('path'), // Path module
+utils = require('./lib/utils'), // Utils module set as global object
+uuid = require('node-uuid'); // UUID Generator
 
 global.utils = utils;
 
@@ -50,7 +50,7 @@ app.use(function(req, res, next)
 	var cookie = req.cookies.cookieName;
 	if (cookie === undefined)
 		// no: set a new cookie
-		res.cookie('sessId', randomNumber,
+		res.cookie('sessId',
 		{
 			uuid : uuid.v4(),
 			httpOnly : true
