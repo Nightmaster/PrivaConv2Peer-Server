@@ -72,7 +72,7 @@ app.get('/verifAuth', require('./routes/verifyAuth').verifyAuth);
 app.get('/logout', require('./routes/logout').logout);
 
 /* Partie API web */
-app.get('/ 	/register', api.register);
+app.get('/webAPI/register', api.register);
 app.get('/webAPI/connect', api.connection);
 app.get('/webAPI/:user/updateInfos', api.modifyProfile);
 app.get('/webAPI/getPrivateKey/:user', api.getKey);
