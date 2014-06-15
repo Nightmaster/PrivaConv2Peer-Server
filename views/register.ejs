@@ -19,8 +19,8 @@
 					value="<%= name %>"
 				<% } %>
 			/>
-			<p>PrÃ©nom</p>
-			<input type="text" name="firstname" placeholder="Votre prÃ©nom" required
+			<p>Prénom</p>
+			<input type="text" name="firstname" placeholder="Votre prénom" required
 				<% if('undefined' !== typeof firstname)
 				{%>
 					value="<%= firstname %>"
@@ -40,7 +40,7 @@
 					value="<%= email %>"
 				<% } %>
 			/>
-			<p>VÃ©rification de votre adresse Email :</p>
+			<p>Vérification de votre adresse Email :</p>
 			<input type="email" name="email-verif" placeholder="email@exemple.fr" required 
 				<% if('undefined' !== typeof email)
 				{ %>
@@ -49,8 +49,9 @@
 			/>
 			<p>Mot de passe :</p>
 			<input type="password" name="password" placeholder="mot de passe" required/>
-			<p>VÃ©rification du mot de passe :</p>
+			<p>Vérification du mot de passe :</p>
 			<input type="password" name="password-verif" placeholder="mot de passe"  required/>
+			<input type="submit" value="Validez"/>
 		</form>
 	</body>
 </html>
