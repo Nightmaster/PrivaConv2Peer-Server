@@ -20,6 +20,7 @@ function register(req, res)
 	{
 		if (err)
 		{
+			console.error(err);
 			err = err.message.split('\n')[0].split(':');
 			var duplication;
 			if ( -1 !== err[1].indexOf('Duplicate'))
@@ -45,7 +46,6 @@ function register(req, res)
 			}
 			else
 			{
-				console.error(err);
 				res.json(500,
 				{
 					error : true,
