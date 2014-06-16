@@ -2,15 +2,15 @@
 * GET all APIi pages
 **/
 var mysql = require('mysql'), // MySQL connection module
-	fs = require('fs'), // File System library
-	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-	connection = mysql.createConnection(
-	{
-		host : 'localhost',
-		user : 'pc2p',
-		password : 'esgi@123',
-		database : 'PC2P'
-	});
+fs = require('fs'), // File System library
+hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+connection = mysql.createConnection(
+{
+	host : 'localhost',
+	user : 'pc2p',
+	password : 'esgi@123',
+	database : 'PC2P'
+});
 
 function register(req, res)
 {
@@ -23,24 +23,26 @@ function register(req, res)
 			err = err.message.split('\n')[0].split(':');
 			var duplication;
 			if ( -1 !== err[1].indexOf('Duplicate'))
+			{
 				duplication = err[1].substr(1);
-			if (login === duplication.split(' ')[2].replace('\'', ''))
-				res.render('registration',
-				{
-					error : true,
-					reason : 'login',
-					displayMessage : 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.',
-					validation : false
-				});
-			else if (email === duplication.split(' ')[2].replace('\'', ''))
-				res.json(
-				{
-					error : true,
-					reason : 'email',
-					displayMessage : 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.',
-					validation : false
+				if (login === duplication.split(' ')[2].replace('\'', ''))
+					res.render('registration',
+					{
+						error : true,
+						reason : 'login',
+						displayMessage : 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.',
+						validation : false
+					});
+				else if (email === duplication.split(' ')[2].replace('\'', ''))
+					res.json(
+					{
+						error : true,
+						reason : 'email',
+						displayMessage : 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.',
+						validation : false
 
-				});
+					});
+			}
 			else
 				res.send(500);
 		}
