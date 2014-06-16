@@ -29,7 +29,7 @@ function register(req, res)
 			{
 				duplication = err[1].substr(1);
 				if (login === duplication.split(' ')[2].replace('\'', ''))
-					res.render('registration',
+					res.json(
 					{
 						error : true,
 						reason : 'login',
