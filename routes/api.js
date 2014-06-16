@@ -2,15 +2,15 @@
 * GET all APIi pages
 **/
 var mysql = require('mysql'), // MySQL connection module
-fs = require('fs'), // File System library
-hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-connection = mysql.createConnection(
-{
-	host : 'localhost',
-	user : 'pc2p',
-	password : 'esgi@123',
-	database : 'PC2P'
-});
+	fs = require('fs'), // File System library
+	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+	connection = mysql.createConnection(
+	{
+		host : 'localhost',
+		user : 'pc2p',
+		password : 'esgi@123',
+		database : 'PC2P'
+	});
 
 function register(req, res)
 {
@@ -44,7 +44,10 @@ function register(req, res)
 					});
 			}
 			else
+			{
+				console.error(err);
 				res.send(500);
+			}
 		}
 		else
 			res.json(
