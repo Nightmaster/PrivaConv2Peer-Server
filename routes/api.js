@@ -30,7 +30,7 @@ function register(req, res)
 				duplication = err[1].substr(1);
 				console.log('dup: ' + duplication);
 				console.log('replace: ' + duplication);
-				if (login === duplication.split(' ')[2].replace('\'', ''))
+				if (login === duplication.split(' ')[2].replace(/\'/g, ''))
 					res.json(
 					{
 						error : true,
@@ -38,7 +38,7 @@ function register(req, res)
 						displayMessage : 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.',
 						validation : false
 					});
-				else if (email === duplication.split(' ')[2].replace('\'', ''))
+				else if (email === duplication.split(' ')[2].replace(/\'/g, ''))
 					res.json(
 					{
 						error : true,
