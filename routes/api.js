@@ -2,15 +2,15 @@
 * GET all APIi pages
 **/
 var mysql = require('mysql'), // MySQL connection module
-fs = require('fs'), // File System library
-hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-connection = mysql.createConnection(
-{
-	host : 'localhost',
-	user : 'pc2p',
-	password : 'esgi@123',
-	database : 'PC2P'
-});
+	fs = require('fs'), // File System library
+	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+	connection = mysql.createConnection(
+	{
+		host : 'localhost',
+		user : 'pc2p',
+		password : 'esgi@123',
+		database : 'PC2P'
+	});
 
 function register(req, res)
 {
@@ -43,7 +43,7 @@ function register(req, res)
 					{
 						error : true,
 						reason : 'email',
-						displayMessage : 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.',
+						displayMessage : 'Cet email est déjà utilisé par un autre utilisateur. Veillez en choisir un autre.', // TODO (---) recommander récup de MdP quand implémenté
 						validation : false
 
 					});
@@ -85,8 +85,8 @@ function connect(req, res)
 						validity : 15
 					});
 					var cookieQuery = 'Insert Into cookie (value, validity)\nValues (' + uuid + ', Date_Add(Now(), Interval 15 Minute));', userQuery = 'Update user\nSet cookieValue = ' + uuid + '\nWhere login = ' + login + ';'; // TODO écrire les requêtes d'update de connection et de créa de cookie user
-					connection.query(); // TODO faire query cookie ici
-					connection.query(); // TODO faire query user ici
+					connection.query(); // TODO (++) faire query cookie ici
+					connection.query(); // TODO (++) faire query user ici
 				}
 				else
 					res.json(
