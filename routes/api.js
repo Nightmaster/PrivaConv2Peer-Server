@@ -2,15 +2,15 @@
 * GET all APIi pages
 **/
 var mysql = require('mysql'), // MySQL connection module
-	fs = require('fs'), // File System library
-	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-	connection = mysql.createConnection(
-	{
-		host : 'localhost',
-		user : 'pc2p',
-		password : 'esgi@123',
-		database : 'PC2P'
-	});
+fs = require('fs'), // File System library
+hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+connection = mysql.createConnection(
+{
+	host : 'localhost',
+	user : 'pc2p',
+	password : 'esgi@123',
+	database : 'PC2P'
+});
 
 function register(req, res)
 {
@@ -20,6 +20,9 @@ function register(req, res)
 	{
 		if (err)
 		{
+			console.error(err);
+			console.log('Message: ' + err.message);
+			console.log('Split message: ' + err.message.split('\n')[0].split(':'));
 			err = err.message.split('\n')[0].split(':');
 			var duplication;
 			if ( -1 !== err[1].indexOf('Duplicate'))
@@ -45,7 +48,6 @@ function register(req, res)
 			}
 			else
 			{
-				console.error(err);
 				res.json(500,
 				{
 					error : true,
