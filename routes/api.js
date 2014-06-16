@@ -28,6 +28,8 @@ function register(req, res)
 			if ( -1 !== err[1].indexOf('Duplicate'))
 			{
 				duplication = err[1].substr(1);
+				console.log('dup: ' + duplication);
+				console.log('replace: ' + duplication);
 				if (login === duplication.split(' ')[2].replace('\'', ''))
 					res.json(
 					{
