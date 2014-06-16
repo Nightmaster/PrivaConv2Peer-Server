@@ -2,20 +2,20 @@
 * GET all APIi pages
 **/
 var mysql = require('mysql'), // MySQL connection module
-	fs = require('fs'), // File System library
-	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-	connection = mysql.createConnection(
-	{
-		host : 'localhost',
-		user : 'pc2p',
-		password : 'esgi@123',
-		database : 'PC2P'
-	});
+fs = require('fs'), // File System library
+hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+connection = mysql.createConnection(
+{
+	host : 'localhost',
+	user : 'pc2p',
+	password : 'esgi@123',
+	database : 'PC2P'
+});
 
 function register(req, res)
 {
 	console.log('request: ' + JSON.stringify(req.query));
-	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw), query = 'Insert Into user (nom, prenom, login, email, hash_pw) Values ("' + fName + '", "' + lName + '", "' + login + '", "' + email + '", "' + hashPW + '";';
+	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw), query = 'Insert Into user (nom, prenom, login, email, hash_pw) Values ("' + fName + '", "' + lName + '", "' + login + '", "' + email + '", "' + hashPW + '");';
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
