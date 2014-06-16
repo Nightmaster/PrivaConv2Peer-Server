@@ -46,7 +46,12 @@ function register(req, res)
 			else
 			{
 				console.error(err);
-				res.send(500);
+				res.json(500,
+				{
+					error : true,
+					reason : 'SQL Error',
+					displayMessage : 'Message: ' + err.message + '\nStack: ' + err.stack
+				});
 			}
 		}
 		else
