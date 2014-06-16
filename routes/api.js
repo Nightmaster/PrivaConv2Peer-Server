@@ -20,9 +20,6 @@ function register(req, res)
 	{
 		if (err)
 		{
-			console.error(err);
-			console.log('Message: ' + err.message);
-			console.log('Split message: ' + err.message.split('\n')[0].split(':'));
 			err = err.message.split('\n')[0].split(':');
 			var duplication;
 			if ( -1 !== err[1].indexOf('Duplicate'))
