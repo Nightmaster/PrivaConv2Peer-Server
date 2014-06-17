@@ -4,18 +4,18 @@
 var mysql = require('mysql'), // MySQL connection module
 	fs = require('fs'), // File System library
 	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-	connection = mysql.createConnection(
+	infos =
 	{
 		host : 'localhost',
 		user : 'pc2p',
 		password : 'esgi@123',
 		database : 'PC2P'
-	});
+	}, connection;
 
 function register(req, res)
 {
-	console.log('request: ' + JSON.stringify(req.query));
-	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw), query = 'Insert Into user (nom, prenom, login, email, hash_pw) Values ("' + fName + '", "' + lName + '", "' + login + '", "' + email + '", "' + hashPW + '");';
+	connection = mysql.createConnection(infos);
+	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw), query = 'Insert Into user (nom, prenom, login, email, hash_pw)\nValues ("' + fName + '", "' + lName + '", "' + login + '", "' + email + '", "' + hashPW + '");';
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
@@ -25,35 +25,14 @@ function register(req, res)
 			if ( -1 !== err[1].indexOf('Duplicate'))
 			{
 				duplication = err[1].substr(1);
-				console.log('dup: ' + duplication);
-				console.log('replace: ' + duplication);
 				if (login === duplication.split(' ')[2].replace(/\'/g, ''))
-					res.json(
-					{
-						error : true,
-						reason : 'login',
-						displayMessage : 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.',
-						validation : false
-					});
+					sendJsonError(res, 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.', 'register');
 				else if (email === duplication.split(' ')[2].replace(/\'/g, ''))
-					res.json(
-					{
-						error : true,
-						reason : 'email',
-						displayMessage : 'Cet email est déjà utilisé par un autre utilisateur. Veillez en choisir un autre.', // TODO (---) recommander récup de MdP quand implémenté
-						validation : false
-
-					});
+					sendJsonError(res, 'Cet email est déjà utilisé par un autre utilisateur. Veillez en choisir un autre.', 'register');
+				// TODO (---) recommander récup de MdP quand implémenté
 			}
 			else
-			{
-				res.json(500,
-				{
-					error : true,
-					reason : 'SQL Error',
-					displayMessage : 'err: ' + JSON.stringify(err)
-				});
-			}
+				sendJsonError(res, 'err: ' + JSON.stringify(err), 'register');
 		}
 		else
 			res.json(
@@ -61,12 +40,14 @@ function register(req, res)
 				error : false,
 				validation : true
 			});
+		// FIXME ajouter la création de la paire de clé utilisateur
 	});
 }
 
 function connect(req, res)
 {
-	var login = req.query.username, email = req.query.email, hashPW = req.query.pw, query, uuid = req.cookie.uuid || res.cookie.uuid;
+	connection = mysql.createConnection(infos);
+	var login = req.query.username, email = req.query.email, hashPW = req.query.pw, query, uuid = req.cookie.uuid || res.cookie.uuid, cookieQuery = 'Insert Into cookie (value, validity)\nValues (' + uuid + ', Date_Add(Now(), Interval 15 Minute));';
 	if (login)
 	{
 		query = 'Select hash_pw From user Where login = ' + login;
@@ -74,40 +55,13 @@ function connect(req, res)
 		{
 			if (rows)
 				if (hashPW === rows[0].hash_pw)
-				{
-					res.json(
-					{
-						error : false,
-						connection : true,
-						validity : 15
-					});
-					var cookieQuery = 'Insert Into cookie (value, validity)\nValues (' + uuid + ', Date_Add(Now(), Interval 15 Minute));', userQuery = 'Update user\nSet cookieValue = ' + uuid + '\nWhere login = ' + login + ';'; // TODO écrire les requêtes d'update de connection et de créa de cookie user
-					connection.query(); // TODO (++) faire query cookie ici
-					connection.query(); // TODO (++) faire query user ici
-				}
+					createCookieInDB(req, res, connection, uuid, login);
 				else
-					res.json(
-					{
-						error : true,
-						displayMessage : 'Mot de passe incorrect',
-						connection : false,
-						validity : -1
-					});
+					sendJsonError(res, 'Mot de passe incorrect', 'connection');
 			else if (rows && rows.length === 0)
-				res.json(
-				{
-					error : true,
-					displayMessage : 'L\'identifiant utilisateur fourni n\'existe pas dans la base de données',
-					connection : false,
-					validity : -1
-				});
+				sendJsonError(res, 'L\'identifiant utilisateur fourni n\'existe pas dans la base de données', 'connection');
 			else
-				res.send(500);
-		});
-		connection.end(function(err)
-		{
-			if (err)
-				throw err;
+				sendJsonError(res, 'err: ' + JSON.stringify(err));
 		});
 	}
 	else if (email)
@@ -117,44 +71,30 @@ function connect(req, res)
 		{
 			if (rows && rows.length !== 0)
 				if (hashPW === rows[0].hash_pw)
-					res.json(
-					{
-						error : false,
-						connection : true,
-						validity : 15
-					});
+					createCookieInDB(req, res, connection, uuid, email);
 				else
-					res.json(
-					{
-						error : true,
-						displayMessage : 'Mot de passe incorrect',
-						connection : false,
-						validity : -1
-					});
+					sendJsonError(res, 'Mot de passe incorrect', 'connection');
 			else if (rows && rows.length === 0)
-				res.json(
-				{
-					error : true,
-					displayMessage : 'L\'adresse email fournie n\'existe pas dans la base de données',
-					connection : false,
-					validity : -1
-				});
+				sendJsonError(res, 'L\'adresse email fournie n\'existe pas dans la base de données', 'connection');
 			else
-				res.send(500);
-		});
-		connection.end(function(err)
-		{
-			if (err)
-				throw err;
+			{
+				console.error(err);
+				sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
+			}
 		});
 	}
 	else
-		res.send(500);
-
+		sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
+	connection.end(function(err)
+	{
+		if (err)
+			throw err;
+	});
 }
 
 function modifyProfile(req, res)
 {
+	connection = mysql.createConnection(infos);
 	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw);
 	if (login) // FIXME remplacer par la gestion de cookie
 	{
@@ -189,10 +129,16 @@ function modifyProfile(req, res)
 					console.error(err);
 			});
 	}
+	connection.end(function(err)
+	{
+		if (err)
+			throw err;
+	});
 }
 
 function getKey(req, res)
 {
+	connection = mysql.createConnection(infos);
 	if (connected)
 		connection.query('Select path_to_keys From key where id = (Select id From user Where login = ' + login, function(err, rows, fields)
 		{
@@ -209,11 +155,18 @@ function getKey(req, res)
 
 function getPubKey(req, res)
 {
-// FIXME prévoir une vérification des liens d'amitié par cookie
+	connection = mysql.createConnection(infos);
+	// FIXME prévoir une vérification des liens d'amitié par cookie
+	connection.end(function(err)
+	{
+		if (err)
+			throw err;
+	});
 }
 
 function getCliIP(req, res)
 {
+	connection = mysql.createConnection(infos);
 	var user = req.params.user, query = 'Select user_ip From user Where login = ' + user;
 	mysql.query(query, function(err, rows, fields)
 	{
@@ -233,23 +186,46 @@ function getCliIP(req, res)
 				displayMessage : 'Le contact demandé n\'existe pas'
 			});
 		else
-			res.send(500);
+			sendJsonError(res, 'err: ' + JSON.stringify(err), 'getIP');
+	});
+	connection.end(function(err)
+	{
+		if (err)
+			throw err;
 	});
 }
 
 function stayAlive(req, res)
 {
+	connection = mysql.createConnection(infos);
 	// FIXME parser le cookie pour trouver l'user derrière
 	mysql.query('Update Table user Set timeout = ' + new Date(new Date().getTime() + 15 * 60000));
+	connection.end(function(err)
+	{
+		if (err)
+			throw err;
+	});
 }
 
 function addFriend(req, res)
 {
-// FIXME voir la gestion de cookie pour cette partie
+	connection = mysql.createConnection(infos);
+	// FIXME voir la gestion de cookie pour cette partie
+	connection.end(function(err)
+	{
+		if (err)
+			throw err;
+	});
 }
 function getConnectedList(req, res)
 {
-// FIXME voir la gestion de cookie pour cette partie
+	connection = mysql.createConnection(infos);
+	// FIXME voir la gestion de cookie pour cette partie
+	connection.end(function(err)
+	{
+		if (err)
+			throw err;
+	});
 }
 
 module.exports =
@@ -264,3 +240,72 @@ module.exports =
 	addFriend : addFriend,
 	getConnectedList : getConnectedList
 };
+
+/**
+* 
+*
+* @param req
+* @param res
+* @param connection
+* @param uuid
+* @param id
+**/
+function createCookieInDB(req, res, connection, uuid, id)
+{
+	var userQuery = 'Update user\nSet cookieValue = ' + uuid + '\nWhere login = ' + id + ';';
+	connection.query(cookieQuery, function(err, rows, field)
+	{
+		if (err)
+		{
+			console.error(err);
+			sendJsonError(res, 'err: ' + JSON.stringify(err), 'register');
+		}
+		else
+			connection.query(userQuery, function(err, rows, field)
+			{
+				if (err)
+				{
+					console.error(err);
+					sendJsonError(res, 'err: ' + JSON.stringify(err), 'register');
+				}
+				else
+					res.json(
+					{
+						error : false,
+						connection : true,
+						validity : 15
+					});
+
+			});
+	});
+}
+
+/**
+* 
+*
+* @param res
+* @param message
+* @param source
+**/
+function sendJsonError(res, message, source);
+{
+	if ('connection' === source)
+		res.json(500,
+		{
+			error : true,
+			reason : 'SQL Error',
+			displayMessage : message,
+			connection : false,
+			validity : -1
+		});
+	else if ('register' === source)
+		res.json(500,
+		{
+			error : true,
+			reason : 'SQL Error',
+			displayMessage : message,
+			connection : false,
+			validity : -1
+		});
+
+}
