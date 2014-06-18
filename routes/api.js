@@ -46,6 +46,7 @@ function register(req, res)
 
 function connect(req, res)
 {
+	//FIXME Trouver la raison du non renvoie d'infos !
 	connection = mysql.createConnection(infos);
 	var login = req.query.username, email = req.query.email, hashPW = req.query.pw, query, uuid = req.cookies.sessId || res.cookies.sessId, cookieQuery = 'Insert Into cookie (value, validity)\nValues (' + uuid + ', Date_Add(Now(), Interval 15 Minute));';
 	if (login)
