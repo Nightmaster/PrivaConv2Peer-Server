@@ -2,15 +2,15 @@
 * GET all APIi pages
 **/
 var mysql = require('mysql'), // MySQL connection module
-	fs = require('fs'), // File System library
-	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-	infos =
-	{
-		host : 'localhost',
-		user : 'pc2p',
-		password : 'esgi@123',
-		database : 'PC2P'
-	}, connection;
+fs = require('fs'), // File System library
+hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+infos =
+{
+	host : 'localhost',
+	user : 'pc2p',
+	password : 'esgi@123',
+	database : 'PC2P'
+}, connection;
 
 function register(req, res)
 {
@@ -287,7 +287,7 @@ function createCookieInDB(req, res, connection, uuid, id)
 * @param message
 * @param source
 **/
-function sendJsonError(res, message, source);
+function sendJsonError(res, message, source)
 {
 	if ('connection' === source)
 		res.json(500,
