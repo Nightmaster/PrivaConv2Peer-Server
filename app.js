@@ -1,19 +1,19 @@
 ﻿/*!
- * @auth : Gael B.
- * Coeur de l'application
+* @auth : Gael B.
+* Coeur de l'application
 !*/
 
 /*
- * Module dependencies.
- */
+* Module dependencies.
+*/
 var express = require('express'), // Express module
-MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
-routes = require('./routes'), // Router directory
-api = require('./routes/api'), // User module
-http = require('http'), // HTTP Server module
-path = require('path'), // Path module
-utils = require('./lib/utils'), // Utils module set as global object
-uuid = require('node-uuid'); // UUID Generator
+	MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
+	routes = require('./routes'), // Router directory
+	api = require('./routes/api'), // User module
+	http = require('http'), // HTTP Server module
+	path = require('path'), // Path module
+	utils = require('./lib/utils'), // Utils module set as global object
+	uuid = require('node-uuid'); // UUID Generator
 
 global.utils = utils;
 
@@ -37,7 +37,7 @@ app.use(express.cookieParser(require('./saltsForApp').session));
 app.use(function(req, res, next)
 {
 	// check if client sent cookie
-	var cookie = req.cookies.cookieName;
+	var cookie = req.cookies.sessId;
 	if (cookie === undefined)
 		// no: set a new cookie
 		res.cookie('sessId', uuid.v4(),

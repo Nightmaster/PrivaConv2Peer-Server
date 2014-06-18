@@ -47,7 +47,7 @@ function register(req, res)
 function connect(req, res)
 {
 	connection = mysql.createConnection(infos);
-	var login = req.query.username, email = req.query.email, hashPW = req.query.pw, query, uuid = req.cookie.uuid || res.cookie.uuid, cookieQuery = 'Insert Into cookie (value, validity)\nValues (' + uuid + ', Date_Add(Now(), Interval 15 Minute));';
+	var login = req.query.username, email = req.query.email, hashPW = req.query.pw, query, uuid = req.cookies.sessId || res.cookies.sessId, cookieQuery = 'Insert Into cookie (value, validity)\nValues (' + uuid + ', Date_Add(Now(), Interval 15 Minute));';
 	if (login)
 	{
 		query = 'Select hash_pw From user Where login = ' + login;
@@ -217,6 +217,7 @@ function addFriend(req, res)
 			throw err;
 	});
 }
+
 function getConnectedList(req, res)
 {
 	connection = mysql.createConnection(infos);
