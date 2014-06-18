@@ -1,19 +1,19 @@
 ﻿/*!
-* @auth : Gael B.
-* Coeur de l'application
+ * @auth : Gael B.
+ * Coeur de l'application
 !*/
 
 /*
-* Module dependencies.
-*/
+ * Module dependencies.
+ */
 var express = require('express'), // Express module
-	MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
-	routes = require('./routes'), // Router directory
-	api = require('./routes/api'), // User module
-	http = require('http'), // HTTP Server module
-	path = require('path'), // Path module
-	utils = require('./lib/utils'), // Utils module set as global object
-	uuid = require('node-uuid'); // UUID Generator
+MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
+routes = require('./routes'), // Router directory
+api = require('./routes/api'), // User module
+http = require('http'), // HTTP Server module
+path = require('path'), // Path module
+utils = require('./lib/utils'), // Utils module set as global object
+uuid = require('node-uuid'); // UUID Generator
 
 global.utils = utils;
 
@@ -33,30 +33,28 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(express.favicon());
 app.use(express.logger('dev'));
-app.use(express.cookieParser());
-app.use(express.bodyParser());
-app.use(express.urlencoded());
-app.use(express.methodOverride());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.session(
-{
-	secret : require('./saltsForApp').session,
-	store : new MySQLStore(options)
-}));
+app.use(express.cookieParser(require('./saltsForApp').session));
 app.use(function(req, res, next)
 {
 	// check if client sent cookie
 	var cookie = req.cookies.cookieName;
 	if (cookie === undefined)
 		// no: set a new cookie
-		res.cookie('sessId',
+		res.cookie('sessId', uuid.v4(),
 		{
-			uuid : uuid.v4(),
+			maxAge : 15000 * 60,
 			httpOnly : true
 		});
 	next();
 });
+app.use(express.bodyParser());
+app.use(express.urlencoded());
+app.use(express.methodOverride());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+/*
+ * app.use(express.session( { secret : require('./saltsForApp').session, store : new MySQLStore(options) }));
+ */
 
 // development only
 if ('development' == app.get('env'))
