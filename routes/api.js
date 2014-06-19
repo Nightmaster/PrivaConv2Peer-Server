@@ -2,15 +2,15 @@
 * GET all APIi pages
 **/
 var mysql = require('mysql'), // MySQL connection module
-fs = require('fs'), // File System library
-hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-infos =
-{
-	host : 'localhost',
-	user : 'pc2p',
-	password : 'esgi@123',
-	database : 'PC2P'
-}, connection;
+	fs = require('fs'), // File System library
+	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+	infos =
+	{
+		host : 'localhost',
+		user : 'pc2p',
+		password : 'esgi@123',
+		database : 'PC2P'
+	}, connection;
 
 function register(req, res)
 {
@@ -46,23 +46,33 @@ function register(req, res)
 
 function connect(req, res)
 {
-	//FIXME Trouver la raison du non renvoie d'infos !
+	// FIXME Trouver la raison du non renvoie d'infos !
 	connection = mysql.createConnection(infos);
-	var login = req.query.username, email = req.query.email, hashPW = req.query.pw, query, uuid = req.cookies.sessId || res.cookies.sessId, cookieQuery = 'Insert Into cookie (value, validity)\nValues (' + uuid + ', Date_Add(Now(), Interval 15 Minute));';
+	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, uuid = req.cookies.sessId || res.cookies.sessId, cookieQuery = 'Insert Into cookie (value, validity)\nValues (' + uuid + ', Date_Add(Now(), Interval 15 Minute));';
 	if (login)
 	{
+		console.log('uuid: ' + uuid);
 		query = 'Select hash_pw From user Where login = ' + login;
 		connection.query(query, function(err, rows, fields)
 		{
 			if (rows)
+			{
+				console.log('rows: ' + rows);
 				if (hashPW === rows[0].hash_pw)
 					createCookieInDB(req, res, connection, uuid, login);
 				else
 					sendJsonError(res, 'Mot de passe incorrect', 'connection');
+			}
 			else if (rows && rows.length === 0)
+			{
+				console.log('0 Retour');
 				sendJsonError(res, 'L\'identifiant utilisateur fourni n\'existe pas dans la base de données', 'connection');
+			}
 			else
+			{
+				console.log('err' + err);
 				sendJsonError(res, 'err: ' + JSON.stringify(err));
+			}
 		});
 	}
 	else if (email)
