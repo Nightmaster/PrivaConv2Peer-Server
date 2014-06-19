@@ -48,11 +48,29 @@ function connect(req, res)
 {
 	// FIXME Trouver la raison du non renvoie d'infos !
 	connection = mysql.createConnection(infos);
-	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, uuid = req.cookies.sessId || res.cookies.sessId, cookieQuery = 'Insert Into cookie (value, validity)\nValues (' + uuid + ', Date_Add(Now(), Interval 15 Minute));';
+	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, uuid, cookieQuery;
+	if (undefined !== req.cookies)
+		if (undefined !== req.cookies.sessId)
+			uuid = req.cookies.sessId;
+		else if (undefined !== res.cookies)
+			if (undefined !== req.cookies.sessId)
+				uuid = req.cookies.sessId;
+			else
+				console.log('pas de cookie');
+		else
+			console.log('pas de cookie');
+	else if (undefined !== res.cookies)
+		if (undefined !== req.cookies.sessId)
+			uuid = req.cookies.sessId;
+		else
+			console.log('pas de cookie');
+	else
+		console.log('pas de cookie');
+	cookieQuery = 'Insert Into cookie (value, validity)\nValues ("' + uuid + '", Date_Add(Now(), Interval 15 Minute));';
 	if (login)
 	{
 		console.log('uuid: ' + uuid);
-		query = 'Select hash_pw From user Where login = ' + login;
+		query = 'Select hash_pw From user Where login = "' + login + '"';
 		connection.query(query, function(err, rows, fields)
 		{
 			if (rows)
@@ -77,7 +95,7 @@ function connect(req, res)
 	}
 	else if (email)
 	{
-		query = 'Select hash_pw From user Where email = ' + email;
+		query = 'Select hash_pw From user Where email = "' + email + '"';
 		connection.query(query, function(err, rows, fields)
 		{
 			if (rows && rows.length !== 0)
