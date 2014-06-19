@@ -42,8 +42,10 @@ app.use(function(req, res, next)
 		// no: set a new cookie
 		res.cookie('sessId', id,
 		{
-			secret : require('./saltsForApp').session,
-			signed : true,
+			/*
+			* secret : require('./saltsForApp').session,
+			* signed : true,
+			*/
 			maxAge : 15000 * 60,
 			httpOnly : true
 		});
