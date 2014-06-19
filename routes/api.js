@@ -2,15 +2,15 @@
 * GET all APIi pages
 **/
 var mysql = require('mysql'), // MySQL connection module
-fs = require('fs'), // File System library
-hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-infos =
-{
-	host : 'localhost',
-	user : 'pc2p',
-	password : 'esgi@123',
-	database : 'PC2P'
-}, connection;
+	fs = require('fs'), // File System library
+	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+	infos =
+	{
+		host : 'localhost',
+		user : 'pc2p',
+		password : 'esgi@123',
+		database : 'PC2P'
+	}, connection;
 
 function register(req, res)
 {
@@ -46,6 +46,10 @@ function register(req, res)
 
 function connect(req, res)
 {
+	console.log('req.cookies: ' + req.cookies);
+	console.log('req.cookie: ' + req.cookie);
+	console.log('res.cookies: ' + res.cookies);
+	console.log('res.cookie: ' + res.cookie);
 	// FIXME Trouver la raison du non renvoie d'infos !
 	connection = mysql.createConnection(infos);
 	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, uuid;
@@ -74,7 +78,7 @@ function connect(req, res)
 		{
 			if (rows)
 			{
-				console.log('rows: ' + rows);
+				console.log('rows: ' + JSON.stringify(rows));
 				if (hashPW === rows[0].hash_pw)
 					createCookieInDB(req, res, connection, uuid, login);
 				else
