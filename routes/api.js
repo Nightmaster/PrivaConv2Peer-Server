@@ -46,10 +46,10 @@ function register(req, res)
 
 function connect(req, res)
 {
-	console.log('req.cookies: ' + req.cookies);
-	console.log('req.cookie: ' + req.cookie);
-	console.log('res.cookies: ' + res.cookies);
-	console.log('res.cookie: ' + res.cookie);
+	console.log('req.cookies: ' + JSON.stringify(req.cookies));
+	console.log('req.cookie: ' + JSON.stringify(req.cookie));
+	console.log('res.cookies: ' + JSON.stringify(res.cookies));
+	console.log('res.cookie: ' + JSON.stringify(res.cookie));
 	// FIXME Trouver la raison du non renvoie d'infos !
 	connection = mysql.createConnection(infos);
 	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, uuid;
@@ -73,7 +73,7 @@ function connect(req, res)
 	if (login)
 	{
 		console.log('uuid: ' + uuid);
-		query = 'Select hash_pw From user Where login = "' + login + '"';
+		query = 'Select hash_pw From user Where login = "' + login + '";';
 		connection.query(query, function(err, rows, fields)
 		{
 			if (rows)
@@ -98,7 +98,7 @@ function connect(req, res)
 	}
 	else if (email)
 	{
-		query = 'Select hash_pw From user Where email = "' + email + '"';
+		query = 'Select hash_pw From user Where email = "' + email + '";';
 		connection.query(query, function(err, rows, fields)
 		{
 			if (rows && rows.length !== 0)
@@ -285,7 +285,7 @@ module.exports =
 **/
 function createCookieInDB(req, res, connection, uuid, id)
 {
-	var userQuery = 'Update user\nSet cookieValue = ' + uuid + '\nWhere login = ' + id + ';', cookieQuery = 'Insert Into cookie (value, validity)\nValues ("' + uuid + '", Date_Add(Now(), Interval 15 Minute));';
+	var userQuery = 'Update user\nSet cookieValue = ' + uuid + '\nWhere login = "' + id + '";', cookieQuery = 'Insert Into cookie (value, validity)\nValues ("' + uuid + '", Date_Add(Now(), Interval 15 Minute));';
 	connection.query(cookieQuery, function(err, rows, field)
 	{
 		if (err)

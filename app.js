@@ -1,11 +1,11 @@
 ﻿/*!
-* @auth : Gael B.
-* Coeur de l'application
+ * @auth : Gael B.
+ * Coeur de l'application
 !*/
 
 /*
-* Module dependencies.
-*/
+ * Module dependencies.
+ */
 var express = require('express'), // Express module
 	MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
 	routes = require('./routes'), // Router directory
@@ -37,14 +37,20 @@ app.use(express.cookieParser(require('./saltsForApp').session));
 app.use(function(req, res, next)
 {
 	// check if client sent cookie
-	var cookie = req.cookies.sessId;
+	var cookie = req.cookies.sessId, id = uuid.v4();
 	if (cookie === undefined)
 		// no: set a new cookie
-		res.cookie('sessId', uuid.v4(),
+		res.cookie('sessId', id,
 		{
+			secret : require('./saltsForApp').session,
+			signed : true,
 			maxAge : 15000 * 60,
 			httpOnly : true
 		});
+	res.cookies =
+	{
+		sessId : id
+	}
 	next();
 });
 app.use(express.bodyParser());
