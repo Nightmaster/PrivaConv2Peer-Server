@@ -2,15 +2,15 @@
 * GET all APIi pages
 **/
 var mysql = require('mysql'), // MySQL connection module
-	fs = require('fs'), // File System library
-	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-	infos =
-	{
-		host : 'localhost',
-		user : 'pc2p',
-		password : 'esgi@123',
-		database : 'PC2P'
-	}, connection;
+fs = require('fs'), // File System library
+hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+infos =
+{
+	host : 'localhost',
+	user : 'pc2p',
+	password : 'esgi@123',
+	database : 'PC2P'
+}, connection;
 
 function register(req, res)
 {
@@ -48,25 +48,24 @@ function connect(req, res)
 {
 	// FIXME Trouver la raison du non renvoie d'infos !
 	connection = mysql.createConnection(infos);
-	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, uuid, cookieQuery;
+	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, uuid;
 	if (undefined !== req.cookies)
 		if (undefined !== req.cookies.sessId)
 			uuid = req.cookies.sessId;
 		else if (undefined !== res.cookies)
-			if (undefined !== req.cookies.sessId)
-				uuid = req.cookies.sessId;
+			if (undefined !== res.cookies.sessId)
+				uuid = res.cookies.sessId;
 			else
 				console.log('pas de cookie');
 		else
 			console.log('pas de cookie');
 	else if (undefined !== res.cookies)
-		if (undefined !== req.cookies.sessId)
-			uuid = req.cookies.sessId;
+		if (undefined !== res.cookies.sessId)
+			uuid = res.cookies.sessId;
 		else
 			console.log('pas de cookie');
 	else
 		console.log('pas de cookie');
-	cookieQuery = 'Insert Into cookie (value, validity)\nValues ("' + uuid + '", Date_Add(Now(), Interval 15 Minute));';
 	if (login)
 	{
 		console.log('uuid: ' + uuid);
@@ -282,7 +281,7 @@ module.exports =
 **/
 function createCookieInDB(req, res, connection, uuid, id)
 {
-	var userQuery = 'Update user\nSet cookieValue = ' + uuid + '\nWhere login = ' + id + ';';
+	var userQuery = 'Update user\nSet cookieValue = ' + uuid + '\nWhere login = ' + id + ';', cookieQuery = 'Insert Into cookie (value, validity)\nValues ("' + uuid + '", Date_Add(Now(), Interval 15 Minute));';
 	connection.query(cookieQuery, function(err, rows, field)
 	{
 		if (err)
