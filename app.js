@@ -46,8 +46,8 @@ app.use(function(req, res, next)
 			* secret : require('./saltsForApp').session,
 			* signed : true,
 			*/
-			maxAge : 15000 * 60,
-			httpOnly : true
+			maxAge : 15000 * 60
+			//httpOnly : true
 		});
 	res.cookies =
 	{
