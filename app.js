@@ -56,7 +56,7 @@ app.use(function(req, res, next)
 		}
 	}
 	else
-		console.log(JSON.stringify(cookie));
+		console.log(JSON.stringify(req.cookies));
 	next();
 });
 app.use(express.bodyParser());
