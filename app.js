@@ -7,13 +7,13 @@
  * Module dependencies.
  */
 var express = require('express'), // Express module
-	MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
-	routes = require('./routes'), // Router directory
-	api = require('./routes/api'), // User module
-	http = require('http'), // HTTP Server module
-	path = require('path'), // Path module
-	utils = require('./lib/utils'), // Utils module set as global object
-	uuid = require('node-uuid'); // UUID Generator
+MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
+routes = require('./routes'), // Router directory
+api = require('./routes/api'), // User module
+http = require('http'), // HTTP Server module
+path = require('path'), // Path module
+utils = require('./lib/utils'), // Utils module set as global object
+uuid = require('node-uuid'); // UUID Generator
 
 global.utils = utils;
 
@@ -44,19 +44,22 @@ app.use(function(req, res, next)
 		res.cookie('sessId', id,
 		{
 			/*
-			* secret : require('./saltsForApp').session,
-			* signed : true,
-			*/
+			 * secret : require('./saltsForApp').session, signed : true,
+			 */
 			maxAge : 15000 * 60
-			//httpOnly : true
+		// httpOnly : true
 		});
 		res.cookies =
 		{
-			sessId : id
+			sessId : id,
+			expiration : new Date() + 15000
 		}
 	}
 	else
-		console.log(JSON.stringify(req.cookies));
+		res.cookie('sessId', cookie,
+		{
+			maxAge : 15000 * 60
+		});
 	next();
 });
 app.use(express.bodyParser());
