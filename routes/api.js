@@ -52,24 +52,7 @@ function connect(req, res)
 	console.log('res.cookie: ' + JSON.stringify(res.cookie));
 	// FIXME Trouver la raison du non renvoie d'infos !
 	connection = mysql.createConnection(infos);
-	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, uuid;
-	if (undefined !== req.cookies)
-		if (undefined !== req.cookies.sessId)
-			uuid = req.cookies.sessId;
-		else if (undefined !== res.cookies)
-			if (undefined !== res.cookies.sessId)
-				uuid = res.cookies.sessId;
-			else
-				console.log('pas de cookie');
-		else
-			console.log('pas de cookie');
-	else if (undefined !== res.cookies)
-		if (undefined !== res.cookies.sessId)
-			uuid = res.cookies.sessId;
-		else
-			console.log('pas de cookie');
-	else
-		console.log('pas de cookie');
+	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, uuid = req.cookies || res.cookies;
 	if (login)
 	{
 		console.log('uuid: ' + uuid);
