@@ -39,6 +39,7 @@ app.use(function(req, res, next)
 	// check if client sent cookie
 	var cookie = req.cookies.sessId, id = uuid.v4();
 	if (cookie === undefined)
+	{
 		// no: set a new cookie
 		res.cookie('sessId', id,
 		{
@@ -49,10 +50,13 @@ app.use(function(req, res, next)
 			maxAge : 15000 * 60
 			//httpOnly : true
 		});
-	res.cookies =
-	{
-		sessId : id
+		res.cookies =
+		{
+			sessId : id
+		}
 	}
+	else
+		console.log(JSON.stringify(cookie));
 	next();
 });
 app.use(express.bodyParser());
