@@ -218,7 +218,7 @@ module.exports =
 **/
 function createCookieInDB(req, res, connection, uuid, exp, id)
 {
-	var idType = -1 !== id.indexOf('@') ? 'login' : 'email', userIdQuery = 'Select id\nFrom user\nWhere ' + idType + ' = "' + id + '";', cookieQuery;
+	var idType = -1 === id.indexOf('@') ? 'login' : 'email', userIdQuery = 'Select id\nFrom user\nWhere ' + idType + ' = "' + id + '";', cookieQuery;
 	connection.query(userIdQuery, function(err, rows, field)
 	{
 		if (err)
