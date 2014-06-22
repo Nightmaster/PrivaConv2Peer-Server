@@ -5,6 +5,8 @@ var mysql = require('mysql'), // MySQL connection module
 	fs = require('fs'), // File System library
 	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
 	rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
+	util = require('util'), // Native util module
+	utils = require('../lib/utils'), // Personnal utils module
 	infos =
 	{
 		host : 'localhost',
@@ -15,7 +17,8 @@ var mysql = require('mysql'), // MySQL connection module
 
 function register(req, res)
 {
-	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPw = hasher(req.query.pw), hashPwK = hasher(req.query.pwK), lengthKey = req.query.length, query = 'Insert Into user (nom, prenom, login, displayLogin, email, hash_pw)\nValues ("' + fName + '", "' + lName + '", "' + login.toLowerCase() + '", "' + login + '", "' + email + '", "' + hashPw + '");';
+	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPw = hasher(req.query.pw), hashPwK = hasher(req.query.pwK), lengthKey = req.query.length, query = 'Insert Into user (nom, prenom, login, displayLogin, email, hash_pw)\nValues ("' + fName + '", "' + lName + '", "' + login.toLowerCase() + '", "' + login + '", "' + email + '", "'
+			+ hashPw + '");';
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
@@ -47,16 +50,26 @@ function register(req, res)
 
 function connect(req, res)
 {
-	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, uuid = res.cookies.sessId, expiration = res.cookies.expiration;
+	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, connecQuery, uuid = res.cookies.sessId, expiration = res.cookies.expiration;
 	if (login)
 	{
-		query = 'Select hash_pw From user Where login = "' + login + '";';
+		query = 'Select hash_pw\nFrom user\nWhere login = "' + login.toLowerCase() + '";';
+		connecQuery = util.format('Update user\nSet user_ip = "' + req.ip + '", user_connected = 1\Where %s = "%s";', undefined !== login ? 'login' : 'email', undefined !== login ? login.toLowerCase() : email);
 		connection.query(query, function(err, rows, fields)
 		{
 			if (0 < rows.length)
 			{
 				if (hashPW === rows[0].hash_pw)
-					createCookieInDB(req, res, connection, uuid, expiration, login);
+				{
+					createCookieInDB(req, res, connection, uuid, expiration, login.toLowerCase());
+					connection.query(connecQuery, function(err, rows, field)
+					{
+						if (err)
+							console.error(err);
+						else
+							console.log('res : ' + JSON.stringify(rows));
+					});
+				}
 				else
 					sendJsonError(res, 'Mot de passe incorrect', 'connection');
 			}
@@ -102,31 +115,31 @@ function modifyProfile(req, res)
 	if (login) // FIXME remplacer par la gestion de cookie
 	{
 		if (login)
-			connection.query('Update user\nSet login = ' + login + '\nWhere login = ' + login, function(err, rows, fields)
+			connection.query('Update user\nSet login = "' + login.toLowerCase() + '", displayLogin = "' + login + '"\nWhere login = ' + login.toLowerCase(), function(err, rows, fields)
 			{
 				if (err)
 					console.error(err);
 			});
 		if (email)
-			connection.query('Update user\nSet email = ' + email + '\nWhere login = ' + login, function(err, rows, fields)
+			connection.query('Update user\nSet email = "' + email + '"\nWhere login = ' + login.toLowerCase(), function(err, rows, fields)
 			{
 				if (err)
 					console.error(err);
 			});
 		if (fName)
-			connection.query('Update user\nSet prenom = ' + fName + '\nWhere login = ' + login, function(err, rows, fields)
+			connection.query('Update user\nSet prenom = "' + fName + '"\nWhere login = ' + login.toLowerCase(), function(err, rows, fields)
 			{
 				if (err)
 					console.error(err);
 			});
 		if (lName)
-			connection.query('Update user\nSet nom = ' + lName + '\nWhere login = ' + login, function(err, rows, fields)
+			connection.query('Update user\nSet nom = "' + lName + '"\nWhere login = ' + login.toLowerCase(), function(err, rows, fields)
 			{
 				if (err)
 					console.error(err);
 			});
 		if (hashPW)
-			connection.query('Update user\nSet hash_pw = ' + hashPW + '\nWhere login = ' + login, function(err, rows, fields)
+			connection.query('Update user\nSet hash_pw = "' + hashPW + '"\nWhere login = ' + login.toLowerCase(), function(err, rows, fields)
 			{
 				if (err)
 					console.error(err);
@@ -137,7 +150,7 @@ function modifyProfile(req, res)
 function getKey(req, res)
 {
 	if (connected)
-		connection.query('Select path_to_keys From key where id = (Select id From user Where login = ' + login, function(err, rows, fields)
+		connection.query('Select path_to_keys From key where id = (Select id From user Where login = ' + login.toLowerCase(), function(err, rows, fields)
 		{
 			fs.readFile(rows[0].path_to_keys, function(err, result)
 			{
@@ -157,7 +170,7 @@ function getPubKey(req, res)
 
 function getCliIP(req, res)
 {
-	var user = req.params.user, query = 'Select user_ip From user Where login = ' + user;
+	var user = req.params.user, query = 'Select user_ip From user Where login = ' + user.toLowerCase();
 	mysql.query(query, function(err, rows, fields)
 	{
 		// FIXME faire une vérification des liens d'amitié
