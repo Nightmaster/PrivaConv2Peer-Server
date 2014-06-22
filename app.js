@@ -53,7 +53,7 @@ app.use(function(req, res, next)
 		res.cookies =
 		{
 			sessId : id,
-			expiration : new Date() + 15000
+			expiration : new Date(new Date().setMinutes(new Date().getMinutes() + 15))
 		};
 	}
 	else
@@ -65,7 +65,7 @@ app.use(function(req, res, next)
 		res.cookies =
 		{
 			sessId : cookie,
-			expiration : new Date() + 15000
+			expiration : new Date(new Date().setMinutes(new Date().getMinutes() + 15))
 		}
 	}
 	next();
