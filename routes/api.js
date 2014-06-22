@@ -54,7 +54,7 @@ function connect(req, res)
 		query = 'Select hash_pw From user Where login = "' + login + '";';
 		connection.query(query, function(err, rows, fields)
 		{
-			if (0 > rows.length)
+			if (0 < rows.length)
 			{
 				console.log('rows: ' + JSON.stringify(rows));
 				if (hashPW === rows[0].hash_pw)
@@ -79,7 +79,7 @@ function connect(req, res)
 		query = 'Select hash_pw From user Where email = "' + email + '";';
 		connection.query(query, function(err, rows, fields)
 		{
-			if (0 > rows.length)
+			if (0 < rows.length)
 				if (hashPW === rows[0].hash_pw)
 					createCookieInDB(req, res, connection, uuid, email);
 				else
