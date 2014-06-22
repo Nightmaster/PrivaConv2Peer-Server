@@ -53,7 +53,6 @@ function connect(req, res)
 		{
 			if (0 < rows.length)
 			{
-				console.log('rows: ' + JSON.stringify(rows));
 				if (hashPW === rows[0].hash_pw)
 					createCookieInDB(req, res, connection, uuid, expiration, login);
 				else
@@ -229,6 +228,7 @@ function createCookieInDB(req, res, connection, uuid, exp, id)
 		}
 		else
 		{
+			console.log('rows: ' + JSON.stringify(rows));
 			cookieQuery = 'Insert Into cookie (value, validity, userId)\nValues ("' + uuid + '", "' + exp.toISOString().slice(0, 19).replace('T', ' ') + '", ' + rows[0].id + ');';
 			connection.query(cookieQuery, function(err, rows, field)
 			{
