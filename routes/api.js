@@ -43,8 +43,9 @@ function register(req, res)
 				error : false,
 				validation : true
 			});
+		console.log('type pwK: ' + utils.realTypeOf(hashPwK));
 		// FIXME ajouter la création de la paire de clé utilisateur
-		rsa(hashPw, lengthKey, login);
+		rsa(hashPwK, lengthKey, login);
 	});
 }
 
