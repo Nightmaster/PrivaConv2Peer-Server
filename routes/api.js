@@ -69,8 +69,8 @@ function connect(req, res)
 			}
 			else
 			{
-				console.log('err' + err);
-				sendJsonError(res, 'err: ' + JSON.stringify(err));
+				console.log('err ' + err);
+				sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
 			}
 		});
 	}
@@ -318,5 +318,10 @@ function sendJsonError(res, message, source)
 			connection : false,
 			validity : -1
 		});
+	else
+		res.json(500, {
+			error: true,
+			displayMessage : message
+		})
 
 }
