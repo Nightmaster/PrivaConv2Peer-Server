@@ -55,7 +55,7 @@ function connect(req, res)
 	if (login)
 	{
 		query = 'Select hash_pw\nFrom user\nWhere login = "' + login.toLowerCase() + '";';
-		connecQuery = util.format('Update user\nSet user_ip = "' + req.ip + '", user_connected = 1\Where %s = "%s";', undefined !== login ? 'login' : 'email', undefined !== login ? login.toLowerCase() : email);
+		connecQuery = util.format('Update user\nSet user_ip = "' + req.ip + '", user_connected = 1\Where %s="%s";', undefined !== login ? 'login' : 'email', undefined !== login ? login.toLowerCase() : email);
 		connection.query(query, function(err, rows, fields)
 		{
 			if (0 < rows.length)
