@@ -4,6 +4,7 @@
 var mysql = require('mysql'), // MySQL connection module
 	fs = require('fs'), // File System library
 	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+	rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
 	infos =
 	{
 		host : 'localhost',
@@ -14,7 +15,7 @@ var mysql = require('mysql'), // MySQL connection module
 
 function register(req, res)
 {
-	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw), query = 'Insert Into user (nom, prenom, login, email, hash_pw)\nValues ("' + fName + '", "' + lName + '", "' + login + '", "' + email + '", "' + hashPW + '");';
+	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPw = hasher(req.query.pw), hashPwK = hasher(req.query.pwK), lengthKey = req.query.length, query = 'Insert Into user (nom, prenom, login, displayLogin, email, hash_pw)\nValues ("' + fName + '", "' + lName + '", "' + login.toLowerCase() + '", "' + login + '", "' + email + '", "' + hashPw + '");';
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
@@ -40,6 +41,7 @@ function register(req, res)
 				validation : true
 			});
 		// FIXME ajouter la création de la paire de clé utilisateur
+		rsa(hashPw, lengthKey, login);
 	});
 }
 
