@@ -10,11 +10,10 @@ var mysql = require('mysql'), // MySQL connection module
 		user : 'pc2p',
 		password : 'esgi@123',
 		database : 'PC2P'
-	}, connection;
+	}, connection = mysql.createConnection(infos);
 
 function register(req, res)
 {
-	connection = mysql.createConnection(infos);
 	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw), query = 'Insert Into user (nom, prenom, login, email, hash_pw)\nValues ("' + fName + '", "' + lName + '", "' + login + '", "' + email + '", "' + hashPW + '");';
 	connection.query(query, function(err, rows, fields)
 	{
@@ -46,8 +45,6 @@ function register(req, res)
 
 function connect(req, res)
 {
-	// FIXME Trouver la raison du non renvoie d'infos !
-	connection = mysql.createConnection(infos);
 	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, uuid = res.cookies.sessId, expiration = res.cookies.expiration;
 	if (login)
 	{
@@ -95,16 +92,11 @@ function connect(req, res)
 	}
 	else
 		sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
-	connection.end(function(err)
-	{
-		if (err)
-			throw err;
-	});
+
 }
 
 function modifyProfile(req, res)
 {
-	connection = mysql.createConnection(infos);
 	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw);
 	if (login) // FIXME remplacer par la gestion de cookie
 	{
@@ -139,16 +131,10 @@ function modifyProfile(req, res)
 					console.error(err);
 			});
 	}
-	connection.end(function(err)
-	{
-		if (err)
-			throw err;
-	});
 }
 
 function getKey(req, res)
 {
-	connection = mysql.createConnection(infos);
 	if (connected)
 		connection.query('Select path_to_keys From key where id = (Select id From user Where login = ' + login, function(err, rows, fields)
 		{
@@ -165,18 +151,11 @@ function getKey(req, res)
 
 function getPubKey(req, res)
 {
-	connection = mysql.createConnection(infos);
 	// FIXME prévoir une vérification des liens d'amitié par cookie
-	connection.end(function(err)
-	{
-		if (err)
-			throw err;
-	});
 }
 
 function getCliIP(req, res)
 {
-	connection = mysql.createConnection(infos);
 	var user = req.params.user, query = 'Select user_ip From user Where login = ' + user;
 	mysql.query(query, function(err, rows, fields)
 	{
@@ -198,45 +177,22 @@ function getCliIP(req, res)
 		else
 			sendJsonError(res, 'err: ' + JSON.stringify(err), 'getIP');
 	});
-	connection.end(function(err)
-	{
-		if (err)
-			throw err;
-	});
 }
 
 function stayAlive(req, res)
 {
-	connection = mysql.createConnection(infos);
 	// FIXME parser le cookie pour trouver l'user derrière
 	mysql.query('Update Table user Set timeout = ' + new Date(new Date().getTime() + 15 * 60000));
-	connection.end(function(err)
-	{
-		if (err)
-			throw err;
-	});
 }
 
 function addFriend(req, res)
 {
-	connection = mysql.createConnection(infos);
 	// FIXME voir la gestion de cookie pour cette partie
-	connection.end(function(err)
-	{
-		if (err)
-			throw err;
-	});
 }
 
 function getConnectedList(req, res)
 {
-	connection = mysql.createConnection(infos);
 	// FIXME voir la gestion de cookie pour cette partie
-	connection.end(function(err)
-	{
-		if (err)
-			throw err;
-	});
 }
 
 module.exports =
