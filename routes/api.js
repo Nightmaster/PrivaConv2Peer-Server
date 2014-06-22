@@ -151,7 +151,7 @@ function getKey(req, res)
 
 function getPubKey(req, res)
 {
-	// FIXME prévoir une vérification des liens d'amitié par cookie
+// FIXME prévoir une vérification des liens d'amitié par cookie
 }
 
 function getCliIP(req, res)
@@ -187,12 +187,12 @@ function stayAlive(req, res)
 
 function addFriend(req, res)
 {
-	// FIXME voir la gestion de cookie pour cette partie
+// FIXME voir la gestion de cookie pour cette partie
 }
 
 function getConnectedList(req, res)
 {
-	// FIXME voir la gestion de cookie pour cette partie
+// FIXME voir la gestion de cookie pour cette partie
 }
 
 module.exports =
@@ -209,18 +209,18 @@ module.exports =
 };
 
 /**
-* 
+* Insère la valeur du cookie por un utilisateur connecté
 *
-* @param req
-* @param res
-* @param connection
-* @param uuid
-* @param id
+* @param req {Object} : objet request d'Express
+* @param res {Object} : objet response d'Express
+* @param connection {Object} : objet de connexion de l'API node-MySQL 
+* @param uuid {String} : l'uuid du cookie sous forme de <code>String</code>
+* @param id {String} : l'identifiant de l'utilisateur
 **/
 function createCookieInDB(req, res, connection, uuid, exp, id)
 {
-	var userQuery = 'Update user\nSet cookieValue = "' + uuid + '"\nWhere login = "' + id + '";', cookieQuery = 'Insert Into cookie (value, validity)\nValues ("' + uuid + '", "' + exp.toISOString().slice(0, 19).replace('T', ' ') + '");';
-	connection.query(cookieQuery, function(err, rows, field)
+	var idType = -1 !== id.indexOf('@') ? 'login' : 'email', userIdQuery = 'Select id\nFrom user\nWhere ' + idType + ' = "' + id + '";', cookieQuery;
+	connection.query(userIdQuery, function(err, rows, field)
 	{
 		if (err)
 		{
@@ -228,7 +228,9 @@ function createCookieInDB(req, res, connection, uuid, exp, id)
 			sendJsonError(res, 'err: ' + JSON.stringify(err), 'register');
 		}
 		else
-			connection.query(userQuery, function(err, rows, field)
+		{
+			cookieQuery = 'Insert Into cookie (value, validity, userId)\nValues ("' + uuid + '", "' + exp.toISOString().slice(0, 19).replace('T', ' ') + '", ' + rows[0].id + ');';
+			connection.query(cookieQuery, function(err, rows, field)
 			{
 				if (err)
 				{
@@ -242,17 +244,17 @@ function createCookieInDB(req, res, connection, uuid, exp, id)
 						connection : true,
 						validity : 15
 					});
-
 			});
+		}
 	});
 }
 
 /**
-* 
+* Automatisation du renvoie de l'erreur 500 et du JSON avec les informations correspondantes à  l'intérieur
 *
-* @param res
-* @param message
-* @param source
+* @param res {Object} : objet response d'Express
+* @param message {String} : le message correspondant à l'erreur
+* @param source {String} : l'indicateur de la fonction d'origine de l'erreur. Permet d'apater le contenu du JSON en fonction  
 **/
 function sendJsonError(res, message, source)
 {
@@ -275,8 +277,9 @@ function sendJsonError(res, message, source)
 			validity : -1
 		});
 	else
-		res.json(500, {
-			error: true,
+		res.json(500,
+		{
+			error : true,
 			displayMessage : message
 		})
 
