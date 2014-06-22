@@ -69,7 +69,7 @@ function connect(req, res)
 			}
 			else
 			{
-				console.log('err ' + err + '\nrows: ' + rows);
+				console.log('err ' + err + '\nrows: ' + JSON.stringify(rows));
 				sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
 			}
 		});
