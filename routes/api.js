@@ -46,28 +46,23 @@ function register(req, res)
 
 function connect(req, res)
 {
-	console.log('req.cookies: ' + JSON.stringify(req.cookies));
-	console.log('req.cookie: ' + JSON.stringify(req.cookie));
-	console.log('res.cookies: ' + JSON.stringify(res.cookies));
-	console.log('res.cookie: ' + JSON.stringify(res.cookie));
 	// FIXME Trouver la raison du non renvoie d'infos !
 	connection = mysql.createConnection(infos);
-	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, uuid = req.cookies || res.cookies;
+	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, uuid = res.cookies.sessId, expiration = res.cookies.expiration;
 	if (login)
 	{
-		console.log('uuid: ' + uuid);
 		query = 'Select hash_pw From user Where login = "' + login + '";';
 		connection.query(query, function(err, rows, fields)
 		{
-			if (rows)
+			if (0 > rows.length)
 			{
 				console.log('rows: ' + JSON.stringify(rows));
 				if (hashPW === rows[0].hash_pw)
-					createCookieInDB(req, res, connection, uuid, login);
+					createCookieInDB(req, res, connection, uuid, expiration, login);
 				else
 					sendJsonError(res, 'Mot de passe incorrect', 'connection');
 			}
-			else if (rows && rows.length === 0)
+			else if (rows.length === 0)
 			{
 				console.log('0 Retour');
 				sendJsonError(res, 'L\'identifiant utilisateur fourni n\'existe pas dans la base de données', 'connection');
@@ -84,12 +79,12 @@ function connect(req, res)
 		query = 'Select hash_pw From user Where email = "' + email + '";';
 		connection.query(query, function(err, rows, fields)
 		{
-			if (rows && rows.length !== 0)
+			if (0 > rows.length)
 				if (hashPW === rows[0].hash_pw)
 					createCookieInDB(req, res, connection, uuid, email);
 				else
 					sendJsonError(res, 'Mot de passe incorrect', 'connection');
-			else if (rows && rows.length === 0)
+			else if (rows.length === 0)
 				sendJsonError(res, 'L\'adresse email fournie n\'existe pas dans la base de données', 'connection');
 			else
 			{
@@ -266,9 +261,9 @@ module.exports =
 * @param uuid
 * @param id
 **/
-function createCookieInDB(req, res, connection, uuid, id)
+function createCookieInDB(req, res, connection, uuid, exp, id)
 {
-	var userQuery = 'Update user\nSet cookieValue = ' + uuid + '\nWhere login = "' + id + '";', cookieQuery = 'Insert Into cookie (value, validity)\nValues ("' + uuid + '", Date_Add(Now(), Interval 15 Minute));';
+	var userQuery = 'Update user\nSet cookieValue = "' + uuid + '"\nWhere login = "' + id + '";', cookieQuery = 'Insert Into cookie (value, validity)\nValues ("' + uuid + '", "' + exp.toISOString().slice(0, 19).replace('T', ' ') + '");';
 	connection.query(cookieQuery, function(err, rows, field)
 	{
 		if (err)
