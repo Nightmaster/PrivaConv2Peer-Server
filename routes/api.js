@@ -395,12 +395,12 @@ function getMySQLDate(date)
 **/
 function eraseOldCookie(id)
 {
-	var query = 'Delete From cookie\nWhere userId In\n(\n\tSelect id\n\tFrom user\n\tWhere ' + -1 !== id.indexOf('@') ? 'login' : 'email' + '="' + id + '";';
+	var query = 'Delete From cookie\nWhere userId In\n(\n\tSelect id\n\tFrom user\n\tWhere ' + -1 !== id.indexOf('@') ? 'login' : 'email' + '="' + id + '"\n);';
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
 			console.error(err);
 		else
-			console.log(JSON.stringify(rows));
+			console.log('rows Delete cookies : )' + JSON.stringify(rows));
 	});
 }
