@@ -1,19 +1,20 @@
 /**
 * GET all APIi pages
 **/
-var mysql = require('mysql'), // MySQL connection module
-	fs = require('fs'), // File System library
+var fs = require('fs'), // File System library
+	mysql = require('mysql'), // MySQL connection module
+	sockjs = require('socket.io'), // Web Socket library
+	util = require('util'), // Native util module
 	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
 	rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
-	util = require('util'), // Native util module
 	utils = require('../lib/utils'), // Personnal utils module
-	infos =
+	connection = mysql.createConnection(infos), infos =
 	{
 		host : 'localhost',
 		user : 'pc2p',
 		password : 'esgi@123',
 		database : 'PC2P'
-	}, connection = mysql.createConnection(infos);
+	};
 
 function register(req, res)
 {
@@ -112,10 +113,11 @@ function connect(req, res)
 function disconnect(req, res)
 {
 	var query = 'Delete From cookie\nWhere value="' + res.cookies.sessId + '";';
+	res.clearCookie(res.cookies.uuid);
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
-			console.error(err);
+			sendJsonError(res, 500, JSON.stringify(err), 'Disctonnect')
 		else
 			res.json(
 			{
@@ -243,6 +245,13 @@ function search(req, res)
 // FIXME Ajouter la recherche d'amis ici
 }
 
+function webSocket(req, res)
+{
+	var http = require('http').Server(global.app);
+	var io = require('socket.io')(http);
+	// TOSEE http://socket.io/get-started/chat/ && http://oct.2011.lyonjs.naholyr.fr/#slide-27
+}
+
 module.exports =
 {
 	register : register,
@@ -255,7 +264,8 @@ module.exports =
 	stayAlive : stayAlive,
 	search : search,
 	addFriend : addFriend,
-	getConnectedList : getConnectedList
+	getConnectedList : getConnectedList,
+	socket : webSocket
 };
 
 /**

@@ -27,6 +27,8 @@ var app = express(), options =
 	}
 };
 
+global.app = app;
+
 // all environments
 app.set('port', process.env.PORT || 8080);
 app.set('views', path.join(__dirname, 'views'));
@@ -36,19 +38,12 @@ app.use(express.logger('dev'));
 app.use(express.cookieParser(require('./saltsForApp').session));
 app.use(function(req, res, next)
 {
-	// check if client sent cookie
 	var cookie = req.cookies.sessId, id = uuid.v4();
 	if (cookie === undefined)
 	{
-		// no: set a new cookie
 		res.cookie('sessId', id,
 		{
-			/*
-			* secret : require('./saltsForApp').session,
-			* signed : true,
-			*/
 			maxAge : 15000 * 60
-			//httpOnly : true
 		});
 		res.cookies =
 		{
@@ -59,9 +54,9 @@ app.use(function(req, res, next)
 	else
 	{
 		res.cookie('sessId', cookie,
-				{
-					maxAge : 15000 * 60
-				});
+		{
+			maxAge : 15000 * 60
+		});
 		res.cookies =
 		{
 			sessId : cookie,
@@ -75,19 +70,13 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-/*
- * app.use(express.session( { secret : require('./saltsForApp').session, store : new MySQLStore(options) }));
- */
 
-// development only
 if ('development' == app.get('env'))
 	app.use(express.errorHandler());
 
-// https://www.npmjs.org/package/connect-mysql
-
 /* Partie serveur web */
 app.get('/', routes.index);
-// FIXME Modifier les pages en prenant en compte le fait que les formulaires sont envoyés en POST
+// TODO Modifier les pages en prenant en compte le fait que les formulaires sont envoyés en POST
 app.get('/signin', require('./routes/registration').registration);
 app.get('/login', require('./routes/login').login);
 app.get('/verifAuth', require('./routes/verifyAuth').verifyAuth);
@@ -96,6 +85,7 @@ app.get('/logout', require('./routes/logout').logout);
 /* Partie API web */
 app.get('/webAPI/register', api.register);
 app.get('/webAPI/connect', api.connection);
+app.get('/webAPI/socket', api.socket);
 app.get('/webAPI/:user/updateInfos', api.modifyProfile);
 app.get('/webAPI/getPrivateKey/:user', api.getKey);
 app.get('/webAPI/getPubKey/:user', api.getPubKey);
@@ -105,6 +95,7 @@ app.use(function(req, res, next)
 {
 	res.setHeader('Content-Type', 'text/plain');
 	res.send(404, 'Le page demandée est introuvable ou n\'existe pas !');
+	next();
 });
 
 http.createServer(app).listen(app.get('port'), function()
