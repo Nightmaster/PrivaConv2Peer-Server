@@ -43,7 +43,6 @@ function register(req, res)
 				error : false,
 				validation : true
 			});
-		console.log('type pwK: ' + utils.realTypeOf(hashPwK));
 		rsa(hashPwK, lengthKey, login);
 	});
 }
@@ -67,23 +66,15 @@ function connect(req, res)
 					{
 						if (err)
 							console.error(err);
-						else
-							console.log('res : ' + JSON.stringify(rows));
 					});
 				}
 				else
 					sendJsonError(res, 200, 'Mot de passe incorrect', 'connection');
 			}
 			else if (rows.length === 0)
-			{
-				console.log('0 Retour');
 				sendJsonError(res, 200, 'L\'identifiant utilisateur fourni n\'existe pas dans la base de données', 'connection');
-			}
 			else
-			{
-				console.log('err ' + err + '\nrows: ' + JSON.stringify(rows));
 				sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
-			}
 		});
 	}
 	else if (email)
@@ -100,8 +91,6 @@ function connect(req, res)
 					{
 						if (err)
 							console.error(err);
-						else
-							console.log('res : ' + JSON.stringify(rows));
 					});
 				}
 				else
@@ -290,7 +279,6 @@ function createCookieInDB(req, res, connection, uuid, exp, id)
 		}
 		else
 		{
-			console.log('rows: ' + JSON.stringify(rows));
 			cookieQuery = 'Insert Into cookie (value, validity, userId)\nValues ("' + uuid + '", "' + getMySQLDate(exp) + '", ' + rows[0].id + ');';
 			connection.query(cookieQuery, function(err, row, field)
 			{
@@ -395,15 +383,10 @@ function getMySQLDate(date)
 **/
 function eraseOldCookie(id)
 {
-	var query = 'Delete From cookie Where userId In ( Select id From user Where ' + (-1 === id.indexOf('@') ? 'login' : 'email') + '="' + id + '" );';
+	var query = 'Delete From cookie\nWhere userId In\n(\n\tSelect id\n\tFrom user\n\tWhere ' + ( -1 === id.indexOf('@') ? 'login' : 'email') + '="' + id + '"\n);';
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
-		{
-			console.log('id de type : ' + -1 === id.indexOf('@') ? 'login' : 'email');
 			console.error(err);
-		}
-		else
-			console.log('rows Delete cookies : )' + JSON.stringify(rows));
 	});
 }
