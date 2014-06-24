@@ -2,18 +2,18 @@
 * GET all APIi pages
 **/
 var mysql = require('mysql'), // MySQL connection module
-	fs = require('fs'), // File System library
-	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-	rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
-	util = require('util'), // Native util module
-	utils = require('../lib/utils'), // Personnal utils module
-	infos =
-	{
-		host : 'localhost',
-		user : 'pc2p',
-		password : 'esgi@123',
-		database : 'PC2P'
-	}, connection = mysql.createConnection(infos);
+fs = require('fs'), // File System library
+hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
+util = require('util'), // Native util module
+utils = require('../lib/utils'), // Personnal utils module
+infos =
+{
+	host : 'localhost',
+	user : 'pc2p',
+	password : 'esgi@123',
+	database : 'PC2P'
+}, connection = mysql.createConnection(infos);
 
 function register(req, res)
 {
@@ -29,13 +29,13 @@ function register(req, res)
 			{
 				duplication = err[1].substr(1);
 				if (login === duplication.split(' ')[2].replace(/\'/g, ''))
-					sendJsonError(res, 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.', 'register');
+					sendJsonError(res, 200, 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.', 'register');
 				else if (email === duplication.split(' ')[2].replace(/\'/g, ''))
-					sendJsonError(res, 'Cet email est déjà utilisé par un autre utilisateur. Veillez en choisir un autre.', 'register');
+					sendJsonError(res, 200, 'Cet email est déjà utilisé par un autre utilisateur. Veillez en choisir un autre.', 'register');
 				// TODO (---) recommander récup de MdP quand implémenté
 			}
 			else
-				sendJsonError(res, 'err: ' + JSON.stringify(err), 'register');
+				sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'register');
 		}
 		else
 			res.json(
@@ -44,7 +44,6 @@ function register(req, res)
 				validation : true
 			});
 		console.log('type pwK: ' + utils.realTypeOf(hashPwK));
-		// FIXME ajouter la création de la paire de clé utilisateur
 		rsa(hashPwK, lengthKey, login);
 	});
 }
@@ -62,6 +61,7 @@ function connect(req, res)
 			{
 				if (hashPW === rows[0].hash_pw)
 				{
+					eraseOldCookie(login, 'login');
 					createCookieInDB(req, res, connection, uuid, expiration, login.toLowerCase());
 					connection.query(connecQuery, function(err, rows, field)
 					{
@@ -72,17 +72,17 @@ function connect(req, res)
 					});
 				}
 				else
-					sendJsonError(res, 'Mot de passe incorrect', 'connection');
+					sendJsonError(res, 200, 'Mot de passe incorrect', 'connection');
 			}
 			else if (rows.length === 0)
 			{
 				console.log('0 Retour');
-				sendJsonError(res, 'L\'identifiant utilisateur fourni n\'existe pas dans la base de données', 'connection');
+				sendJsonError(res, 200, 'L\'identifiant utilisateur fourni n\'existe pas dans la base de données', 'connection');
 			}
 			else
 			{
 				console.log('err ' + err + '\nrows: ' + JSON.stringify(rows));
-				sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
+				sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 			}
 		});
 	}
@@ -93,27 +93,53 @@ function connect(req, res)
 		{
 			if (0 < rows.length)
 				if (hashPW === rows[0].hash_pw)
+				{
+					eraseOldCookie(email);
 					createCookieInDB(req, res, connection, uuid, email);
+					connection.query(connecQuery, function(err, rows, field)
+					{
+						if (err)
+							console.error(err);
+						else
+							console.log('res : ' + JSON.stringify(rows));
+					});
+				}
 				else
-					sendJsonError(res, 'Mot de passe incorrect', 'connection');
+					sendJsonError(res, 200, 'Mot de passe incorrect', 'connection');
 			else if (rows.length === 0)
 				sendJsonError(res, 'L\'adresse email fournie n\'existe pas dans la base de données', 'connection');
 			else
 			{
 				console.error(err);
-				sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
+				sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 			}
 		});
 	}
 	else
-		sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
+		sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 
 }
+
+function disconnect(req, res)
+{
+	var query = 'Delete From cookie\nWhere value="' + res.cookies.sessId + '";';
+	connection.query(query, function(err, rows, fields)
+	{
+		if (err)
+			console.error(err);
+		else
+			res.json(
+			{
+				error : false,
+				disconnect : true
+			});
+	});
+};
 
 function modifyProfile(req, res)
 {
 	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw);
-	if (login) // FIXME remplacer par la gestion de cookie
+	if (true === checkValidityForUser(res.cookies.sessId)) // FIXME remplacer par la gestion de cookie
 	{
 		if (login)
 			connection.query('Update user\nSet login = "' + login.toLowerCase() + '", displayLogin = "' + login + '"\nWhere login = ' + login.toLowerCase(), function(err, rows, fields)
@@ -146,22 +172,24 @@ function modifyProfile(req, res)
 					console.error(err);
 			});
 	}
+	else
+		sendJsonError(res, 401, 'Unauthorized', 'Modify Profile');
 }
 
 function getKey(req, res)
 {
-	if (connected)
-		connection.query('Select path_to_keys From key where id = (Select id From user Where login = ' + login.toLowerCase(), function(err, rows, fields)
+	var pathTo = '/PrivaConv2Peer/' + req.params.user.toLowerCase() + 'id_rsa.pem';
+	// FIXME Continuer à partir d'ici
+	if (true === checkValidityForUser(res.cookies.sessId))
+		fs.readFile(rows[0].path_to_keys, function(err, result)
 		{
-			fs.readFile(rows[0].path_to_keys, function(err, result)
+			res.json(
 			{
-				res.json(
-				{
-					error : false,
-					prKey : result
-				});
+				error : false,
+				prKey : result
 			});
 		});
+	sendJsonError(res, 401, 'Unauthorized', 'Get Key');
 }
 
 function getPubKey(req, res)
@@ -184,13 +212,9 @@ function getCliIP(req, res)
 				ip : rows[0].user_ip
 			});
 		else if (rows && 0 === rows.length)
-			res.json(
-			{
-				error : true,
-				displayMessage : 'Le contact demandé n\'existe pas'
-			});
+			sendJsonError(res, 200, 'Le contact demandé n\'existe pas', 'getIP');
 		else
-			sendJsonError(res, 'err: ' + JSON.stringify(err), 'getIP');
+			sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'getIP');
 	});
 }
 
@@ -214,6 +238,7 @@ module.exports =
 {
 	register : register,
 	connection : connect,
+	disconnect : disconnect,
 	modifyProfile : modifyProfile,
 	getKey : getKey,
 	getPubKey : getPubKey,
@@ -234,7 +259,7 @@ module.exports =
 **/
 function createCookieInDB(req, res, connection, uuid, exp, id)
 {
-	var idType = -1 === id.indexOf('@') ? 'login' : 'email', userIdQuery = 'Select id\nFrom user\nWhere ' + idType + ' = "' + id + '";', cookieQuery;
+	var idType = -1 === id.indexOf('@') ? 'login' : 'email', userIdQuery = 'Select id, nom, prenom, displayLogin, email\nFrom user\nWhere ' + idType + ' = "' + id + '";', cookieQuery;
 	connection.query(userIdQuery, function(err, rows, field)
 	{
 		if (err)
@@ -245,7 +270,7 @@ function createCookieInDB(req, res, connection, uuid, exp, id)
 		else
 		{
 			console.log('rows: ' + JSON.stringify(rows));
-			cookieQuery = 'Insert Into cookie (value, validity, userId)\nValues ("' + uuid + '", "' + exp.toISOString().slice(0, 19).replace('T', ' ') + '", ' + rows[0].id + ');';
+			cookieQuery = 'Insert Into cookie (value, validity, userId)\nValues ("' + uuid + '", "' + getMySQLDate(exp) + '", ' + rows[0].id + ');';
 			connection.query(cookieQuery, function(err, rows, field)
 			{
 				if (err)
@@ -258,7 +283,14 @@ function createCookieInDB(req, res, connection, uuid, exp, id)
 					{
 						error : false,
 						connection : true,
-						validity : 15
+						validity : 15,
+						user :
+						{
+							login : rows[0].displayLogin,
+							email : rows[0].email,
+							name : rows[0].nom,
+							firstname : rows[0].prenom
+						}
 					});
 			});
 		}
@@ -269,13 +301,14 @@ function createCookieInDB(req, res, connection, uuid, exp, id)
 * Automatisation du renvoie de l'erreur 500 et du JSON avec les informations correspondantes à  l'intérieur
 *
 * @param res {Object} : objet response d'Express
+* @param code {Number} : code HTML de la réponse
 * @param message {String} : le message correspondant à l'erreur
 * @param source {String} : l'indicateur de la fonction d'origine de l'erreur. Permet d'apater le contenu du JSON en fonction  
 **/
-function sendJsonError(res, message, source)
+function sendJsonError(res, code, message, source)
 {
 	if ('connection' === source)
-		res.json(500,
+		res.json(code,
 		{
 			error : true,
 			reason : 'SQL Error',
@@ -284,7 +317,7 @@ function sendJsonError(res, message, source)
 			validity : -1
 		});
 	else if ('register' === source)
-		res.json(500,
+		res.json(code,
 		{
 			error : true,
 			reason : 'SQL Error',
@@ -293,10 +326,66 @@ function sendJsonError(res, message, source)
 			validity : -1
 		});
 	else
-		res.json(500,
+		res.json(code,
 		{
 			error : true,
 			displayMessage : message
 		})
+}
 
+/**
+* Vérifie l'enregistrement du cookie dans la base, et s'il est toujours valide
+*
+* @param uuid {String} : l'uuid de l'utilisateur stocké dans un cookie
+* @return {Boolean} true si le cookie est (toujours) valide, false sinon 
+**/
+function checkValidityForUser(uuid)
+{
+	var query = 'Select userId, validity\nFrom user\nWhere value="' + uuid + '";', now = new Date(), validity, result;
+	connection.query(query, function(err, rows, fields)
+	{
+		if (err)
+			console.error(err);
+		else if (rows.length !== 0)
+		{
+			validity = rows[0].validity;
+			if (now >= validity)
+				result = true;
+		}
+		result = false;
+	});
+	while (undefined === result)
+	{};
+	return result;
+}
+
+/**
+* Renvoie une date au format String compréhensible par MySQL
+*
+* @param date {Date} : la date à mettre à formatter pour MySQL
+* @return {String} la date dans le format compatible pour MySQL
+**/
+function getMySQLDate(date)
+{
+	if ('Undefined' !== utils.realTypeOf(date))
+		return date.toISOString().slice(0, 19).replace('T', ' ');
+	else
+		return new Date().toISOString().slice(0, 19).replace('T', ' ');
+}
+
+/**
+* Efface tous les anciens cookies pour l'utilisateur en cours 
+*
+* @param id {String} : l'email ou l'username de l'utilisateur
+**/
+function eraseOldCookie(id)
+{
+	var query = 'Delete From cookie\nWhere userId In\n(\n\tSelect id\n\tFrom user\n\tWhere ' + -1 !== id.indexOf('@') ? 'login' : 'email' + '="' + id + '";';
+	connection.query(query, function(err, rows, fields)
+	{
+		if (err)
+			console.error(err);
+		else
+			console.log(JSON.stringify(rows));
+	});
 }
