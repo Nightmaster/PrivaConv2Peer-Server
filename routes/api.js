@@ -350,13 +350,14 @@ function checkValidityForUser(uuid)
 			validity = rows[0].validity;
 			if (now >= validity)
 				result = true;
-			console.log('result:' + result)
+			console.log(console.log(new Date().toString() + ' callback, res = ' + result));
 		}
 		result = false;
-		console.log('result:' + result)
+		console.log(console.log(new Date().toString() + ' fin callback, res = ' + result));
 	});
-	while (undefined === result)
-	{};
+	console.log(new Date().toString() + ' sortie fonction, res = ' + result);
+//	while (undefined === result)
+//	{};
 	return result;
 }
 
