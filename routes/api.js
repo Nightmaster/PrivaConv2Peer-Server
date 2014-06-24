@@ -138,42 +138,58 @@ function disconnect(req, res)
 
 function modifyProfile(req, res)
 {
-	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw);
-	if (true === checkValidityForUser(res.cookies.sessId)) // FIXME remplacer par la gestion de cookie
+	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw), values = '', query, jsonReturned =
 	{
-		if (login)
-			connection.query('Update user\nSet login = "' + login.toLowerCase() + '", displayLogin = "' + login + '"\nWhere login = ' + login.toLowerCase(), function(err, rows, fields)
+		error : false,
+		modification : true,
+		newValues : {}
+	}, callback;
+	callback = function(err, result)
+	{
+		if (err)
+			console.error(err)
+		else if (true === result)
+		{
+			if (login)
 			{
-				if (err)
-					console.error(err);
-			});
-		if (email)
-			connection.query('Update user\nSet email = "' + email + '"\nWhere login = ' + login.toLowerCase(), function(err, rows, fields)
+				values += 'login = "' + login.toLowerCase() + '", displayLogin = "' + login + '"';
+				jsonReturned.newValues.login = login;
+			}
+			if (email)
 			{
-				if (err)
-					console.error(err);
-			});
-		if (fName)
-			connection.query('Update user\nSet prenom = "' + fName + '"\nWhere login = ' + login.toLowerCase(), function(err, rows, fields)
+				values += '' === values ? 'email = "' + email + '"' : ', email = "' + email + '"';
+				jsonReturned.newValues.email = email;
+			}
+			if (fName)
 			{
-				if (err)
-					console.error(err);
-			});
-		if (lName)
-			connection.query('Update user\nSet nom = "' + lName + '"\nWhere login = ' + login.toLowerCase(), function(err, rows, fields)
+				values += '' === values ? 'prenom = "' + fName + '"' : ', prenom = "' + fName + '"';
+				jsonReturned.newValues.firstname = fName;
+			}
+			if (lName)
 			{
-				if (err)
-					console.error(err);
-			});
-		if (hashPW)
-			connection.query('Update user\nSet hash_pw = "' + hashPW + '"\nWhere login = ' + login.toLowerCase(), function(err, rows, fields)
+				values += '' === values ? 'nom = "' + lName + '"' : ', nom = "' + lName + '"';
+				jsonReturned.newValues.name = lName;
+			}
+			if (hashPW)
 			{
-				if (err)
-					console.error(err);
-			});
+				values += '' === values ? 'hash_pw = "' + hashPW + '"' : ', hash_pw = "' + hashPW + '"';
+				jsonReturned.pwChanged = true;
+			}
+			if ('' !== values)
+			{
+				query = 'Update user\nSet ' + values + '\nWhere id In\n(\n\tSelect userId\n\tFrom cookie\n\tWhere value = "' + res.cookies.sessId + '"\n);';
+				connection.query(query, function(err, rows, fields)
+				{
+					if (err)
+						sendJsonError(res, 500, err, 'Modify'); // TODO Voir pour gérer les conflits de clés uniques
+					else
+						res.json(200, jsonReturned);
+				});
+			}
+		}
+		else
+			sendJsonError(res, 401, 'Unauthorized', 'Modify Profile');
 	}
-	else
-		sendJsonError(res, 401, 'Unauthorized', 'Modify Profile');
 }
 
 function getKey(req, res)
@@ -243,6 +259,7 @@ module.exports =
 	getPubKey : getPubKey,
 	getCliIP : getCliIP,
 	stayAlive : stayAlive,
+	search : search,
 	addFriend : addFriend,
 	getConnectedList : getConnectedList
 };
@@ -306,59 +323,50 @@ function createCookieInDB(req, res, connection, uuid, exp, id)
 **/
 function sendJsonError(res, code, message, source)
 {
+	var result =
+	{
+		error : true,
+		displayMessage : message
+	};
 	if ('connection' === source)
-		res.json(code,
-		{
-			error : true,
-			reason : 'SQL Error',
-			displayMessage : message,
-			connection : false,
-			validity : -1
-		});
+	{
+		result.connection = false;
+		result.validity = -1;
+		res.json(code, result);
+	}
 	else if ('register' === source)
-		res.json(code,
-		{
-			error : true,
-			reason : 'SQL Error',
-			displayMessage : message,
-			connection : false,
-			validity : -1
-		});
+
+	{
+		result.validation = false;
+		res.json(code, result);
+	}
 	else
-		res.json(code,
-		{
-			error : true,
-			displayMessage : message
-		})
+		res.json(code, result);
 }
 
 /**
 * Vérifie l'enregistrement du cookie dans la base, et s'il est toujours valide
 *
 * @param uuid {String} : l'uuid de l'utilisateur stocké dans un cookie
+* @param cb {Function} : la fonction de callback à appeler après la remonté des infos de MySQL
 * @return {Boolean} true si le cookie est (toujours) valide, false sinon 
 **/
-function checkValidityForUser(uuid)
+function checkValidityForUser(uuid, cb)
 {
-	var query = 'Select userId, validity\nFrom user\nWhere value="' + uuid + '";', now = new Date(), validity, result;
+	var query = 'Select userId, validity\nFrom cookie\nWhere value="' + uuid + '";', now = new Date(), validity;
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
-			console.error(err);
+			cb(err);
 		else if (rows.length !== 0)
 		{
 			validity = rows[0].validity;
 			if (now >= validity)
-				result = true;
-			console.log(console.log(new Date().toString() + ' callback, res = ' + result));
+				cb(undefined, true);
 		}
-		result = false;
-		console.log(console.log(new Date().toString() + ' fin callback, res = ' + result));
+		else
+			cb(undefined, false);
 	});
-	console.log(new Date().toString() + ' sortie fonction, res = ' + result);
-//	while (undefined === result)
-//	{};
-	return result;
 }
 
 /**
