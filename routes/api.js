@@ -292,7 +292,7 @@ function createCookieInDB(req, res, connection, uuid, exp, id)
 		{
 			console.log('rows: ' + JSON.stringify(rows));
 			cookieQuery = 'Insert Into cookie (value, validity, userId)\nValues ("' + uuid + '", "' + getMySQLDate(exp) + '", ' + rows[0].id + ');';
-			connection.query(cookieQuery, function(err, rows, field)
+			connection.query(cookieQuery, function(err, row, field)
 			{
 				if (err)
 				{
@@ -395,7 +395,7 @@ function getMySQLDate(date)
 **/
 function eraseOldCookie(id)
 {
-	var query = 'Delete From cookie\nWhere userId In\n(\n\tSelect id\n\tFrom user\n\tWhere ' + -1 !== id.indexOf('@') ? 'login' : 'email' + '="' + id + '"\n);';
+	var query = 'Delete From cookie\nWhere userId In\n(\n\tSelect id\n\tFrom user\n\tWhere ' + -1 !== id.indexOf('@') ? 'login' : 'email' + '=' + id + '\n);';
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
