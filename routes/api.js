@@ -249,6 +249,11 @@ function getConnectedList(req, res)
 // FIXME voir la gestion de cookie pour cette partie
 }
 
+function search(req, res)
+{
+// FIXME Ajouter la recherche d'amis ici
+}
+
 module.exports =
 {
 	register : register,
