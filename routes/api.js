@@ -399,7 +399,10 @@ function eraseOldCookie(id)
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
+		{
+			console.log('id de type : ' + -1 === id.indexOf('@') ? 'login' : 'email');
 			console.error(err);
+		}
 		else
 			console.log('rows Delete cookies : )' + JSON.stringify(rows));
 	});
