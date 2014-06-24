@@ -2,18 +2,18 @@
 * GET all APIi pages
 **/
 var mysql = require('mysql'), // MySQL connection module
-fs = require('fs'), // File System library
-hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
-util = require('util'), // Native util module
-utils = require('../lib/utils'), // Personnal utils module
-infos =
-{
-	host : 'localhost',
-	user : 'pc2p',
-	password : 'esgi@123',
-	database : 'PC2P'
-}, connection = mysql.createConnection(infos);
+	fs = require('fs'), // File System library
+	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+	rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
+	util = require('util'), // Native util module
+	utils = require('../lib/utils'), // Personnal utils module
+	infos =
+	{
+		host : 'localhost',
+		user : 'pc2p',
+		password : 'esgi@123',
+		database : 'PC2P'
+	}, connection = mysql.createConnection(infos);
 
 function register(req, res)
 {
@@ -179,9 +179,8 @@ function modifyProfile(req, res)
 function getKey(req, res)
 {
 	var pathTo = '/PrivaConv2Peer/' + req.params.user.toLowerCase() + 'id_rsa.pem';
-	// FIXME Continuer à partir d'ici
 	if (true === checkValidityForUser(res.cookies.sessId))
-		fs.readFile(rows[0].path_to_keys, function(err, result)
+		fs.readFile(pathTo, function(err, result)
 		{
 			res.json(
 			{
@@ -351,8 +350,10 @@ function checkValidityForUser(uuid)
 			validity = rows[0].validity;
 			if (now >= validity)
 				result = true;
+			console.log('result:' + result)
 		}
 		result = false;
+		console.log('result:' + result)
 	});
 	while (undefined === result)
 	{};
