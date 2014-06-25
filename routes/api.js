@@ -13,13 +13,14 @@ var fs = require('fs'), // File System library
 		user : 'pc2p',
 		password : 'esgi@123',
 		database : 'PC2P'
-	},
-	connection = mysql.createConnection(infos);
+	}, connection = mysql.createConnection(infos);
 
 function register(req, res)
 {
-	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPw = hasher(req.query.pw), hashPwK = hasher(req.query.pwK), lengthKey = req.query.length, query = 'Insert Into user (nom, prenom, login, displayLogin, email, hash_pw)\nValues ("' + fName + '", "' + lName + '", "' + login.toLowerCase() + '", "' + login + '", "' + email + '", "'
-			+ hashPw + '");';
+	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPw = hasher(req.query.pw), hashPwK = hasher(req.query.pwK), lengthKey = req.query.length, query;
+	if (undefined === login || undefined === email || undefined === hashPW || undefined === lName || undefined === fName || undefined === hashPwK || undefined === lengthKey)
+		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username && email && pw && firstname && name && pw && pwK && length');
+	query = 'Insert Into user (nom, prenom, login, displayLogin, email, hash_pw)\nValues ("' + fName + '", "' + lName + '", "' + login.toLowerCase() + '", "' + login + '", "' + email + '", "' + hashPw + '");';
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
@@ -51,6 +52,8 @@ function register(req, res)
 function connect(req, res)
 {
 	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, connecQuery, uuid = res.cookies.sessId, expiration = res.cookies.expiration;
+	if (undefined === login && undefined === email || undefined === hashPW)
+		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, '(username || email) && pw');
 	if (login)
 	{
 		query = 'Select hash_pw\nFrom user\nWhere login = "' + login.toLowerCase() + '";';
@@ -135,6 +138,8 @@ function modifyProfile(req, res)
 		modification : true,
 		newValues : {}
 	}, callback;
+	if (undefined === login && undefined === email && undefined === fName && undefined === lName && undefined === hashPW)
+		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email || firstname || name || pw');
 	callback = function(err, result)
 	{
 		if (err)
@@ -200,13 +205,17 @@ function getKey(req, res)
 
 function getPubKey(req, res)
 {
-	var callback, uuid = res.cookies.sessId;
+	var callback, uuid = res.cookies.sessId, login = req.query.username;
+	if (undefined === login || null === login)
+		sendJsonError(res, 400, 'Bad request. Missing parameter', undefined, 'username');
 	// FIXME prévoir une vérification des liens d'amitié par cookie
 }
 
 function getCliIP(req, res)
 {
 	var callback, uuid = res.cookies.sessId, user = req.params.user, query = 'Select user_ip From user Where login = ' + user.toLowerCase();
+	if (undefined === login || null === login)
+		sendJsonError(res, 400, 'Bad request. Missing parameter', undefined, 'username');
 	mysql.query(query, function(err, rows, fields)
 	{
 		// FIXME faire une vérification des liens d'amitié
@@ -235,6 +244,8 @@ function stayAlive(req, res)
 function addFriend(req, res)
 {
 	var callback, uuid = res.cookies.sessId, login = req.query.username, email = req.query.email, query;
+	if (undefined === login && undefined === email)
+		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email');
 	query = 'Insert Into ami (idUserEmitter, idUserReceiver, valide) Values ((Select id From user Where id In (Select id From cookie Where value = "' + uuid + '")), (Select id From user Where ' + (undefined !== login ? 'login' : 'email') + ' ="' + (undefined !== login ? login : email) + '" ), 0);';
 	callback = function(err, validity)
 	{
@@ -342,13 +353,15 @@ function createCookieInDB(req, res, connection, uuid, exp, id)
 * @param message {String} : le message correspondant à l'erreur
 * @param source {String} : l'indicateur de la fonction d'origine de l'erreur. Permet d'apater le contenu du JSON en fonction  
 **/
-function sendJsonError(res, code, message, source)
+function sendJsonError(res, code, message, source, paramList)
 {
 	var result =
 	{
 		error : true,
 		displayMessage : message
 	};
+	if (null !== paramList && undefined !== paramList)
+		result.parameters = paramList;
 	if ('connection' === source)
 	{
 		result.connection = false;
