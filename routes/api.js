@@ -2,19 +2,18 @@
 * GET all APIi pages
 **/
 var fs = require('fs'), // File System library
-	mysql = require('mysql'), // MySQL connection module
-	sockjs = require('socket.io'), // Web Socket library
-	util = require('util'), // Native util module
-	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-	rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
-	utils = require('../lib/utils'), // Personnal utils module
-	connection = mysql.createConnection(infos), infos =
-	{
-		host : 'localhost',
-		user : 'pc2p',
-		password : 'esgi@123',
-		database : 'PC2P'
-	};
+mysql = require('mysql'), // MySQL connection module
+util = require('util'), // Native util module
+hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
+utils = require('../lib/utils'), // Personnal utils module
+connection = mysql.createConnection(infos), infos =
+{
+	host : 'localhost',
+	user : 'pc2p',
+	password : 'esgi@123',
+	database : 'PC2P'
+};
 
 function register(req, res)
 {
@@ -185,7 +184,7 @@ function modifyProfile(req, res)
 
 function getKey(req, res)
 {
-	var pathTo = '/PrivaConv2Peer/' + req.params.user.toLowerCase() + 'id_rsa.pem';
+	var callback, uuid = res.cookies.sessId, pathTo = '/PrivaConv2Peer/' + req.params.user.toLowerCase() + 'id_rsa.pem';
 	if (true === checkValidityForUser(res.cookies.sessId))
 		fs.readFile(pathTo, function(err, result)
 		{
@@ -200,12 +199,13 @@ function getKey(req, res)
 
 function getPubKey(req, res)
 {
-// FIXME prévoir une vérification des liens d'amitié par cookie
+	var callback, uuid = res.cookies.sessId;
+	// FIXME prévoir une vérification des liens d'amitié par cookie
 }
 
 function getCliIP(req, res)
 {
-	var user = req.params.user, query = 'Select user_ip From user Where login = ' + user.toLowerCase();
+	var callback, uuid = res.cookies.sessId, user = req.params.user, query = 'Select user_ip From user Where login = ' + user.toLowerCase();
 	mysql.query(query, function(err, rows, fields)
 	{
 		// FIXME faire une vérification des liens d'amitié
@@ -226,30 +226,48 @@ function getCliIP(req, res)
 
 function stayAlive(req, res)
 {
+	var callback, uuid = res.cookies.sessId;
 	// FIXME parser le cookie pour trouver l'user derrière
 	mysql.query('Update Table user Set timeout = ' + new Date(new Date().getTime() + 15 * 60000));
 }
 
 function addFriend(req, res)
 {
-// FIXME voir la gestion de cookie pour cette partie
+	var callback, uuid = res.cookies.sessId, login = req.query.username, email = req.query.email, query;
+	query = 'Insert Into ami (idUserEmitter, idUserReceiver, valide) Values ((Select id From user Where id In (Select id From cookie Where value = "' + uuid + '")), (Select id From user Where ' + (undefined !== login ? 'login' : 'email') + ' ="' + (undefined !== login ? login : email) + '" ), 0);';
+	callback = function(err, validity)
+	{
+		if (err)
+			sendJsonError(res, 500, JSON.stringify(err), 'Add friend');
+		if (true === validity)
+			connection.query(query, function(err, rows, field)
+			{
+				if (err)
+					sendJsonError(res, 500, JSON.stringify(err), 'Add friend');
+				else
+					res.json(
+					{
+						error : false,
+						invitation : 'sent'
+					});
+			});
+		else
+			sendJsonError(res, 403, 'Unauthorized', 'Add Friend');
+	};
+	checkValidityForUser(uuid, callback);
+	// FIXME voir la gestion de cookie pour cette partie
 }
 
 function getConnectedList(req, res)
 {
-// FIXME voir la gestion de cookie pour cette partie
+	var callback, uuid = res.cookies.sessId;
+	// FIXME voir la gestion de cookie pour cette partie
 }
 
 function search(req, res)
 {
-// FIXME Ajouter la recherche d'amis ici
-}
-
-function webSocket(req, res)
-{
-	var http = require('http').Server(global.app);
-	var io = require('socket.io')(http);
-	// TOSEE http://socket.io/get-started/chat/ && http://oct.2011.lyonjs.naholyr.fr/#slide-27
+	var callback, uuid = res.cookies.sessId;
+	// FIXME Ajouter la recherche d'amis ici
 }
 
 module.exports =
@@ -265,7 +283,6 @@ module.exports =
 	search : search,
 	addFriend : addFriend,
 	getConnectedList : getConnectedList,
-	socket : webSocket
 };
 
 /**
