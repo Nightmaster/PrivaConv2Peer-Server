@@ -20,33 +20,36 @@ function register(req, res)
 	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPw = hasher(req.query.pw), hashPwK = hasher(req.query.pwK), lengthKey = req.query.length, query;
 	if (undefined === login || undefined === email || undefined === hashPW || undefined === lName || undefined === fName || undefined === hashPwK || undefined === lengthKey)
 		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username && email && pw && firstname && name && pw && pwK && length');
-	query = 'Insert Into user (nom, prenom, login, displayLogin, email, hash_pw)\nValues ("' + fName + '", "' + lName + '", "' + login.toLowerCase() + '", "' + login + '", "' + email + '", "' + hashPw + '");';
-	connection.query(query, function(err, rows, fields)
+	else
 	{
-		if (err)
+		query = 'Insert Into user (nom, prenom, login, displayLogin, email, hash_pw)\nValues ("' + fName + '", "' + lName + '", "' + login.toLowerCase() + '", "' + login + '", "' + email + '", "' + hashPw + '");';
+		connection.query(query, function(err, rows, fields)
 		{
-			err = err.message.split('\n')[0].split(':');
-			var duplication;
-			if ( -1 !== err[1].indexOf('Duplicate'))
+			if (err)
 			{
-				duplication = err[1].substr(1);
-				if (login === duplication.split(' ')[2].replace(/\'/g, ''))
-					sendJsonError(res, 200, 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.', 'register');
-				else if (email === duplication.split(' ')[2].replace(/\'/g, ''))
-					sendJsonError(res, 200, 'Cet email est déjà utilisé par un autre utilisateur. Veillez en choisir un autre.', 'register');
-				// TODO (---) recommander récup de MdP quand implémenté
+				err = err.message.split('\n')[0].split(':');
+				var duplication;
+				if ( -1 !== err[1].indexOf('Duplicate'))
+				{
+					duplication = err[1].substr(1);
+					if (login === duplication.split(' ')[2].replace(/\'/g, ''))
+						sendJsonError(res, 200, 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.', 'register');
+					else if (email === duplication.split(' ')[2].replace(/\'/g, ''))
+						sendJsonError(res, 200, 'Cet email est déjà utilisé par un autre utilisateur. Veillez en choisir un autre.', 'register');
+					// TODO (---) recommander récup de MdP quand implémenté
+				}
+				else
+					sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'register');
 			}
 			else
-				sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'register');
-		}
-		else
-			res.json(
-			{
-				error : false,
-				validation : true
-			});
-		rsa(hashPwK, lengthKey, login);
-	});
+				res.json(
+				{
+					error : false,
+					validation : true
+				});
+			rsa(hashPwK, lengthKey, login);
+		});
+	}
 }
 
 function connect(req, res)
