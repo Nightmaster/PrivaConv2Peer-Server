@@ -363,6 +363,7 @@ function sendJsonError(res, code, message, source, paramList)
 {
 	var result =
 	{
+		httpErrorCode : code,
 		error : true,
 		displayMessage : message
 	};
