@@ -253,7 +253,7 @@ function addFriend(req, res)
 					});
 			});
 		else
-			sendJsonError(res, 403, 'Unauthorized', 'Add Friend');
+			sendJsonError(res, 401, 'Unauthorized', 'Add Friend');
 	};
 	checkValidityForUser(uuid, callback);
 	// FIXME voir la gestion de cookie pour cette partie
