@@ -56,8 +56,7 @@ function register(req, res)
 
 function connect(req, res)
 {
-	var login = req.query.username, email = req.query.email, hashPW = req.query.pw, query
-	'Select hash_pw\nFrom user\nWhere %s = "%s";', connecQuery, uuid = res.cookies.sessId, expiration = res.cookies.expiration;
+	var login = req.query.username, email = req.query.email, hashPW = req.query.pw, query = 'Select hash_pw\nFrom user\nWhere %s = "%s";', connecQuery, uuid = res.cookies.sessId, expiration = res.cookies.expiration;
 	if (undefined === login && undefined === email || undefined === hashPW)
 		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, '(username || email) && pw');
 	else
