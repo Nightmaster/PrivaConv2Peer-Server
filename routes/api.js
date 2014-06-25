@@ -17,11 +17,13 @@ var fs = require('fs'), // File System library
 
 function register(req, res)
 {
-	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPw = hasher(req.query.pw), hashPwK = hasher(req.query.pwK), lengthKey = req.query.length, query;
+	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPw = req.query.pw, hashPwK = req.query.pwK, lengthKey = req.query.length, query;
 	if (undefined === login || undefined === email || undefined === hashPW || undefined === lName || undefined === fName || undefined === hashPwK || undefined === lengthKey)
 		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username && email && pw && firstname && name && pw && pwK && length');
 	else
 	{
+		hashPw =  hasher(hashPw);
+		hashPwK =  hasher(hashPwK);
 		query = 'Insert Into user (nom, prenom, login, displayLogin, email, hash_pw)\nValues ("' + fName + '", "' + lName + '", "' + login.toLowerCase() + '", "' + login + '", "' + email + '", "' + hashPw + '");';
 		connection.query(query, function(err, rows, fields)
 		{
