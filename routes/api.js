@@ -283,7 +283,7 @@ module.exports =
 	stayAlive : stayAlive,
 	search : search,
 	addFriend : addFriend,
-	getConnectedList : getConnectedList,
+	getConnectedList : getConnectedList
 };
 
 /**

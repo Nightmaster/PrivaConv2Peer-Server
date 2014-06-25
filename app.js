@@ -87,10 +87,14 @@ app.get('/logout', require('./routes/logout').logout);
 /* Partie API web */
 app.get('/webAPI/register', api.register);
 app.get('/webAPI/connect', api.connection);
-app.get('/webAPI/socket', api.socket);
 app.get('/webAPI/:user/updateInfos', api.modifyProfile);
 app.get('/webAPI/getPrivateKey/:user', api.getKey);
 app.get('/webAPI/getPubKey/:user', api.getPubKey);
+app.get('/webAPI/getCliIP/:user' ,api.getCliIP);
+app.get('/webAPI/stayAlive', api.stayAlive);
+app.get('/webAPI/search', api.search);
+app.get('/webAPI/addFriend', api.addFriend);
+app.get('/webAPI/getConnectedList', api.getConnectedList);
 
 /* Erreur '404 not found', en cas de besoin */
 app.use(function(req, res, next)
