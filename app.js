@@ -99,8 +99,11 @@ app.get('/webAPI/getConnectedList', api.getConnectedList);
 /* Erreur '404 not found', en cas de besoin */
 app.use(function(req, res, next)
 {
-	res.setHeader('Content-Type', 'text/plain');
-	res.send(404, 'Le page demandée est introuvable ou n\'existe pas !');
+    res.status(400);
+	res.render('404', 
+	{
+		title : 'PrivaConv2Peer'
+	});
 	next();
 });
 
