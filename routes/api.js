@@ -22,8 +22,8 @@ function register(req, res)
 		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username && email && pw && firstname && name && pw && pwK && length');
 	else
 	{
-		hashPw =  hasher(hashPw);
-		hashPwK =  hasher(hashPwK);
+		hashPw = hasher(hashPw);
+		hashPwK = hasher(hashPwK);
 		query = 'Insert Into user (nom, prenom, login, displayLogin, email, hash_pw)\nValues ("' + fName + '", "' + lName + '", "' + login.toLowerCase() + '", "' + login + '", "' + email + '", "' + hashPw + '");';
 		connection.query(query, function(err, rows, fields)
 		{
@@ -56,66 +56,68 @@ function register(req, res)
 
 function connect(req, res)
 {
-	var login = req.query.username, email = req.query.email, hashPW = hasher(req.query.pw), query, connecQuery, uuid = res.cookies.sessId, expiration = res.cookies.expiration;
+	var login = req.query.username, email = req.query.email, hashPW = req.query.pw, query
+	'Select hash_pw\nFrom user\nWhere %s = "%s";', connecQuery, uuid = res.cookies.sessId, expiration = res.cookies.expiration;
 	if (undefined === login && undefined === email || undefined === hashPW)
 		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, '(username || email) && pw');
-	if (login)
-	{
-		query = 'Select hash_pw\nFrom user\nWhere login = "' + login.toLowerCase() + '";';
-		connecQuery = util.format('Update user\nSet user_ip = "' + req.ip + '", user_connected = 1\nWhere %s="%s";', undefined !== login ? 'login' : 'email', undefined !== login ? login.toLowerCase() : email);
-		connection.query(query, function(err, rows, fields)
-		{
-			if (0 < rows.length)
-			{
-				if (hashPW === rows[0].hash_pw)
-				{
-					eraseOldCookie(login, 'login');
-					createCookieInDB(req, res, connection, uuid, expiration, login.toLowerCase());
-					connection.query(connecQuery, function(err, rows, field)
-					{
-						if (err)
-							console.error(err);
-					});
-				}
-				else
-					sendJsonError(res, 200, 'Mot de passe incorrect', 'connection');
-			}
-			else if (rows.length === 0)
-				sendJsonError(res, 200, 'L\'identifiant utilisateur fourni n\'existe pas dans la base de données', 'connection');
-			else
-				sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
-		});
-	}
-	else if (email)
-	{
-		query = 'Select hash_pw From user Where email = "' + email + '";';
-		connection.query(query, function(err, rows, fields)
-		{
-			if (0 < rows.length)
-				if (hashPW === rows[0].hash_pw)
-				{
-					eraseOldCookie(email);
-					createCookieInDB(req, res, connection, uuid, email);
-					connection.query(connecQuery, function(err, rows, field)
-					{
-						if (err)
-							console.error(err);
-					});
-				}
-				else
-					sendJsonError(res, 200, 'Mot de passe incorrect', 'connection');
-			else if (rows.length === 0)
-				sendJsonError(res, 'L\'adresse email fournie n\'existe pas dans la base de données', 'connection');
-			else
-			{
-				console.error(err);
-				sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
-			}
-		});
-	}
 	else
-		sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
-
+	{
+		hashPW = hasher(hashPW);
+		if (login)
+		{
+			query = util.format(query, 'login', login.toLowerCase());
+			connecQuery = util.format('Update user\nSet user_ip = "' + req.ip + '", user_connected = 1\nWhere %s="%s";', undefined !== login ? 'login' : 'email', undefined !== login ? login.toLowerCase() : email);
+			connection.query(query, function(err, rows, fields)
+			{
+				if (0 < rows.length)
+				{
+					if (hashPW === rows[0].hash_pw)
+					{
+						eraseOldCookie(login, 'login');
+						createCookieInDB(req, res, connection, uuid, expiration, login.toLowerCase());
+						connection.query(connecQuery, function(err, rows, field)
+						{
+							if (err)
+								console.error(err);
+						});
+					}
+					else
+						sendJsonError(res, 200, 'Mot de passe incorrect', 'connection');
+				}
+				else if (rows.length === 0)
+					sendJsonError(res, 200, 'L\'identifiant utilisateur fourni n\'existe pas dans la base de données', 'connection');
+				else
+					sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
+			});
+		}
+		else if (email)
+		{
+			query = util.format(query, 'email', email);
+			connection.query(query, function(err, rows, fields)
+			{
+				if (0 < rows.length)
+					if (hashPW === rows[0].hash_pw)
+					{
+						eraseOldCookie(email);
+						createCookieInDB(req, res, connection, uuid, email);
+						connection.query(connecQuery, function(err, rows, field)
+						{
+							if (err)
+								console.error(err);
+						});
+					}
+					else
+						sendJsonError(res, 200, 'Mot de passe incorrect', 'connection');
+				else if (rows.length === 0)
+					sendJsonError(res, 'L\'adresse email fournie n\'existe pas dans la base de données', 'connection');
+				else
+				{
+					console.error(err);
+					sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
+				}
+			});
+		}
+	}
 }
 
 function disconnect(req, res)
