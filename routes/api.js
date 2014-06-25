@@ -2,18 +2,19 @@
 * GET all APIi pages
 **/
 var fs = require('fs'), // File System library
-mysql = require('mysql'), // MySQL connection module
-util = require('util'), // Native util module
-hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
-utils = require('../lib/utils'), // Personnal utils module
-connection = mysql.createConnection(infos), infos =
-{
-	host : 'localhost',
-	user : 'pc2p',
-	password : 'esgi@123',
-	database : 'PC2P'
-};
+	mysql = require('mysql'), // MySQL connection module
+	util = require('util'), // Native util module
+	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+	rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
+	utils = require('../lib/utils'), // Personnal utils module
+	infos =
+	{
+		host : 'localhost',
+		user : 'pc2p',
+		password : 'esgi@123',
+		database : 'PC2P'
+	},
+	connection = mysql.createConnection(infos);
 
 function register(req, res)
 {
