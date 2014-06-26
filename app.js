@@ -8,8 +8,8 @@
  */
 var express = require('express'), // Express module
 	MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
-	routes = require('./routes'), // Router directory
-	api = require('./routes/api'), // User module
+	routes = require('./routes'), // Router module
+	api = routes.api, // API module
 	http = require('http'), // HTTP Server module
 	path = require('path'), // Path module
 	utils = require('./lib/utils'), // Utils module set as global object
@@ -79,22 +79,22 @@ if ('development' == app.get('env'))
 /* Partie serveur web */
 app.get('/', routes.index);
 // TODO Modifier les pages en prenant en compte le fait que les formulaires sont envoyés en POST
-app.get('/signin', require('./routes/registration').registration);
-app.get('/login', require('./routes/login').login);
-app.get('/verifAuth', require('./routes/verifyAuth').verifyAuth);
-app.get('/logout', require('./routes/logout').logout);
+app.get('/signin', routes.registration);
+app.get('/login', routes.login);
+app.get('/verifAuth', routes.verifyAuth);
+app.get('/logout', routes.logout);
 
 /* Partie API web */
 app.get('/webAPI/register', api.register);
 app.get('/webAPI/connect', api.connection);
+app.get('/webAPI/stayAlive', api.stayAlive);
 app.get('/webAPI/disconnect', api.disconnect);
 app.get('/webAPI/:user/updateInfos', api.modifyProfile);
+app.get('/webAPI/search', api.search);
+app.get('/webAPI/addFriend', api.addFriend);
 app.get('/webAPI/getPrivateKey/:user', api.getKey);
 app.get('/webAPI/getPubKey/:user', api.getPubKey);
 app.get('/webAPI/getCliIP/:user' ,api.getCliIP);
-app.get('/webAPI/stayAlive', api.stayAlive);
-app.get('/webAPI/search', api.search);
-app.get('/webAPI/addFriend', api.addFriend);
 app.get('/webAPI/getConnectedList', api.getConnectedList);
 
 /* Erreur '404 not found', en cas de besoin */
