@@ -2,23 +2,23 @@
 * GET all APIi pages
 **/
 var fs = require('fs'), // File System library
-mysql = require('mysql'), // MySQL connection module
-util = require('util'), // Native util module
-hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
-utils = require('../lib/utils'), // Personnal utils module
-infos =
-{
-	host : 'localhost',
-	user : 'pc2p',
-	password : 'esgi@123',
-	database : 'PC2P'
-}, connection = mysql.createConnection(infos);
+	mysql = require('mysql'), // MySQL connection module
+	util = require('util'), // Native util module
+	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
+	rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
+	utils = require('../lib/utils'), // Personnal utils module
+	infos =
+	{
+		host : 'localhost',
+		user : 'pc2p',
+		password : 'esgi@123',
+		database : 'PC2P'
+	}, connection = mysql.createConnection(infos);
 
 function register(req, res)
 {
 	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPw = req.query.pw, hashPwK = req.query.pwK, lengthKey = req.query.length, query;
-	if (undefined === login || undefined === email || undefined === hashPW || undefined === lName || undefined === fName || undefined === hashPwK || undefined === lengthKey)
+	if (undefined === login || undefined === email || undefined === hashPw || undefined === lName || undefined === fName || undefined === hashPwK || undefined === lengthKey)
 		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username && email && pw && firstname && name && pw && pwK && length');
 	else
 	{
