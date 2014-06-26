@@ -98,15 +98,7 @@ app.get('/webAPI/addFriend', api.addFriend);
 app.get('/webAPI/getConnectedList', api.getConnectedList);
 
 /* Erreur '404 not found', en cas de besoin */
-app.use(function(req, res, next)
-{
-    res.status(404);
-	res.render('404', 
-	{
-		title : 'PrivaConv2Peer'
-	});
-	next();
-});
+app.use(routes._404);
 
 http.createServer(app).listen(app.get('port'), function()
 {

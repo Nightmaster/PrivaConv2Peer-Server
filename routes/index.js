@@ -2,7 +2,7 @@
 * GET home page.
 **/
 
-exports.index = function(req, res)
+function index(req, res)
 {
 	res.render('index',
 	{
@@ -11,3 +11,8 @@ exports.index = function(req, res)
 };
 
 // XXX utiliser ce fichier comme lieux des require plutôt que app.js
+module.exports =
+{
+	index : index,
+	_404 : require('./404')._404
+};
