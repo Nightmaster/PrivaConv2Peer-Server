@@ -138,7 +138,7 @@ function disconnect(req, res)
 
 function modifyProfile(req, res)
 {
-	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = hasher(req.query.pw), values = '', query, jsonReturned =
+	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = req.query.pw, values = '', query, jsonReturned =
 	{
 		error : false,
 		modification : true,
@@ -174,6 +174,7 @@ function modifyProfile(req, res)
 			}
 			if (hashPW)
 			{
+				hasPW = hasher(hashPW);
 				values += '' === values ? 'hash_pw = "' + hashPW + '"' : ', hash_pw = "' + hashPW + '"';
 				jsonReturned.pwChanged = true;
 			}
