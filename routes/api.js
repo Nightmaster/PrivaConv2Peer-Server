@@ -62,10 +62,10 @@ function connect(req, res)
 	else
 	{
 		hashPW = hasher(hashPW);
+		connecQuery = util.format('Update user\nSet user_ip = "' + req.ip + '", user_connected = 1\nWhere %s="%s";', undefined !== login ? 'login' : 'email', undefined !== login ? login.toLowerCase() : email);
 		if (login)
 		{
 			query = util.format(query, 'login', login.toLowerCase());
-			connecQuery = util.format('Update user\nSet user_ip = "' + req.ip + '", user_connected = 1\nWhere %s="%s";', undefined !== login ? 'login' : 'email', undefined !== login ? login.toLowerCase() : email);
 			connection.query(query, function(err, rows, fields)
 			{
 				if (0 < rows.length)
