@@ -254,7 +254,7 @@ function addFriend(req, res)
 	var callback, uuid = res.cookies.sessId, login = req.query.username, email = req.query.email, query;
 	if (undefined === login && undefined === email)
 		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email');
-	query = 'Insert Into ami (id_user_emitter, id_user_receiver, valide) Values ((Select id From user Where id In (Select id From cookie Where value = "' + uuid + '")), (Select id From user Where ' + (undefined !== login ? 'login' : 'email') + ' ="' + (undefined !== login ? login : email) + '" ), 0);';
+	query = 'Insert Into ami (id_user_emitter, id_user_receiver, valide) Values ((Select id From user Where id In (Select user_id From cookie Where value = "' + uuid + '")), (Select id From user Where ' + (undefined !== login ? 'login' : 'email') + ' ="' + (undefined !== login ? login : email) + '" ), 0);';
 	callback = function(err, validity)
 	{
 		if (err)
