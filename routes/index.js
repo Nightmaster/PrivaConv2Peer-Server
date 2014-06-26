@@ -16,6 +16,6 @@ module.exports =
 	logout : require('./logout').logout,
 	verifyAuth : require('./verifyAuth').verifyAuth,
 	modifyProfile : require('./modifyProfile').modifyProfile,
-	api : require('./api').api,
+	api : require('./api'),
 	_404 : require('./404')._404
 };
