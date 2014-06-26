@@ -61,7 +61,6 @@ function connect(req, res)
 		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, '(username || email) && pw');
 	else
 	{
-		hashPW = hasher(hashPW);
 		if (login)
 		{
 			query = util.format(query, 'login', login.toLowerCase());
