@@ -263,7 +263,10 @@ function addFriend(req, res)
 			connection.query(query, function(err, rows, field)
 			{
 				if (err)
+				{
+					console.error(err);
 					sendJsonError(res, 500, JSON.stringify(err), 'Add friend');
+				}
 				else
 					res.json(
 					{
