@@ -138,7 +138,7 @@ function disconnect(req, res)
 
 function modifyProfile(req, res)
 {
-	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = req.query.pw, values = '', query, jsonReturned =
+	var uuid = res.cookies.sessId, login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = req.query.pw, values = '', query, jsonReturned =
 	{
 		error : false,
 		modification : true,
@@ -193,6 +193,7 @@ function modifyProfile(req, res)
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'Modify Profile');
 	}
+	checkValidityForUser(uuid, callback);
 }
 
 function getKey(req, res)
@@ -274,7 +275,6 @@ function addFriend(req, res)
 			sendJsonError(res, 401, 'Unauthorized', 'Add Friend');
 	};
 	checkValidityForUser(uuid, callback);
-	// FIXME voir la gestion de cookie pour cette partie
 }
 
 function getConnectedList(req, res)
