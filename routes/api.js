@@ -98,7 +98,7 @@ function connect(req, res)
 					if (hashPW === rows[0].hash_pw)
 					{
 						eraseOldCookie(email);
-						createCookieInDB(req, res, connection, uuid, email);
+						createCookieInDB(req, res, connection, uuid, expiration, email);
 						connection.query(connecQuery, function(err, rows, field)
 						{
 							if (err)
