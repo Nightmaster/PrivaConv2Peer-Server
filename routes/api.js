@@ -70,6 +70,8 @@ function connect(req, res)
 			{
 				if (0 < rows.length)
 				{
+					 console.log('PW BBD: ' + rows[0].hash_pw);
+					 console.log('PW hashé: ' + hashPW);
 					if (hashPW === rows[0].hash_pw)
 					{
 						eraseOldCookie(login, 'login');
