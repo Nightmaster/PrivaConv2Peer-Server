@@ -336,7 +336,7 @@ function createCookieInDB(req, res, uuid, exp, id)
 				friends : result
 			});
 
-	}
+	};
 	connection.query(user_idQuery, function(err, rows, field)
 	{
 		if (err)
@@ -349,7 +349,7 @@ function createCookieInDB(req, res, uuid, exp, id)
 				if (err)
 					sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
 				else
-
+					getFriendList(uuid, callback);
 			});
 		}
 	});
