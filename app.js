@@ -87,6 +87,7 @@ app.get('/logout', require('./routes/logout').logout);
 /* Partie API web */
 app.get('/webAPI/register', api.register);
 app.get('/webAPI/connect', api.connection);
+app.get('/webAPI/disconnect', api.disconnect);
 app.get('/webAPI/:user/updateInfos', api.modifyProfile);
 app.get('/webAPI/getPrivateKey/:user', api.getKey);
 app.get('/webAPI/getPubKey/:user', api.getPubKey);
