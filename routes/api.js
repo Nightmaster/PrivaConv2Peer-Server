@@ -316,29 +316,28 @@ module.exports =
 function createCookieInDB(req, res, uuid, exp, id)
 {
 	var callback, idType = -1 === id.indexOf('@') ? 'login' : 'email', user_idQuery = 'Select id, nom, prenom, display_login, email\nFrom user\nWhere ' + idType + ' = "' + id + '";', cookieQuery;
-	callback = function(err, result)
-	{
-		if (err)
-			sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
-		else
-			res.json(
-			{
-				error : false,
-				connection : true,
-				validity : 15,
-				user :
-				{
-					login : rows[0].display_login,
-					email : rows[0].email,
-					name : rows[0].nom,
-					firstname : rows[0].prenom
-				},
-				friends : result
-			});
-
-	};
 	connection.query(user_idQuery, function(err, rows, field)
 	{
+		callback = function(err, result)
+		{
+			if (err)
+				sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
+			else
+				res.json(
+				{
+					error : false,
+					connection : true,
+					validity : 15,
+					user :
+					{
+						login : rows[0].display_login,
+						email : rows[0].email,
+						name : rows[0].nom,
+						firstname : rows[0].prenom
+					},
+					friends : result
+				});
+		};
 		if (err)
 			sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 		else
