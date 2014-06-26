@@ -24,7 +24,7 @@ function register(req, res)
 	{
 		hashPw = hasher(hashPw);
 		hashPwK = hasher(hashPwK);
-		query = 'Insert Into user (nom, prenom, login, displayLogin, email, hash_pw)\nValues ("' + fName + '", "' + lName + '", "' + login.toLowerCase() + '", "' + login + '", "' + email + '", "' + hashPw + '");';
+		query = 'Insert Into user (nom, prenom, login, display_login, email, hash_pw)\nValues ("' + fName + '", "' + lName + '", "' + login.toLowerCase() + '", "' + login + '", "' + email + '", "' + hashPw + '");';
 		connection.query(query, function(err, rows, fields)
 		{
 			if (err)
@@ -73,7 +73,7 @@ function connect(req, res)
 					if (hashPW === rows[0].hash_pw)
 					{
 						eraseOldCookie(login, 'login');
-						createCookieInDB(req, res, connection, uuid, expiration, login.toLowerCase());
+						createCookieInDB(req, res, uuid, expiration, login.toLowerCase());
 						connection.query(connecQuery, function(err, rows, field)
 						{
 							if (err)
@@ -98,7 +98,7 @@ function connect(req, res)
 					if (hashPW === rows[0].hash_pw)
 					{
 						eraseOldCookie(email);
-						createCookieInDB(req, res, connection, uuid, expiration, email);
+						createCookieInDB(req, res, uuid, expiration, email);
 						connection.query(connecQuery, function(err, rows, field)
 						{
 							if (err)
@@ -154,7 +154,7 @@ function modifyProfile(req, res)
 		{
 			if (login)
 			{
-				values += 'login = "' + login.toLowerCase() + '", displayLogin = "' + login + '"';
+				values += 'login = "' + login.toLowerCase() + '", display_login = "' + login + '"';
 				jsonReturned.newValues.login = login;
 			}
 			if (email)
@@ -180,7 +180,7 @@ function modifyProfile(req, res)
 			}
 			if ('' !== values)
 			{
-				query = 'Update user\nSet ' + values + '\nWhere id In\n(\n\tSelect userId\n\tFrom cookie\n\tWhere value = "' + res.cookies.sessId + '"\n);';
+				query = 'Update user\nSet ' + values + '\nWhere id In\n(\n\tSelect user_id\n\tFrom cookie\n\tWhere value = "' + res.cookies.sessId + '"\n);';
 				connection.query(query, function(err, rows, fields)
 				{
 					if (err)
@@ -254,7 +254,7 @@ function addFriend(req, res)
 	var callback, uuid = res.cookies.sessId, login = req.query.username, email = req.query.email, query;
 	if (undefined === login && undefined === email)
 		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email');
-	query = 'Insert Into ami (idUserEmitter, idUserReceiver, valide) Values ((Select id From user Where id In (Select id From cookie Where value = "' + uuid + '")), (Select id From user Where ' + (undefined !== login ? 'login' : 'email') + ' ="' + (undefined !== login ? login : email) + '" ), 0);';
+	query = 'Insert Into ami (id_user_emitter, id_user_receiver, valide) Values ((Select id From user Where id In (Select id From cookie Where value = "' + uuid + '")), (Select id From user Where ' + (undefined !== login ? 'login' : 'email') + ' ="' + (undefined !== login ? login : email) + '" ), 0);';
 	callback = function(err, validity)
 	{
 		if (err)
@@ -313,40 +313,43 @@ module.exports =
 * @param uuid {String} : l'uuid du cookie sous forme de <code>String</code>
 * @param id {String} : l'identifiant de l'utilisateur
 **/
-function createCookieInDB(req, res, connection, uuid, exp, id)
+function createCookieInDB(req, res, uuid, exp, id)
 {
-	var idType = -1 === id.indexOf('@') ? 'login' : 'email', userIdQuery = 'Select id, nom, prenom, displayLogin, email\nFrom user\nWhere ' + idType + ' = "' + id + '";', cookieQuery;
-	connection.query(userIdQuery, function(err, rows, field)
+	var callback, idType = -1 === id.indexOf('@') ? 'login' : 'email', user_idQuery = 'Select id, nom, prenom, display_login, email\nFrom user\nWhere ' + idType + ' = "' + id + '";', cookieQuery;
+	callback = function(err, result)
 	{
 		if (err)
-		{
-			console.error(err);
-			sendJsonError(res, 'err: ' + JSON.stringify(err), 'register');
-		}
+			sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
+		else
+			res.json(
+			{
+				error : false,
+				connection : true,
+				validity : 15,
+				user :
+				{
+					login : rows[0].display_login,
+					email : rows[0].email,
+					name : rows[0].nom,
+					firstname : rows[0].prenom
+				},
+				friends : result
+			});
+
+	}
+	connection.query(user_idQuery, function(err, rows, field)
+	{
+		if (err)
+			sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 		else
 		{
-			cookieQuery = 'Insert Into cookie (value, validity, userId)\nValues ("' + uuid + '", "' + getMySQLDate(exp) + '", ' + rows[0].id + ');';
+			cookieQuery = 'Insert Into cookie (value, validity, user_id)\nValues ("' + uuid + '", "' + getMySQLDate(exp) + '", ' + rows[0].id + ');';
 			connection.query(cookieQuery, function(err, row, field)
 			{
 				if (err)
-				{
-					console.error(err);
-					sendJsonError(res, 'err: ' + JSON.stringify(err), 'register');
-				}
+					sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
 				else
-					res.json(
-					{
-						error : false,
-						connection : true,
-						validity : 15,
-						user :
-						{
-							login : rows[0].displayLogin,
-							email : rows[0].email,
-							name : rows[0].nom,
-							firstname : rows[0].prenom
-						}
-					});
+
 			});
 		}
 	});
@@ -395,7 +398,7 @@ function sendJsonError(res, code, message, source, paramList)
 **/
 function checkValidityForUser(uuid, cb)
 {
-	var query = 'Select userId, validity\nFrom cookie\nWhere value="' + uuid + '";', now = new Date(), validity;
+	var query = 'Select user_id, validity\nFrom cookie\nWhere value="' + uuid + '";', now = new Date(), validity;
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
@@ -432,10 +435,52 @@ function getMySQLDate(date)
 **/
 function eraseOldCookie(id)
 {
-	var query = 'Delete From cookie\nWhere userId In\n(\n\tSelect id\n\tFrom user\n\tWhere ' + ( -1 === id.indexOf('@') ? 'login' : 'email') + '="' + id + '"\n);';
+	var query = 'Delete From cookie\nWhere user_id In\n(\n\tSelect id\n\tFrom user\n\tWhere ' + ( -1 === id.indexOf('@') ? 'login' : 'email') + '="' + id + '"\n);';
 	connection.query(query, function(err, rows, fields)
 	{
 		if (err)
 			console.error(err);
+	});
+}
+
+/**
+* Renvoie un tableau contenant la liste des amis, ainsi que leur statut de connexion
+*
+* @param uuid {String} : l'uuid du cookie de connexion
+* @param cb {Function} : la fonction à appeler en cas d'erreur et suite à la récupération des résultats
+**/
+function getFriendList(uuid, cb)
+{
+	var result = [], req, unfReq = 'Select display_login, user_connected From user Where id In (Select %s From ami Where %s In (Select user_id From cookie Where value = "%s"));';
+	req = util.format(unfReq, 'id_user_emitter', 'id_user_receiver', uuid);
+	connection.query(req, function(err, rows, field)
+	{
+		req = util.format(unfReq, 'id_user_receiver', 'id_user_emitter', uuid);
+		if (err)
+			cb(err);
+		else
+		{
+			for (var i = 0; i < rows.length; i++)
+				result.push(
+				{
+					displayLogin : rows[i].display_login,
+					connected : (1 === rows[i].user_connected)
+				});
+			connection.query(req, function(err, rows, field)
+			{
+				if (err)
+					cb(err);
+				else
+				{
+					for (var i = 0; i < rows.length; i++)
+						result.push(
+						{
+							displayLogin : rows[i].display_login,
+							connected : (1 === rows[i].user_connected)
+						});
+					cb(undefined, result);
+				}
+			});
+		}
 	});
 }
