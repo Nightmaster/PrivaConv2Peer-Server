@@ -217,12 +217,13 @@ function getKey(req, res)
 		if (err)
 			sendJsonError(res, 500, JSON.stringify(err), 'Get Key');
 		else if (true === result)
-			fs.readFile(pathTo, function(err, result)
+			fs.readFile(pathTo, function(err, file)
 			{
+				console.log('PrivateKey:\n', file);
 				res.json(
 				{
 					error : false,
-					prKey : result
+					prKey : file
 				});
 			});
 		else
