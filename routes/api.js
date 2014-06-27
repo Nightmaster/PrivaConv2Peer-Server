@@ -211,15 +211,14 @@ function modifyProfile(req, res)
 
 function getKey(req, res)
 {
-	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + login + 'id_rsa.pem';
+	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + login + '/id_rsa.pem';
 	callback = function(err, result)
 	{
 		if (err)
 			sendJsonError(res, 500, JSON.stringify(err), 'Get Key');
 		else if (true === result)
-			fs.readFile(pathTo, function(err, file)
+			fs.readFile(pathTo, 'utf-8', function(err, file)
 			{
-				console.log('PrivateKey:\n', file);
 				res.json(
 				{
 					error : false,
@@ -229,7 +228,6 @@ function getKey(req, res)
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'Get Key');
 	};
-	console.log('Param: ', login);
 	checkValidityForUser(callback, uuid, login);
 
 }
