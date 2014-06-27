@@ -146,7 +146,7 @@ function disconnect(req, res)
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'disctonnect');
 	}
-	checkValidityForUser(uuid, callback);
+	checkValidityForUser(callback, uuid);
 };
 
 function modifyProfile(req, res)
@@ -206,22 +206,31 @@ function modifyProfile(req, res)
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'Modify Profile');
 	}
-	checkValidityForUser(uuid, callback);
+	checkValidityForUser(callback, uuid);
 }
 
 function getKey(req, res)
 {
-	var callback, uuid = res.cookies.sessId, pathTo = '/PrivaConv2Peer/' + req.params.user.toLowerCase() + 'id_rsa.pem';
-	if (true === checkValidityForUser(res.cookies.sessId))
-		fs.readFile(pathTo, function(err, result)
-		{
-			res.json(
+	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + login + 'id_rsa.pem';
+	callback = function(err, result)
+	{
+		if (err)
+			sendJsonError(res, 500, JSON.stringify(err), 'Get Key');
+		else if (true === result)
+			fs.readFile(pathTo, function(err, result)
 			{
-				error : false,
-				prKey : result
+				res.json(
+				{
+					error : false,
+					prKey : result
+				});
 			});
-		});
-	sendJsonError(res, 401, 'Unauthorized', 'Get Key');
+		else
+			sendJsonError(res, 401, 'Unauthorized', 'Get Key');
+	};
+
+	checkValidityForUser(callback, uuid, login);
+
 }
 
 function getPubKey(req, res)
@@ -277,7 +286,7 @@ function stayAlive(req, res)
 					});
 			});
 	}
-	checkValidityForUser(uuid, callback);
+	checkValidityForUser(callback, uuid);
 }
 
 function addFriend(req, res)
@@ -308,7 +317,7 @@ function addFriend(req, res)
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'Add Friend');
 	};
-	checkValidityForUser(uuid, callback);
+	checkValidityForUser(callback, uuid);
 }
 
 function getConnectedList(req, res)
@@ -453,22 +462,40 @@ function sendJsonError(res, code, message, source, paramList)
 * @param cb {Function} : la fonction de callback à appeler après la remonté des infos de MySQL
 * @return {Boolean} true si le cookie est (toujours) valide, false sinon 
 **/
-function checkValidityForUser(uuid, cb)
+function checkValidityForUser(cb, uuid, login)
 {
-	var query = 'Select user_id, validity\nFrom cookie\nWhere value="' + uuid + '";', now = new Date(), validity;
-	connection.query(query, function(err, rows, fields)
-	{
-		if (err)
-			cb(err);
-		else if (rows.length !== 0)
+	var query = 'Select validity\nFrom cookie\nWhere value="' + uuid + '";', now = new Date(), validity;
+	if (undefined === login)
+		connection.query(query, function(err, rows, fields)
 		{
-			validity = rows[0].validity;
-			if (now >= validity)
-				cb(undefined, true);
-		}
-		else
-			cb(undefined, false);
-	});
+			if (err)
+				cb(err);
+			else if (rows.length !== 0)
+			{
+				validity = rows[0].validity;
+				if (now >= validity)
+					cb(undefined, true);
+			}
+			else
+				cb(undefined, false);
+		});
+	if ('String' === utils.realTypeOf(login))
+	{
+		query = query.slice(0, query.length - 1) + '\nAnd user_id In\n(\n\tSelect id\n\tFrom user\n\tWhere login = "' + login.toLowerCase() + '"\n);';
+		connection.query(query, function(err, rows, field)
+		{
+			if (err)
+				cb(err);
+			else if (rows.length !== 0)
+			{
+				validity = rows[0].validity;
+				if (now >= validity)
+					cb(undefined, true);
+			}
+			else
+				cb(undefined, false);
+		});
+	}
 }
 
 /**
