@@ -121,19 +121,32 @@ function connect(req, res)
 
 function disconnect(req, res)
 {
-	var query = 'Delete From cookie\nWhere value="' + res.cookies.sessId + '";';
-	res.clearCookie(res.cookies.uuid);
-	connection.query(query, function(err, rows, fields)
+	var callback, uuid = res.cookies.sessId, queryDel = 'Delete From cookie\nWhere value="' + uuid + '";', queryDisco = 'Update user\nSet user_ip = "", user_connected = 0\nWhere id In \n(\n\tSelect user_id\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n);';
+	callback = function(err, result)
 	{
-		if (err)
-			sendJsonError(res, 500, JSON.stringify(err), 'Disctonnect')
-		else
-			res.json(
+		if(err)
+		else if(true === result)
+			connection.query(queryDel, function(err, rows, fields)
 			{
-				error : false,
-				disconnect : true
+				if (err)
+					sendJsonError(res, 500, JSON.stringify(err), 'disctonnect');
+				else
+				connection.query(queryDel, function(err, rows, fields)
+				{
+					if (err)
+						sendJsonError(res, 500, JSON.stringify(err), 'disctonnect');
+					else
+						res.json(
+						{
+							error : false,
+							disconnect : true
+						});
+				});
 			});
-	});
+		else
+			sendJsonError(res, 401, 'Unauthorized', 'disctonnect');	
+	}
+	checkValidityForUser(uuid, callback);
 };
 
 function modifyProfile(req, res)
@@ -382,9 +395,13 @@ function sendJsonError(res, code, message, source, paramList)
 		res.json(code, result);
 	}
 	else if ('register' === source)
-
 	{
 		result.validation = false;
+		res.json(code, result);
+	}
+	else if('disconnect' === source)
+	{
+		disconnect = false;
 		res.json(code, result);
 	}
 	else
@@ -453,7 +470,7 @@ function eraseOldCookie(id)
 **/
 function getFriendList(uuid, cb)
 {
-	var result = [], req, unfReq = 'Select display_login, user_connected From user Where id In (Select %s From ami Where %s In (Select user_id From cookie Where value = "%s"));';
+	var result = [], req, unfReq = 'Select display_login, user_connected From user Where id In (Select %s From ami Where valide = 1 And %s In (Select user_id From cookie Where value = "%s"));';
 	req = util.format(unfReq, 'id_user_emitter', 'id_user_receiver', uuid);
 	connection.query(req, function(err, rows, field)
 	{
