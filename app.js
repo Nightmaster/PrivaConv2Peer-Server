@@ -3,19 +3,15 @@
  * Coeur de l'application
 !*/
 
-/*
- * Module dependencies.
- */
+// Module dependencies \\
 var express = require('express'), // Express module
-	MySQLStore = require('connect-mysql')(express), // Connect for MySQL module
 	routes = require('./routes'), // Router module
 	api = routes.api, // API module
+	sessCookie = require('./lib/defineCookie').defineSessCookie, // Cookie definition module
 	http = require('http'), // HTTP Server module
 	path = require('path'), // Path module
-	utils = require('./lib/utils'), // Utils module set as global object
 	uuid = require('node-uuid'); // UUID Generator
-
-global.utils = utils;
+// End module dependencies \\
 
 var app = express(), options =
 {
@@ -36,37 +32,7 @@ app.set('view engine', 'ejs');
 app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.cookieParser(require('./saltsForApp').session));
-app.use(function(req, res, next)
-{
-	var cookie = req.cookies.sessId, id = uuid.v4();
-	if (cookie === undefined)
-	{
-		res.cookie('sessId', id,
-		{
-			// secret : require('./saltsForApp').session,
-			// signed : true,
-			maxAge : 15000 * 60
-		});
-		res.cookies =
-		{
-			sessId : id,
-			expiration : new Date(new Date().setMinutes(new Date().getMinutes() + 15))
-		};
-	}
-	else
-	{
-		res.cookie('sessId', cookie,
-		{
-			maxAge : 15000 * 60
-		});
-		res.cookies =
-		{
-			sessId : cookie,
-			expiration : new Date(new Date().setMinutes(new Date().getMinutes() + 15))
-		}
-	}
-	next();
-});
+app.use(sessCookie);
 app.use(express.bodyParser());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
@@ -89,7 +55,7 @@ app.get('/webAPI/register', api.register);
 app.get('/webAPI/connect', api.connection);
 app.get('/webAPI/stayAlive', api.stayAlive);
 app.get('/webAPI/disconnect', api.disconnect);
-app.get('/webAPI/:user/updateInfos', api.modifyProfile);
+app.get('/webAPI/updateInfos', api.modifyProfile);
 app.get('/webAPI/search', api.search);
 app.get('/webAPI/addFriend', api.addFriend);
 app.get('/webAPI/getPrivateKey/:user', api.getKey);

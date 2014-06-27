@@ -499,7 +499,6 @@ function eraseOldCookie(id)
 			console.error(err);
 	});
 }
-
 /**
 * Renvoie un tableau contenant la liste des amis, ainsi que leur statut de connexion
 *
