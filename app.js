@@ -9,8 +9,7 @@ var express = require('express'), // Express module
 	api = routes.api, // API module
 	sessCookie = require('./lib/defineCookie').defineSessCookie, // Cookie definition module
 	http = require('http'), // HTTP Server module
-	path = require('path'), // Path module
-	uuid = require('node-uuid'); // UUID Generator
+	path = require('path'); // Path module
 // End module dependencies \\
 
 var app = express(), options =
