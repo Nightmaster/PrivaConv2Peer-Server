@@ -80,10 +80,10 @@ function connect(req, res)
 						});
 					}
 					else
-						sendJsonError(res, 200, 'Mot de passe incorrect', 'connection');
+						sendJsonError(res, 401, 'Mot de passe incorrect', 'connection');
 				}
 				else if (rows.length === 0)
-					sendJsonError(res, 200, 'L\'identifiant utilisateur fourni n\'existe pas dans la base de données', 'connection');
+					sendJsonError(res, 401, 'L\'identifiant utilisateur fourni n\'existe pas dans la base de données', 'connection');
 				else
 					sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 			});
@@ -105,9 +105,9 @@ function connect(req, res)
 						});
 					}
 					else
-						sendJsonError(res, 200, 'Mot de passe incorrect', 'connection');
+						sendJsonError(res, 401, 'Mot de passe incorrect', 'connection');
 				else if (rows.length === 0)
-					sendJsonError(res, 'L\'adresse email fournie n\'existe pas dans la base de données', 'connection');
+					sendJsonError(res, 401, 'L\'adresse email fournie n\'existe pas dans la base de données', 'connection');
 				else
 				{
 					console.error(err);
@@ -357,7 +357,7 @@ function createCookieInDB(req, res, uuid, exp, id)
 			callbackAskFriend = function(err, askList)
 			{
 				if(err)
-					sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
+					sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 				else
 					res.json(
 					{
@@ -374,9 +374,12 @@ function createCookieInDB(req, res, uuid, exp, id)
 						friends : result,
 						askFriend : askList
 					});
-			}
+			};
 			if (err)
-				sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
+			{
+				console.error('callback friendList : ', err);
+				sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
+			}
 			else
 				getFriendList(uuid, callbackAskFriend, false);
 		};
@@ -388,7 +391,10 @@ function createCookieInDB(req, res, uuid, exp, id)
 			connection.query(cookieQuery, function(err, row, field)
 			{
 				if (err)
-					sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
+				{
+					console.error('callback askFriend : ', err);
+					sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
+				}
 				else
 					getFriendList(uuid, callbackFl, true);
 			});
