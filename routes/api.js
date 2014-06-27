@@ -123,28 +123,28 @@ function disconnect(req, res)
 	var callback, uuid = res.cookies.sessId, queryDel = 'Delete From cookie\nWhere value="' + uuid + '";', queryDisco = 'Update user\nSet user_ip = "", user_connected = 0\nWhere id In \n(\n\tSelect user_id\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n);';
 	callback = function(err, result)
 	{
-		if(err)
+		if (err)
 			sendJsonError(res, 500, JSON.stringify(err), 'disctonnect');
-		else if(true === result)
+		else if (true === result)
 			connection.query(queryDel, function(err, rows, fields)
 			{
 				if (err)
 					sendJsonError(res, 500, JSON.stringify(err), 'disctonnect');
 				else
-				connection.query(queryDel, function(err, rows, fields)
-				{
-					if (err)
-						sendJsonError(res, 500, JSON.stringify(err), 'disctonnect');
-					else
-						res.json(
-						{
-							error : false,
-							disconnect : true
-						});
-				});
+					connection.query(queryDel, function(err, rows, fields)
+					{
+						if (err)
+							sendJsonError(res, 500, JSON.stringify(err), 'disctonnect');
+						else
+							res.json(
+							{
+								error : false,
+								disconnect : true
+							});
+					});
 			});
 		else
-			sendJsonError(res, 401, 'Unauthorized', 'disctonnect');	
+			sendJsonError(res, 401, 'Unauthorized', 'disctonnect');
 	}
 	checkValidityForUser(uuid, callback);
 };
@@ -266,12 +266,12 @@ function stayAlive(req, res)
 		else
 			connection.query('Update Table user Set timeout = "' + getMySQLDate(new Date(new Date().getTime() + 15 * 60000)) + '";', function(err, result, field)
 			{
-				if(err)
+				if (err)
 					sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
 				else
 					res.json(
 					{
-						error: false,
+						error : false,
 						stayAlive : true,
 						validity : 15
 					});
@@ -356,7 +356,7 @@ function createCookieInDB(req, res, uuid, exp, id)
 		{
 			callbackAskFriend = function(err, askList)
 			{
-				if(err)
+				if (err)
 					sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 				else
 					res.json(
@@ -431,12 +431,12 @@ function sendJsonError(res, code, message, source, paramList)
 		result.validation = false;
 		res.json(code, result);
 	}
-	else if('disconnect' === source)
+	else if ('disconnect' === source)
 	{
 		result.disconnect = false;
 		res.json(code, result);
 	}
-	else if('stayAlive' === source)
+	else if ('stayAlive' === source)
 	{
 		result.stayAlive = false;
 		result.validity = -1;
@@ -479,7 +479,7 @@ function checkValidityForUser(uuid, cb)
 **/
 function getMySQLDate(date)
 {
-	if ('Undefined' !== utils.realTypeOf(date))
+	if ('Date' === utils.realTypeOf(date))
 		return date.toISOString().slice(0, 19).replace('T', ' ');
 	else
 		return new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -508,10 +508,10 @@ function eraseOldCookie(id)
 **/
 function getFriendList(uuid, cb, alreadyFriend)
 {
-	if(true !== utils.typeVerificator(alreadyFriend, 'Boolean'))
+	if (true !== utils.typeVerificator(alreadyFriend, 'Boolean'))
 		cb(new TypeError('alreadyFriend parameter must be a boolean !'));
 	var result = [], req, unfReq = 'Select display_login, user_connected From user Where id In (Select %s From ami Where valide = %d And %s In (Select user_id From cookie Where value = "%s"));';
-	req = util.format(unfReq, 'id_user_emitter', 'id_user_receiver', uuid);
+	req = util.format(unfReq, 'id_user_emitter', (true === alreadyFriend ? 1 : 0), 'id_user_receiver', uuid);
 	connection.query(req, function(err, rows, field)
 	{
 		req = util.format(unfReq, 'id_user_receiver', (true === alreadyFriend ? 1 : 0), 'id_user_emitter', uuid);
@@ -532,7 +532,7 @@ function getFriendList(uuid, cb, alreadyFriend)
 				else
 				{
 					for (var i = 0; i < rows.length; i++)
-						if(true === alreadyFriend)
+						if (true === alreadyFriend)
 							result.push(
 							{
 								displayLogin : rows[i].display_login,
