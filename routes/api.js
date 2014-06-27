@@ -229,7 +229,7 @@ function getKey(req, res)
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'Get Key');
 	};
-
+	console.log('Param: ', login);
 	checkValidityForUser(callback, uuid, login);
 
 }
