@@ -534,7 +534,7 @@ function getFriendList(uuid, cb, alreadyFriend)
 								connected : (1 === rows[i].user_connected)
 							});
 						else
-							result.push(displayLogin : rows[i].display_login);
+							result.push(rows[i].display_login);
 					cb(undefined, result);
 				}
 			});
