@@ -258,9 +258,27 @@ function getCliIP(req, res)
 
 function stayAlive(req, res)
 {
+	// FIXME retourner demandes d'amis et passages HL
 	var callback, uuid = res.cookies.sessId;
-	// FIXME parser le cookie pour trouver l'user derrière
-	mysql.query('Update Table user Set timeout = ' + new Date(new Date().getTime() + 15 * 60000));
+	callback = function(err, result)
+	{
+		if (err)
+			sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
+		else
+			connection.query('Update Table user Set timeout = "' + getMySQLDate(new Date(new Date().getTime() + 15 * 60000)) + '";'), function(err, result, field)
+			{
+				if(err)
+					sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
+				else
+					res.json(
+					{
+						error: false,
+						stayAlive : true,
+						validity : 15
+					});
+			});
+	}
+	
 }
 
 function addFriend(req, res)
@@ -332,28 +350,36 @@ module.exports =
 **/
 function createCookieInDB(req, res, uuid, exp, id)
 {
-	var callback, idType = -1 === id.indexOf('@') ? 'login' : 'email', user_idQuery = 'Select id, nom, prenom, display_login, email\nFrom user\nWhere ' + idType + ' = "' + id + '";', cookieQuery;
+	var callbackFl, callbackAskFriend, idType = -1 === id.indexOf('@') ? 'login' : 'email', user_idQuery = 'Select id, nom, prenom, display_login, email\nFrom user\nWhere ' + idType + ' = "' + id + '";', cookieQuery;
 	connection.query(user_idQuery, function(err, rows, field)
 	{
-		callback = function(err, result)
+		callbackFl = function(err, result)
 		{
+			callbackAskFriend = function(err, askList)
+			{
+				if(err)
+					sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
+				else
+					res.json(
+					{
+						error : false,
+						connection : true,
+						validity : 15,
+						user :
+						{
+							login : rows[0].display_login,
+							email : rows[0].email,
+							name : rows[0].nom,
+							firstname : rows[0].prenom
+						},
+						friends : result,
+						askFriend : askList
+					});
+			}
 			if (err)
 				sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
 			else
-				res.json(
-				{
-					error : false,
-					connection : true,
-					validity : 15,
-					user :
-					{
-						login : rows[0].display_login,
-						email : rows[0].email,
-						name : rows[0].nom,
-						firstname : rows[0].prenom
-					},
-					friends : result
-				});
+				getFriendList(uuid, callbackAskFriend, false);
 		};
 		if (err)
 			sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
@@ -365,7 +391,7 @@ function createCookieInDB(req, res, uuid, exp, id)
 				if (err)
 					sendJsonError(res, 'err: ' + JSON.stringify(err), 'connection');
 				else
-					getFriendList(uuid, callback);
+					getFriendList(uuid, callbackFl, true);
 			});
 		}
 	});
@@ -402,7 +428,13 @@ function sendJsonError(res, code, message, source, paramList)
 	}
 	else if('disconnect' === source)
 	{
-		disconnect = false;
+		result.disconnect = false;
+		res.json(code, result);
+	}
+	else if('stayAlive' === source)
+	{
+		result.stayAlive = false;
+		result.validity = -1;
 		res.json(code, result);
 	}
 	else
@@ -469,13 +501,15 @@ function eraseOldCookie(id)
 * @param uuid {String} : l'uuid du cookie de connexion
 * @param cb {Function} : la fonction à appeler en cas d'erreur et suite à la récupération des résultats
 **/
-function getFriendList(uuid, cb)
+function getFriendList(uuid, cb, alreadyFriend)
 {
-	var result = [], req, unfReq = 'Select display_login, user_connected From user Where id In (Select %s From ami Where valide = 1 And %s In (Select user_id From cookie Where value = "%s"));';
+	if(true !== utils.typeVerificator(alreadyFriend, 'Boolean'))
+		cb(new TypeError('alreadyFriend parameter must be a boolean !'));
+	var result = [], req, unfReq = 'Select display_login, user_connected From user Where id In (Select %s From ami Where valide = %d And %s In (Select user_id From cookie Where value = "%s"));';
 	req = util.format(unfReq, 'id_user_emitter', 'id_user_receiver', uuid);
 	connection.query(req, function(err, rows, field)
 	{
-		req = util.format(unfReq, 'id_user_receiver', 'id_user_emitter', uuid);
+		req = util.format(unfReq, 'id_user_receiver', (true === alreadyFriend ? 1 : 0), 'id_user_emitter', uuid);
 		if (err)
 			cb(err);
 		else
@@ -493,11 +527,14 @@ function getFriendList(uuid, cb)
 				else
 				{
 					for (var i = 0; i < rows.length; i++)
-						result.push(
-						{
-							displayLogin : rows[i].display_login,
-							connected : (1 === rows[i].user_connected)
-						});
+						if(true === alreadyFriend)
+							result.push(
+							{
+								displayLogin : rows[i].display_login,
+								connected : (1 === rows[i].user_connected)
+							});
+						else
+							result.push(displayLogin : rows[i].display_login);
 					cb(undefined, result);
 				}
 			});
