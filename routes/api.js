@@ -23,7 +23,6 @@ function register(req, res)
 	else
 	{
 		hashPw = hasher(hashPw);
-		hashPwK = hasher(hashPwK);
 		query = 'Insert Into user (nom, prenom, login, display_login, email, hash_pw)\nValues ("' + fName + '", "' + lName + '", "' + login.toLowerCase() + '", "' + login + '", "' + email + '", "' + hashPw + '");';
 		connection.query(query, function(err, rows, fields)
 		{
