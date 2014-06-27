@@ -125,6 +125,7 @@ function disconnect(req, res)
 	callback = function(err, result)
 	{
 		if(err)
+			sendJsonError(res, 500, JSON.stringify(err), 'disctonnect');
 		else if(true === result)
 			connection.query(queryDel, function(err, rows, fields)
 			{
