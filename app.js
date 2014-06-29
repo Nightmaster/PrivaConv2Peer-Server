@@ -60,7 +60,7 @@ app.get('/webAPI/addFriend', api.addFriend);
 app.get('/webAPI/getPrivateKey/:user', api.getKey);
 app.get('/webAPI/getPubKey/:user', api.getPubKey);
 app.get('/webAPI/getCliIP/:user' ,api.getCliIP);
-app.get('/webAPI/getConnectedList', api.getConnectedList);
+app.get('/webAPI/showProfile/:user', api.showProfile);
 
 /* Erreur '404 not found', en cas de besoin */
 app.use(routes._404);
