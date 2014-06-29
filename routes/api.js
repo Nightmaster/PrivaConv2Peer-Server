@@ -334,7 +334,7 @@ function stayAlive(req, res)
 			console.error(err);
 			sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
 		}
-		else if(true = result)
+		else if(true === result)
 			connection.query('Update cookie Set validity = "' + getMySQLDate(new Date(new Date().getTime() + 15 * 60000)) + '";', function(err, result, field)
 			{
 				if (err)
