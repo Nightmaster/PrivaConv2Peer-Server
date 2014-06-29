@@ -337,24 +337,43 @@ function stayAlive(req, res)
 		else if(true === result)
 			connection.query('Update cookie Set validity = "' + getMySQLDate(new Date(new Date().getTime() + 15 * 60000)) + '";', function(err, result, field)
 			{
+				function callbackFl (err, result)
+				{
+					if(err)
+					{
+						console.error(err);
+						sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
+					}
+					else if(0 !== result.length)
+						res.json(
+						{
+							error : false,
+							stayAlive : true,
+							validity : 15,
+							askFriend : result
+						});
+					else
+						res.json(
+						{
+							error : false,
+							stayAlive : true,
+							validity : 15,
+							askFriend : null
+						});
+				}
 				if (err)
 				{
 					console.error(err);
 					sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
 				}
 				else
-					res.json(
-					{
-						error : false,
-						stayAlive : true,
-						validity : 15
-					});
+					getFriendList(uuid, callbackFl, true)
 			});
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'stayAlive');
 
 	}
-	checkValidityForUser(callback, uuid);
+	checkValidityForUser(callbackValidity, uuid);
 }
 
 function search(req, res)
