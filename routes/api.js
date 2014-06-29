@@ -274,26 +274,51 @@ function getCliIP(req, res)
 	var callback, uuid = res.cookies.sessId, user = req.params.user, query = 'Select user_ip From user Where login = ' + user.toLowerCase();
 	if (undefined === login || null === login)
 		sendJsonError(res, 400, 'Bad request. Missing parameter', undefined, 'username');
-	mysql.query(query, function(err, rows, fields)
+	callback = function(err, result)
 	{
-		// FIXME faire une vérification des liens d'amitié
-		if (err)
-			console.error(err);
-		if (rows && 0 !== rows.length)
-			res.json(
+		function callbackFl(err, result)
+		{
+			if (err)
 			{
-				error : false,
-				ip : rows[0].user_ip
-			});
-		else if (rows && 0 === rows.length)
-			sendJsonError(res, 200, 'Le contact demandé n\'existe pas', 'getIP');
-		else
+				console.error(err);
+				sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'getIP');
+			}
+			else if ( -1 !== result.indexOf(user))
+				connection.query(query, function(err, rows, fields)
+				{
+					if (err)
+					{
+						console.error(err);
+						sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'getIP');
+					}
+					else if (rows && 0 !== rows.length)
+						res.json(
+						{
+							error : false,
+							ip : rows[0].user_ip
+						});
+					else
+						sendJsonError(res, 200, 'Le contact demandé n\'existe pas', 'getIP');
+				});
+			else
+				sendJsonError(res, 401, 'Unauthorized', 'getIP');
+		}
+		if (err)
+		{
+			console.error(err);
 			sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'getIP');
-	});
+		}
+		else if (true === result)
+			getSimpleFriendList(callbackFl, uuid);
+		else
+			sendJsonError(res, 401, 'Unauthorized', 'getIP');
+	};
+	checkValidityForUser(callback, uuid);
 }
 
 function addFriend(req, res)
 {
+	// FIXME Vérifier liens déjà existants et traiter erreurs
 	var callback, uuid = res.cookies.sessId, login = req.query.username, email = req.query.email, query;
 	if (undefined === login && undefined === email)
 		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email');
@@ -302,7 +327,7 @@ function addFriend(req, res)
 	{
 		if (err)
 			sendJsonError(res, 500, JSON.stringify(err), 'Add friend');
-		if (true === validity)
+		else if (true === validity)
 			connection.query(query, function(err, rows, field)
 			{
 				if (err)
@@ -325,7 +350,7 @@ function addFriend(req, res)
 
 function stayAlive(req, res)
 {
-	// FIXME retourner demandes d'amis et passages HL
+	// FIXME Faire une MàJ de l'IP !
 	var callbackValidity, uuid = res.cookies.sessId;
 	callbackValidity = function(err, result)
 	{
@@ -334,19 +359,19 @@ function stayAlive(req, res)
 			console.error(err);
 			sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
 		}
-		else if(true === result)
+		else if (true === result)
 			connection.query('Update cookie Set validity = "' + getMySQLDate(new Date(new Date().getTime() + 15 * 60000)) + '";', function(err, result, field)
 			{
-				function callbackAskFriend (err, askList)
+				function callbackAskFriend(err, askList)
 				{
-					function callbackFl (err, friendList)
+					function callbackFl(err, friendList)
 					{
-						if(err)
+						if (err)
 						{
 							console.error(err);
 							sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
 						}
-						else if(0 !== askList.length && 0 !== friendList.length)
+						else if (0 !== askList.length && 0 !== friendList.length)
 							res.json(
 							{
 								error : false,
@@ -355,7 +380,7 @@ function stayAlive(req, res)
 								friends : friendList,
 								askFriend : askList
 							});
-						else if(0 === askList.length && 0 !== friendList.length)
+						else if (0 === askList.length && 0 !== friendList.length)
 							res.json(
 							{
 								error : false,
@@ -364,7 +389,7 @@ function stayAlive(req, res)
 								friends : friendList,
 								askFriend : null
 							});
-						else if(0 !== askList.length && 0 === friendList.length)
+						else if (0 !== askList.length && 0 === friendList.length)
 							res.json(
 							{
 								error : false,
@@ -383,7 +408,7 @@ function stayAlive(req, res)
 								askFriend : null
 							});
 					}
-					if(err)
+					if (err)
 					{
 						console.error(err);
 						sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
@@ -408,14 +433,14 @@ function stayAlive(req, res)
 
 function search(req, res)
 {
-	var callback, uuid = res.cookies.sessId;
-	// FIXME Ajouter la recherche d'amis ici
+	var callback, uuid = res.cookies.sessId, user = req.query.username, lName = req.query.name, fName = req.query.fname, email = req.query.email, rowQuery, query;
+	// FIXME Ajouter la recherche d'amis ici (même système que pour modification infos)
 }
 
 function showProfile(req, res)
 {
 	var callback, uuid = res.cookies.sessId;
-	// FIXME Ajouter l'affichage du profile en cas de lien d'amitié ici
+	// FIXME Ajouter l'affichage du profile en cas de lien d'amitié (validé ou non) ici
 }
 
 module.exports =
@@ -434,7 +459,7 @@ module.exports =
 };
 
 /**
-* Insère la valeur du cookie por un utilisateur connecté
+* Insère la valeur du cookie pour un utilisateur connecté
 *
 * @param req {Object} : objet request d'Express
 * @param res {Object} : objet response d'Express
@@ -673,8 +698,14 @@ function getFriendList(uuid, cb, alreadyFriend)
 			});
 		}
 	});
-}	
+}
 
+/**
+* Return an array of String, where each one is the username of a friend of the current user
+*
+* @param cb {Function}: the callback function
+* @param uuid {String}: the uuid stored in the cookie, it identifie one and only one user
+**/
 function getSimpleFriendList(cb, uuid)
 {
 	var query = 'Select login From user Where id In (Select %s From ami Where valide = 1 And %s In (Select user_id From cookie Where value = "%s"));', finalQuery;
