@@ -335,7 +335,7 @@ function stayAlive(req, res)
 			sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
 		}
 		else
-			connection.query('Update Table cookie Set validity = "' + getMySQLDate(new Date(new Date().getTime() + 15 * 60000)) + '";', function(err, result, field)
+			connection.query('Update cookie Set validity = "' + getMySQLDate(new Date(new Date().getTime() + 15 * 60000)) + '";', function(err, result, field)
 			{
 				if (err)
 				{
@@ -621,7 +621,7 @@ function getFriendList(uuid, cb, alreadyFriend)
 			});
 		}
 	});
-}
+}	
 
 function getSimpleFriendList(cb, uuid)
 {
