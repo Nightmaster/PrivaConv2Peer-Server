@@ -334,7 +334,7 @@ function stayAlive(req, res)
 			console.error(err);
 			sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
 		}
-		else
+		else if(true = result)
 			connection.query('Update cookie Set validity = "' + getMySQLDate(new Date(new Date().getTime() + 15 * 60000)) + '";', function(err, result, field)
 			{
 				if (err)
@@ -350,6 +350,9 @@ function stayAlive(req, res)
 						validity : 15
 					});
 			});
+		else
+			sendJsonError(res, 401, 'Unauthorized', 'stayAlive');
+
 	}
 	checkValidityForUser(callback, uuid);
 }
