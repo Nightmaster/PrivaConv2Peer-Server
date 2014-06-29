@@ -326,64 +326,7 @@ function addFriend(req, res)
 function stayAlive(req, res)
 {
 	// FIXME retourner demandes d'amis et passages HL
-	var callbackValidity, callbackAskFriend, callbackFl, uuid = res.cookies.sessId;
-	callbackFl = function (err, friendList)
-	{
-		if(err)
-		{
-			console.error(err);
-			sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
-		}
-		else if(0 !== askList.length && 0 !== friendList.length)
-			res.json(
-			{
-				error : false,
-				stayAlive : true,
-				validity : 15,
-				friends : friendList,
-				askFriend : askList
-			});
-		else if(0 === askList.length && 0 !== friendList.length)
-			res.json(
-			{
-				error : false,
-				stayAlive : true,
-				validity : 15,
-				friends : friendList,
-				askFriend : null
-			});
-		else if(0 !== askList.length && 0 === friendList.length)
-			res.json(
-			{
-				error : false,
-				stayAlive : true,
-				validity : 15,
-				friends : null,
-				askFriend : askList
-			});
-		else
-			res.json(
-			{
-				error : false,
-				stayAlive : true,
-				validity : 15,
-				friends : null,
-				askFriend : null
-			});
-	};
-
-	callbackAskFriend = function (err, askList)
-	{
-		
-		if(err)
-		{
-			console.error(err);
-			sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
-		}
-		else
-			getFriendList(uuid, callbackFl, true)
-	};
-
+	var callbackValidity, uuid = res.cookies.sessId;
 	callbackValidity = function(err, result)
 	{
 		if (err)
@@ -394,6 +337,60 @@ function stayAlive(req, res)
 		else if(true === result)
 			connection.query('Update cookie Set validity = "' + getMySQLDate(new Date(new Date().getTime() + 15 * 60000)) + '";', function(err, result, field)
 			{
+				function callbackAskFriend (err, askList)
+				{
+					function callbackFl (err, friendList)
+					{
+						if(err)
+						{
+							console.error(err);
+							sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
+						}
+						else if(0 !== askList.length && 0 !== friendList.length)
+							res.json(
+							{
+								error : false,
+								stayAlive : true,
+								validity : 15,
+								friends : friendList,
+								askFriend : askList
+							});
+						else if(0 === askList.length && 0 !== friendList.length)
+							res.json(
+							{
+								error : false,
+								stayAlive : true,
+								validity : 15,
+								friends : friendList,
+								askFriend : null
+							});
+						else if(0 !== askList.length && 0 === friendList.length)
+							res.json(
+							{
+								error : false,
+								stayAlive : true,
+								validity : 15,
+								friends : null,
+								askFriend : askList
+							});
+						else
+							res.json(
+							{
+								error : false,
+								stayAlive : true,
+								validity : 15,
+								friends : null,
+								askFriend : null
+							});
+					}
+					if(err)
+					{
+						console.error(err);
+						sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
+					}
+					else
+						getFriendList(uuid, callbackFl, true)
+				}
 				if (err)
 				{
 					console.error(err);
@@ -404,8 +401,8 @@ function stayAlive(req, res)
 			});
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'stayAlive');
-	};
 
+	}
 	checkValidityForUser(callbackValidity, uuid);
 }
 
