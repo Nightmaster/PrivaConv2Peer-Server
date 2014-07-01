@@ -167,22 +167,22 @@ function modifyProfile(req, res)
 		{
 			if (login)
 			{
-				values += 'login = "' + login.toLowerCase() + '", display_login = "' + login + '"';
+				values += 'login = "' + login.toLowerCase() + '", display_login Like "%' + login + '%"';
 				jsonReturned.newValues.login = login;
 			}
 			if (email)
 			{
-				values += '' === values ? 'email = "' + email + '"' : ', email = "' + email + '"';
+				values += '' === values ? 'email = "' + email + '"' : ', email Like "%' + email + '%"';
 				jsonReturned.newValues.email = email;
 			}
 			if (fName)
 			{
-				values += '' === values ? 'prenom = "' + fName + '"' : ', prenom = "' + fName + '"';
+				values += '' === values ? 'prenom = "' + fName + '"' : ', prenom Like "%' + fName + '%"';
 				jsonReturned.newValues.firstname = fName;
 			}
 			if (lName)
 			{
-				values += '' === values ? 'nom = "' + lName + '"' : ', nom = "' + lName + '"';
+				values += '' === values ? 'nom = "' + lName + '"' : ', nom Like "%' + lName + '%"';
 				jsonReturned.newValues.name = lName;
 			}
 			if (hashPW)
