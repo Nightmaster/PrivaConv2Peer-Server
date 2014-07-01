@@ -504,6 +504,8 @@ function showProfile(req, res)
 					sendJsonError(res, 500, JSON.stringify(err), 'show Profile');
 				}
 				else
+				{
+					console.log('rows: ' + JSON.stringify(rows));
 					res.json(
 					{
 						error : false,
@@ -515,6 +517,7 @@ function showProfile(req, res)
 							firstname : rows.prenom
 						}
 					});
+				}
 			});
 		else
 			sendJsonError(res, 401, 'Vous n\'êtes pas ami avec cette personne', 'show Profile');
