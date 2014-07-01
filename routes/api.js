@@ -496,8 +496,6 @@ function showProfile(req, res)
 			sendJsonError(res, 500, JSON.stringify(err), 'show Profile');
 		}
 		else if ( -1 !== arrAskFriend.indexOf(user) || -1 !== result.indexOf(user))
-		{
-			console.log('cb fl: res = ' + JSON.stringify(result));
 			connection.query(query, function(err, rows, field)
 			{
 				if (err)
@@ -518,7 +516,6 @@ function showProfile(req, res)
 						}
 					});
 			});
-		}
 		else
 			sendJsonError(res, 401, 'Vous n\'êtes pas ami avec cette personne', 'show Profile');
 	};
@@ -532,7 +529,6 @@ function showProfile(req, res)
 		}
 		else
 		{
-			console.log('cb ask: res = ' + JSON.stringify(result));
 			arrAskFriend = result;
 			getSimpleFriendList(callbackFl, uuid);
 		}
@@ -548,7 +544,7 @@ function showProfile(req, res)
 		else if (true === result)
 			getFriendList(callbackAskFriend, uuid, false);
 		else
-			sendJsonError(res, 400, 'Unauthorized', 'show Profile');
+			sendJsonError(res, 401, 'Unauthorized', 'show Profile');
 	}
 	checkValidityForUser(callbackValidity, uuid)
 }
@@ -857,7 +853,7 @@ function getSimpleFriendList(cb, uuid)
 					for (var i = 0; i < rows1.length; i++)
 						result.push(rows1[i].login);
 					for (var i = 0; i < rows2.length; i++)
-						result.push(rows1[i].login);
+						result.push(rows2[i].login);
 					cb(undefined, result);
 				}
 			});
