@@ -479,6 +479,23 @@ function search(req, res)
 	email = undefined !== email ? email.replace(/\*/g, '%') : undefined;
 	lName = undefined !== lName ? lName.replace(/\*/g, '%') : undefined;
 	fName = undefined !== fName ? fName.replace(/\*/g, '%') : undefined;
+
+	if (undefined !== user)
+		while( -1 !== user.indexOf('%%'))
+			user = user.replace(/%%/g, '%');
+	user = '%' === user ? '' : undefined;
+	if (undefined !== email)
+		while( -1 !== email.indexOf('%%'))
+			email = email.replace(/%%/g, '%');
+	email = '%' === email ? '' : undefined;
+	if (undefined !== lName)
+		while( -1 !== lName.indexOf('%%'))
+			lName = lName.replace(/%%/g, '%');
+	lName = '%' === lName ? '' : undefined;
+	if (undefined !== fName)
+		while( -1 !== fName.indexOf('%%'))
+			fName = fName.replace(/%%/g, '%');
+	fName = '%' === fName ? '' : undefined;
 	jsonReturned =
 	{
 		error : false,
