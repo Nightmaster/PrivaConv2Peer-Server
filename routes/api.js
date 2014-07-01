@@ -450,15 +450,9 @@ function search(req, res)
 				where += '' === where ? 'email = "' + email + '"' : ', email = "' + email + '"';
 			}
 			if (lName)
-			{
 				where += '' === where ? 'nom = "' + lName + '"' : ', nom = "' + lName + '"';
-				jsonReturned.profile.name = lName;
-			}
 			if (fName)
-			{
 				where += '' === where ? 'prenom = "' + fName + '"' : ', prenom = "' + fName + '"';
-				jsonReturned.profile.firstname = fName;
-			}
 			query = 'Select ' + columns + '\nFrom user\nWhere ' + where + ';';
 			connection.query(query, function(err, rows, fields)
 			{
