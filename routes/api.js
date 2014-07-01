@@ -445,7 +445,7 @@ function search(req, res)
 			if (user)
 			{
 				where += 'login ="' + user.toLowerCase() + '"';
-				jsonReturned.profile.login = login;
+				jsonReturned.profile.login = user;
 			}
 			if (email)
 			{
