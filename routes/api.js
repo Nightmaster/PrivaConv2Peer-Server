@@ -482,7 +482,7 @@ function search(req, res)
 	};
 	columns = 'display_login As displayLogin, nom, prenom';
 	where = '';
-	getProfileInformations(callback, user, true);
+	checkValidityForUser(callback, user);
 }
 
 function showProfile(req, res)
