@@ -443,17 +443,17 @@ function search(req, res)
 		else if (true === result)
 		{
 			if (user)
-				where += 'login Like "%' + user.toLowerCase() + '%"';
+				where += 'login Like "' + user.toLowerCase() + '"';
 			if (email)
 			{
 				columns = columns.substr(0, 29) + ', email' + columns.substr(29);
-				where += '' === where ? 'email Like "%' + email + '%"' : ', email Like "%' + email + '%"';
+				where += '' === where ? 'email Like "' + email + '"' : ', email Like "' + email + '"';
 			}
 			if (lName)
-				where += '' === where ? 'nom Like "%' + lName + '%"' : ', nom Like "%' + lName + '%"';
+				where += '' === where ? 'nom Like "' + lName + '"' : ', nom Like "' + lName + '"';
 			if (fName)
-				where += '' === where ? 'prenom Like "%' + fName + '%"' : ', prenom Like "%' + fName + '%"';
-			query = 'Select ' + columns + '\nFrom user\nWhere ' + where + ';';
+				where += '' === where ? 'prenom Like "' + fName + '"' : ', prenom Like "' + fName + '"';
+			query = 'Select ' + columns + '\nFrom user\nWhere ' + where + '\nLimit 10;';
 			connection.query(query, function(err, rows, fields)
 			{
 				if (err)
@@ -475,6 +475,10 @@ function search(req, res)
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'Modify Profile');
 	}
+	user = undefined !== user ? user.replace(/\*/g, '%') : undefined;
+	email = undefined !== email ? email.replace(/\*/g, '%') : undefined;
+	lName = undefined !== lName ? lName.replace(/\*/g, '%') : undefined;
+	fName = undefined !== fName ? fName.replace(/\*/g, '%') : undefined;
 	jsonReturned =
 	{
 		error : false,
