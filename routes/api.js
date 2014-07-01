@@ -433,9 +433,9 @@ function stayAlive(req, res)
 
 function search(req, res)
 {
-	var callback, uuid = res.cookies.sessId, user = req.query.username, lName = req.query.name, fName = req.query.fname, email = req.query.email, query, columns, where, jsonReturned;
-	if (undefined === login && undefined === email && undefined === fName && undefined === lName && undefined === hashPW)
-		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email || firstname || name || pw');
+	var callback, uuid = res.cookies.sessId, user = req.query.username, lName = req.query.name, fName = req.query.firstname, email = req.query.email, query, columns, where, jsonReturned;
+	if (undefined === user && undefined === email && undefined === fName && undefined === lName)
+		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email || firstname || name');
 	callback = function(err, result)
 	{
 		if (err)
