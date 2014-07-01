@@ -443,7 +443,7 @@ function search(req, res)
 		else if (true === result)
 		{
 			if (user)
-				where += 'login Like "%' + user.toLowerCase() + '"';
+				where += 'login Like "%' + user.toLowerCase() + '%"';
 			if (email)
 			{
 				columns = columns.substr(0, 29) + ', email' + columns.substr(29);
