@@ -262,7 +262,7 @@ function getPubKey(req, res)
 		if (err)
 			sendJsonError(res, 500, JSON.stringify(err), 'public Key');
 		else if (true === result)
-			getSimpleFriendList(uuid, callbackFriendList);
+			getSimpleFriendList(callbackFriendList, uuid);
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'public Key');
 	};
@@ -528,7 +528,10 @@ function showProfile(req, res)
 			sendJsonError(res, 500, JSON.stringify(err), 'show Profile');
 		}
 		else
+		{
+			arrAskFriend = result;
 			getSimpleFriendList(callbackFl, uuid);
+		}
 
 	};
 	callbackValidity = function(err, result)
