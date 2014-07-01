@@ -448,7 +448,6 @@ function search(req, res)
 			{
 				columns = columns.substr(0, 29) + ', email' + columns.substr(29);
 				where += '' === where ? 'email = "' + email + '"' : ', email = "' + email + '"';
-				jsonReturned.profile.email = email;
 			}
 			if (lName)
 			{
@@ -471,6 +470,7 @@ function search(req, res)
 						jsonReturned.profiles.push(
 						{
 							login : rows[i].displayLogin,
+							email : email,
 							name : rows[i].nom,
 							firstname : rows[i].prenom
 						});
