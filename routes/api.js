@@ -414,7 +414,7 @@ function stayAlive(req, res)
 						sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
 					}
 					else
-						getFriendList(uuid, callbackFl, true)
+						getFriendList(callbackFl, uuid, true)
 				}
 				if (err)
 				{
@@ -422,7 +422,7 @@ function stayAlive(req, res)
 					sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
 				}
 				else
-					getFriendList(uuid, callbackAskFriend, false)
+					getFriendList(callbackAskFriend, uuid, false)
 			});
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'stayAlive');
@@ -603,7 +603,7 @@ function createCookieInDB(req, res, uuid, exp, id)
 				sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 			}
 			else
-				getFriendList(uuid, callbackAskFriend, false);
+				getFriendList(callbackAskFriend, uuid, false);
 		};
 		if (err)
 			sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
@@ -618,7 +618,7 @@ function createCookieInDB(req, res, uuid, exp, id)
 					sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 				}
 				else
-					getFriendList(uuid, callbackFl, true);
+					getFriendList(callbackFl, uuid, true);
 			});
 		}
 	});
@@ -776,11 +776,11 @@ function eraseOldCookie(id)
 /**
 * Return an array with the friend list inside: username, and connection status (only if you ask for those who have validated their friendship links)
 *
-* @param uuid {String}: the UUID stored in the sessId cookie
 * @param cb {Function}: the callback function that accept both error and result objects
+* @param uuid {String}: the UUID stored in the sessId cookie
 * @param alreadyFriend {Boolean}: <b>/!\ Required /!\</b> <code>true</code> if you want those who have validated their friendship links (with the current user)
 **/
-function getFriendList(uuid, cb, alreadyFriend)
+function getFriendList(cb, uuid, alreadyFriend)
 {
 	if (true !== utils.typeVerificator(alreadyFriend, 'Boolean'))
 		cb(new TypeError('alreadyFriend parameter must be a boolean !'));
