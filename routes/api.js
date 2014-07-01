@@ -459,6 +459,7 @@ function search(req, res)
 			query = 'Select ' + columns + '\nFrom user\nWhere ' + where + '\nLimit 10;';
 			connection.query(query, function(err, rows, fields)
 			{
+				console.log(query);
 				if (err)
 				{
 					console.error(err);
