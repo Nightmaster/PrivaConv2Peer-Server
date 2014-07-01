@@ -439,7 +439,10 @@ function search(req, res)
 	callback = function(err, result)
 	{
 		if (err)
-			console.error(err)
+			{
+				console.error(err);
+				sendJsonError(res, 500, JSON.stringify(err), 'search');
+			}
 		else if (true === result)
 		{
 			if (user)
@@ -457,7 +460,10 @@ function search(req, res)
 			connection.query(query, function(err, rows, fields)
 			{
 				if (err)
-					sendJsonError(res, 500, err, 'search');
+				{
+					console.error(err);
+					sendJsonError(res, 500, JSON.stringify(err), 'search');
+				}
 				else
 				{
 					for (var i = 0; i < rows.length; i++)
@@ -473,7 +479,7 @@ function search(req, res)
 			});
 		}
 		else
-			sendJsonError(res, 401, 'Unauthorized', 'Modify Profile');
+			sendJsonError(res, 401, 'Unauthorized', 'search');
 	}
 	user = undefined !== user ? user.replace(/\*/g, '%') : undefined;
 	email = undefined !== email ? email.replace(/\*/g, '%') : undefined;
