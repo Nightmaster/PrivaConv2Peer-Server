@@ -449,7 +449,7 @@ function search(req, res)
 			}
 			if (email)
 			{
-				columns = columns.substr(0, 29) + ', email' + substr(29);
+				columns = columns.substr(0, 29) + ', email' + columns.substr(29);
 				where += '' === where ? 'email = "' + email + '"' : ', email = "' + email + '"';
 				jsonReturned.profile.email = email;
 			}
