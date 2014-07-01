@@ -469,7 +469,12 @@ function search(req, res)
 				if (err)
 					sendJsonError(res, 500, err, 'search');
 				else
+				{
+					jsonReturned.profile.login = rows[0].displayLogin;
+					jsonReturned.profile.name = rows[0].nom;
+					jsonReturned.profile.firstname = rows[0].prenom;
 					res.json(jsonReturned);
+				}
 			});
 		}
 		else
