@@ -443,10 +443,7 @@ function search(req, res)
 		else if (true === result)
 		{
 			if (user)
-			{
 				where += 'login ="' + user.toLowerCase() + '"';
-				jsonReturned.profile.login = user;
-			}
 			if (email)
 			{
 				columns = columns.substr(0, 29) + ', email' + columns.substr(29);
@@ -470,9 +467,13 @@ function search(req, res)
 					sendJsonError(res, 500, err, 'search');
 				else
 				{
-					jsonReturned.profile.login = rows[0].displayLogin;
-					jsonReturned.profile.name = rows[0].nom;
-					jsonReturned.profile.firstname = rows[0].prenom;
+					for (var i = 0; i < rows.length; i++)
+						jsonReturned.profiles.push(
+						{
+							login : rows[i].displayLogin,
+							name : rows[i].nom,
+							firstname : rows[i].prenom
+						});
 					res.json(jsonReturned);
 				}
 			});
@@ -483,7 +484,7 @@ function search(req, res)
 	jsonReturned =
 	{
 		error : false,
-		profile : {}
+		profiles : []
 	};
 	columns = 'display_login As displayLogin, nom, prenom';
 	where = '';
