@@ -167,22 +167,22 @@ function modifyProfile(req, res)
 		{
 			if (login)
 			{
-				values += 'login = "' + login.toLowerCase() + '", display_login Like "%' + login + '%"';
+				values += 'login = "' + login.toLowerCase() + '", display_login = "' + login + '"';
 				jsonReturned.newValues.login = login;
 			}
 			if (email)
 			{
-				values += '' === values ? 'email = "' + email + '"' : ', email Like "%' + email + '%"';
+				values += '' === values ? 'email = "' + email + '"' : ', email = "' + email + '"';
 				jsonReturned.newValues.email = email;
 			}
 			if (fName)
 			{
-				values += '' === values ? 'prenom = "' + fName + '"' : ', prenom Like "%' + fName + '%"';
+				values += '' === values ? 'prenom = "' + fName + '"' : ', prenom = "' + fName + '"';
 				jsonReturned.newValues.firstname = fName;
 			}
 			if (lName)
 			{
-				values += '' === values ? 'nom = "' + lName + '"' : ', nom Like "%' + lName + '%"';
+				values += '' === values ? 'nom = "' + lName + '"' : ', nom = "' + lName + '"';
 				jsonReturned.newValues.name = lName;
 			}
 			if (hashPW)
@@ -443,16 +443,16 @@ function search(req, res)
 		else if (true === result)
 		{
 			if (user)
-				where += 'login ="' + user.toLowerCase() + '"';
+				where += 'login Like "%' + user.toLowerCase() + '"';
 			if (email)
 			{
 				columns = columns.substr(0, 29) + ', email' + columns.substr(29);
-				where += '' === where ? 'email = "' + email + '"' : ', email = "' + email + '"';
+				where += '' === where ? 'email Like "%' + email + '"' : ', email Like "%' + email + '%"';
 			}
 			if (lName)
-				where += '' === where ? 'nom = "' + lName + '"' : ', nom = "' + lName + '"';
+				where += '' === where ? 'nom Like "%' + lName + '"' : ', nom Like "%' + lName + '%"';
 			if (fName)
-				where += '' === where ? 'prenom = "' + fName + '"' : ', prenom = "' + fName + '"';
+				where += '' === where ? 'prenom Like "%' + fName + '%"' : ', prenom Like "%' + fName + '%"';
 			query = 'Select ' + columns + '\nFrom user\nWhere ' + where + ';';
 			connection.query(query, function(err, rows, fields)
 			{
