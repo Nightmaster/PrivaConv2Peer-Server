@@ -215,7 +215,7 @@ function getKey(req, res)
 	callback = function(err, result)
 	{
 		if (err)
-			sendJsonError(res, 500, JSON.stringify(err), 'Get Key');
+			sendJsonError(res, 500, JSON.stringify(err), 'private Key');
 		else if (true === result)
 			fs.readFile(pathTo, 'utf-8', function(err, file)
 			{
@@ -257,7 +257,7 @@ function getPubKey(req, res)
 					});
 				});
 			else
-				sendJsonError(res, 401, 'Vous n\'êtes pas ami avec cette personne, ou il n\a pas encore accepté votre demande.', 'public Key')
+				sendJsonError(res, 401, 'Vous n\'êtes pas ami avec cette personne, ou il n\a pas encore accepté votre demande !', 'public Key')
 		}
 		if (err)
 			sendJsonError(res, 500, JSON.stringify(err), 'public Key');
@@ -281,7 +281,7 @@ function getCliIP(req, res)
 			if (err)
 			{
 				console.error(err);
-				sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'getIP');
+				sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'get IP');
 			}
 			else if ( -1 !== result.indexOf(user))
 				connection.query(query, function(err, rows, fields)
@@ -289,7 +289,7 @@ function getCliIP(req, res)
 					if (err)
 					{
 						console.error(err);
-						sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'getIP');
+						sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'get IP');
 					}
 					else if (rows && 0 !== rows.length)
 						res.json(
@@ -298,7 +298,7 @@ function getCliIP(req, res)
 							ip : rows[0].user_ip
 						});
 					else
-						sendJsonError(res, 200, 'Le contact demandé n\'existe pas', 'getIP');
+						sendJsonError(res, 200, 'Le contact demandé n\'existe pas', 'get IP');
 				});
 			else
 				sendJsonError(res, 401, 'Unauthorized', 'getIP');
@@ -306,12 +306,12 @@ function getCliIP(req, res)
 		if (err)
 		{
 			console.error(err);
-			sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'getIP');
+			sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'get IP');
 		}
 		else if (true === result)
 			getSimpleFriendList(callbackFl, uuid);
 		else
-			sendJsonError(res, 401, 'Unauthorized', 'getIP');
+			sendJsonError(res, 401, 'Unauthorized', 'get IP');
 	};
 	checkValidityForUser(callback, uuid);
 }
@@ -326,14 +326,14 @@ function addFriend(req, res)
 	callback = function(err, validity)
 	{
 		if (err)
-			sendJsonError(res, 500, JSON.stringify(err), 'Add friend');
+			sendJsonError(res, 500, JSON.stringify(err), 'add friend');
 		else if (true === validity)
 			connection.query(query, function(err, rows, field)
 			{
 				if (err)
 				{
 					console.error(err);
-					sendJsonError(res, 500, JSON.stringify(err), 'Add friend');
+					sendJsonError(res, 500, JSON.stringify(err), 'add friend');
 				}
 				else
 					res.json(
@@ -343,7 +343,7 @@ function addFriend(req, res)
 					});
 			});
 		else
-			sendJsonError(res, 401, 'Unauthorized', 'Add Friend');
+			sendJsonError(res, 401, 'Unauthorized', 'add Friend');
 	};
 	checkValidityForUser(callback, uuid);
 }
@@ -433,14 +433,117 @@ function stayAlive(req, res)
 
 function search(req, res)
 {
-	var callback, uuid = res.cookies.sessId, user = req.query.username, lName = req.query.name, fName = req.query.fname, email = req.query.email, rowQuery, query;
-	// FIXME Ajouter la recherche d'amis ici (même système que pour modification infos)
+	var callback, uuid = res.cookies.sessId, user = req.query.username, lName = req.query.name, fName = req.query.fname, email = req.query.email, query, columns, where, jsonReturned;
+	if (undefined === login && undefined === email && undefined === fName && undefined === lName && undefined === hashPW)
+		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email || firstname || name || pw');
+	callback = function(err, result)
+	{
+		if (err)
+			console.error(err)
+		else if (true === result)
+		{
+			if (user)
+			{
+				where += 'login ="' + user.toLowerCase() + '"';
+				jsonReturned.profile.login = login;
+			}
+			if (email)
+			{
+				columns = columns.substr(0, 29) + ', email' + substr(29);
+				where += '' === where ? 'email = "' + email + '"' : ', email = "' + email + '"';
+				jsonReturned.profile.email = email;
+			}
+			if (lName)
+			{
+				where += '' === where ? 'nom = "' + lName + '"' : ', nom = "' + lName + '"';
+				jsonReturned.profile.name = lName;
+			}
+			if (fName)
+			{
+				where += '' === where ? 'prenom = "' + fName + '"' : ', prenom = "' + fName + '"';
+				jsonReturned.profile.firstname = fName;
+			}
+			query = 'Select ' + columns + '\nFrom user\nWhere ' + where + ';';
+			connection.query(query, function(err, rows, fields)
+			{
+				if (err)
+					sendJsonError(res, 500, err, 'search');
+				else
+					res.json(jsonReturned);
+			});
+		}
+		else
+			sendJsonError(res, 401, 'Unauthorized', 'Modify Profile');
+	}
+	jsonReturned =
+	{
+		error : false,
+		profile : {}
+	};
+	columns = 'display_login As displayLogin, nom, prenom';
+	where = '';
+	getProfileInformations(callback, user, true);
 }
 
 function showProfile(req, res)
 {
-	var callback, uuid = res.cookies.sessId;
-	// FIXME Ajouter l'affichage du profile en cas de lien d'amitié (validé ou non) ici
+	var callbackValidity, callbackAskFriend, callbackFl, arrAskFriend, uuid = res.cookies.sessId, user = req.params.user, query = 'Select display_login As displayLogin, email, nom, prenom\nFrom user\nWhere login = "' + user.toLowerCase() + '";';;
+	callbackFl = function(err, result)
+	{
+		if (err)
+		{
+			console.error(err);
+			sendJsonError(res, 500, JSON.stringify(err), 'show Profile');
+		}
+		else if ( -1 !== arrAskFriend.indexOf(user) || -1 !== result.indexOf(user))
+			connection.query(query, function(err, rows, field)
+			{
+				if (err)
+				{
+					console.error(err);
+					sendJsonError(res, 500, JSON.stringify(err), 'show Profile');
+				}
+				else
+					res.json(
+					{
+						error : false,
+						profile :
+						{
+							username : rows.displayLogin,
+							email : rows.email,
+							name : rows.nom,
+							firstname : rows.prenom
+						}
+					});
+			});
+		else
+			sendJsonError(res, 401, 'Vous n\'êtes pas ami avec cette personne', 'show Profile');
+	};
+	callbackAskFriend = function(err, result)
+	{
+		arrAskFriend = result;
+		if (err)
+		{
+			console.error(err);
+			sendJsonError(res, 500, JSON.stringify(err), 'show Profile');
+		}
+		else
+			getSimpleFriendList(callbackFl, uuid);
+
+	};
+	callbackValidity = function(err, result)
+	{
+		if (err)
+		{
+			console.error(err);
+			sendJsonError(res, 500, JSON.stringify(err), 'show Profile');
+		}
+		else if (true === result)
+			getFriendList(callbackAskFriend, uuid, false);
+		else
+			sendJsonError(res, 400, 'Unauthorized', 'show Profile');
+	}
+	checkValidityForUser(callbackValidity, uuid)
 }
 
 module.exports =
@@ -459,13 +562,12 @@ module.exports =
 };
 
 /**
-* Insère la valeur du cookie pour un utilisateur connecté
+* Insert the UUID value stored in the cookie for the current user 
 *
-* @param req {Object} : objet request d'Express
-* @param res {Object} : objet response d'Express
-* @param connection {Object} : objet de connexion de l'API node-MySQL 
-* @param uuid {String} : l'uuid du cookie sous forme de <code>String</code>
-* @param id {String} : l'identifiant de l'utilisateur
+* @param req {Object}: Express' request object
+* @param res {Object}: Express' response object 
+* @param uuid {String}: the UUID corresponding to the user, as a String
+* @param id {String}: the username of the current user
 **/
 function createCookieInDB(req, res, uuid, exp, id)
 {
@@ -523,12 +625,12 @@ function createCookieInDB(req, res, uuid, exp, id)
 }
 
 /**
-* Automatisation du renvoie de l'erreur 500 et du JSON avec les informations correspondantes à  l'intérieur
+* Send a JSON with the given error code and add informations based on calling function, if source parameter is provided
 *
-* @param res {Object} : objet response d'Express
-* @param code {Number} : code HTML de la réponse
-* @param message {String} : le message correspondant à l'erreur
-* @param source {String} : l'indicateur de la fonction d'origine de l'erreur. Permet d'apater le contenu du JSON en fonction  
+* @param res {Object}: the response object provided by Express
+* @param code {Number}: HTTP error code for the response 
+* @param message {String}: the message to display in the response
+* @param source {String}: indicator that allow to map the function that call this one  
 **/
 function sendJsonError(res, code, message, source, paramList)
 {
@@ -556,18 +658,12 @@ function sendJsonError(res, code, message, source, paramList)
 		result.disconnect = false;
 		res.json(code, result);
 	}
-	else if ('stayAlive' === source)
-	{
-		result.stayAlive = false;
-		result.validity = -1;
-		res.json(code, result);
-	}
-	else if ('private Key')
+	else if ('private Key' === source)
 	{
 		result.prKey = null;
 		res.json(code, result);
 	}
-	else if ('public Key')
+	else if ('public Key' === source)
 	{
 		result.user =
 		{
@@ -576,16 +672,41 @@ function sendJsonError(res, code, message, source, paramList)
 		};
 		res.json(code, result);
 	}
+	else if ('stayAlive' === source)
+	{
+		result.stayAlive = false;
+		result.validity = -1;
+		res.json(code, result);
+	}
+	else if ('get IP' === source)
+	{
+		result.ip = null;
+		res.json(code, result);
+	}
+	else if ('add Friend' === source)
+	{
+		result.invitation = 'unsent';
+		res.json(code, result);
+	}
+	else if ('search' === source)
+	{
+		;
+		res.json(code, result);
+	}
+	else if ('show Profile' === source)
+	{
+		result.profile = null;
+		res.json(code, result);
+	}
 	else
 		res.json(code, result);
 }
 
 /**
-* Vérifie l'enregistrement du cookie dans la base, et s'il est toujours valide
+* Check if the given UUID value is still valide (validity datetime is inferior to the current datetime)
 *
-* @param uuid {String} : l'uuid de l'utilisateur stocké dans un cookie
-* @param cb {Function} : la fonction de callback à appeler après la remonté des infos de MySQL
-* @return {Boolean} true si le cookie est (toujours) valide, false sinon 
+* @param uuid {String}: the UUID stored in the sessId cookie
+* @param cb {Function}: the callback function that accept both error and result objects
 **/
 function checkValidityForUser(cb, uuid, login)
 {
@@ -624,10 +745,10 @@ function checkValidityForUser(cb, uuid, login)
 }
 
 /**
-* Renvoie une date au format String compréhensible par MySQL
+* Return a MySQL compliant formated String of the date received. If no date is supplied, it return the current datetime 
 *
-* @param date {Date} : la date à mettre à formatter pour MySQL
-* @return {String} la date dans le format compatible pour MySQL
+* @param date {Date}: the date to format
+* @return {String} the MySQL format compliant of the date received
 **/
 function getMySQLDate(date)
 {
@@ -638,9 +759,9 @@ function getMySQLDate(date)
 }
 
 /**
-* Efface tous les anciens cookies pour l'utilisateur en cours 
+* Erase all the old cookies stored in the database for the current user 
 *
-* @param id {String} : l'email ou l'username de l'utilisateur
+* @param id {String}: email or username of the current user
 **/
 function eraseOldCookie(id)
 {
@@ -653,11 +774,11 @@ function eraseOldCookie(id)
 }
 
 /**
-* Renvoie un tableau contenant la liste des amis, ainsi que leur statut de connexion si on veut les liens validés, juste leur pseudo sinon
+* Return an array with the friend list inside: username, and connection status (only if you ask for those who have validated their friendship links)
 *
-* @param uuid {String} : l'uuid du cookie de connexion
-* @param cb {Function} : la fonction à appeler en cas d'erreur et suite à la récupération des résultats
-* @param alreadyFriend {Boolean}: le booléen indiquant si on veut rechercher les liens d'amitié validés ou non.
+* @param uuid {String}: the UUID stored in the sessId cookie
+* @param cb {Function}: the callback function that accept both error and result objects
+* @param alreadyFriend {Boolean}: <b>/!\ Required /!\</b> <code>true</code> if you want those who have validated their friendship links (with the current user)
 **/
 function getFriendList(uuid, cb, alreadyFriend)
 {
