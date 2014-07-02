@@ -372,7 +372,6 @@ function addFriend(req, res)
 
 function stayAlive(req, res)
 {
-	// FIXME Faire une MàJ de l'IP !
 	var callbackValidity, uuid = res.cookies.sessId;
 	callbackValidity = function(err, result)
 	{
@@ -382,18 +381,20 @@ function stayAlive(req, res)
 			sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
 		}
 		else if (true === result)
-			connection.query('Update cookie Set validity = "' + getMySQLDate(new Date(new Date().getTime() + 15 * 60000)) + '";', function(err, result, field)
+			connection.query('Update cookie\nSet validity = "' + getMySQLDate(new Date(new Date().getTime() + 15 * 60000)) + '";', function(err, result, field)
 			{
 				function callbackAskFriend(err, askList)
 				{
 					function callbackFl(err, friendList)
 					{
+						var query = 'Update user\nSet user_ip = "' + req.ip + '"\nWhere id In\n(\n\tSelect user_id\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n);';
 						if (err)
 						{
 							console.error(err);
 							sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
 						}
 						else if (0 !== askList.length && 0 !== friendList.length)
+						{
 							res.json(
 							{
 								error : false,
@@ -402,7 +403,17 @@ function stayAlive(req, res)
 								friends : friendList,
 								askFriend : askList
 							});
+							connection.query(query, function(err, rows, field)
+							{
+								if (err)
+								{
+									console.error(err);
+									sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
+								}
+							});
+						}
 						else if (0 === askList.length && 0 !== friendList.length)
+						{
 							res.json(
 							{
 								error : false,
@@ -411,7 +422,17 @@ function stayAlive(req, res)
 								friends : friendList,
 								askFriend : null
 							});
+							connection.query(query, function(err, rows, field)
+							{
+								if (err)
+								{
+									console.error(err);
+									sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
+								}
+							});
+						}
 						else if (0 !== askList.length && 0 === friendList.length)
+						{
 							res.json(
 							{
 								error : false,
@@ -420,7 +441,17 @@ function stayAlive(req, res)
 								friends : null,
 								askFriend : askList
 							});
+							connection.query(query, function(err, rows, field)
+							{
+								if (err)
+								{
+									console.error(err);
+									sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
+								}
+							});
+						}
 						else
+						{
 							res.json(
 							{
 								error : false,
@@ -429,6 +460,15 @@ function stayAlive(req, res)
 								friends : null,
 								askFriend : null
 							});
+							connection.query(query, function(err, rows, field)
+							{
+								if (err)
+								{
+									console.error(err);
+									sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
+								}
+							});
+						}
 					}
 					if (err)
 					{
