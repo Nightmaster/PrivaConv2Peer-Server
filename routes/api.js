@@ -195,7 +195,7 @@ function modifyProfile(req, res)
 					{
 						err = err.message.split('\n')[0].split(':');
 						var duplication;
-						if ( -1 !== err[1].indexOf('modify Profile'))
+						if ( -1 !== err[1].indexOf('Duplicate'))
 						{
 							duplication = err[1].substr(1);
 							console.log('Split et replace: ' + duplication.split(' ')[2].replace(/\'/g, '')) 
