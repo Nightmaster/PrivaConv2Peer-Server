@@ -1,15 +1,15 @@
 ﻿/*!
- * @auth : Gael B.
+* @auth : Gael B.
 !*/
 
 // Module dependencies \\
 var express = require('express'), // Express module
-routes = require('./routes'), // Router module
-http = require('http'), // HTTP Server module
-path = require('path'), // Path module
-api = routes.api, // API module
-sessCookie = require('./lib/defineCookie').defineSessCookie, // Cookie definition module
-config = require('./config'); // Config informations
+	routes = require('./routes'), // Router module
+	http = require('http'), // HTTP Server module
+	path = require('path'), // Path module
+	api = routes.api, // API module
+	sessCookie = require('./lib/defineCookie').defineSessCookie, // Cookie definition module
+	config = require('./config'); // Config informations
 // End module dependencies \\
 
 var app = express();
