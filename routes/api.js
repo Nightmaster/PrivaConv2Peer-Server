@@ -193,13 +193,12 @@ function modifyProfile(req, res)
 				{
 					if (err)
 					{
-						err = err.message.split('\n')[0].split(':');
 						var duplication;
 						if ( -1 !== err[1].indexOf('Duplicate'))
 						{
 							duplication = err[1].substr(1);
 							console.log('Split et replace: ' + duplication.split(' ')[2].replace(/\'/g, '')) 
-							if (login === duplication.split(' ')[2].replace(/\'/g, ''))
+							if (login.toLowerCase() === duplication.split(' ')[2].replace(/\'/g, ''))
 								sendJsonError(res, 400, 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.', 'modify Profile');
 							else if (email === duplication.split(' ')[2].replace(/\'/g, ''))
 								sendJsonError(res, 400, 'Cet email est déjà utilisé par un autre utilisateur. Veillez en choisir un autre.', 'modify Profile');
