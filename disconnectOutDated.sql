@@ -5,7 +5,7 @@ Where id In
 	Select user_id
 	From cookie
 	Where Date(validity) < Date(Now())
-	And Time(validity) < Time(Now());
+	And Time(validity) < Time(Now())
 );
 
 Delete From cookie
