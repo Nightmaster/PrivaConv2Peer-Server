@@ -1,6 +1,5 @@
 ﻿/*!
- * @auth : Gael B.
- * Coeur de l'application
+* @auth : Gael B.
 !*/
 
 // Module dependencies \\
@@ -13,20 +12,7 @@ var express = require('express'), // Express module
 	config = require('./config'); // Config informations
 // End module dependencies \\
 
-var app = express(), options =
-{
-	config :
-	{
-		user : 'pc2p',
-		password : 'esgi@123',
-		database : 'session'
-	}
-};
-
-console.log(JSON.stringify(config));
-
-global.app = app;
-global.config = config;
+var app = express();
 
 // all environments
 app.set('port', process.env.PORT || config.port);

@@ -7,7 +7,7 @@ var fs = require('fs'), // File System library
 	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
 	rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
 	utils = require('../lib/utils'), // Personnal utils module
-	infos = global.config.MySQL, // Retrieve informations stored in the config file
+	infos = require('../config').MySQL, // Retrieve informations stored in the config file
 	connection = mysql.createConnection(infos);
 
 function register(req, res)
