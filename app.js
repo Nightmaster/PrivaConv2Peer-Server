@@ -1,15 +1,15 @@
 ﻿/*!
-* @auth : Gael B.
+ * @auth : Gael B.
 !*/
 
 // Module dependencies \\
 var express = require('express'), // Express module
-	routes = require('./routes'), // Router module
-	http = require('http'), // HTTP Server module
-	path = require('path'), // Path module
-	api = routes.api, // API module
-	sessCookie = require('./lib/defineCookie').defineSessCookie, // Cookie definition module
-	config = require('./config'); // Config informations
+routes = require('./routes'), // Router module
+http = require('http'), // HTTP Server module
+path = require('path'), // Path module
+api = routes.api, // API module
+sessCookie = require('./lib/defineCookie').defineSessCookie, // Cookie definition module
+config = require('./config'); // Config informations
 // End module dependencies \\
 
 var app = express();
@@ -27,6 +27,11 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(function(req, res, next)
+{
+	next();
+	require('child_process').exec('./' + config.bash.pathTo + ' ' + config.bash.MySQL.user + ' ' + config.bash.MySQL.pw + ' ' + config.bash.MySQL.database + ' ' + config.bash.sqlFile);
+});
 
 if ('development' == app.get('env'))
 	app.use(express.errorHandler());

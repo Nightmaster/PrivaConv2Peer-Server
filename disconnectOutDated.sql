@@ -1,2 +1,3 @@
 Delete From cookie
-Where validity < Now();
+Where Date(validity) < Date(Now())
+And Time(validity) < Time(Now());
