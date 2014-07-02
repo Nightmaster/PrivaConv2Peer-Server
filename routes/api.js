@@ -894,11 +894,14 @@ function getFriendList(cb, uuid, alreadyFriend)
 		else
 		{
 			for (var i = 0; i < rows.length; i++)
-				result.push(
-				{
-					displayLogin : rows[i].display_login,
-					connected : (1 === rows[i].user_connected)
-				});
+				if (true === alreadyFriend)
+					result.push(
+					{
+						displayLogin : rows[i].display_login,
+						connected : (1 === rows[i].user_connected)
+					});
+				else
+					result.push(rows[i].display_login);
 			connection.query(req, function(err, rows, field)
 			{
 				if (err)
