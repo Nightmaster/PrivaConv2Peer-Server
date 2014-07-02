@@ -14,7 +14,7 @@ function register(req, res)
 {
 	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPw = req.query.pw, hashPwK = req.query.pwK, lengthKey = req.query.length, query;
 	if (undefined === login || undefined === email || undefined === hashPw || undefined === lName || undefined === fName || undefined === hashPwK || undefined === lengthKey)
-		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username && email && pw && firstname && name && pw && pwK && length');
+		sendJsonError(res, 400, 'Bad request. Missing parameters', 'register', 'username && email && pw && firstname && name && pw && pwK && length');
 	else
 	{
 		hashPw = hasher(hashPw);
@@ -51,7 +51,7 @@ function connect(req, res)
 {
 	var login = req.query.username, email = req.query.email, hashPW = req.query.pw, query = 'Select hash_pw\nFrom user\nWhere %s = "%s";', connecQuery, uuid = res.cookies.sessId, expiration = res.cookies.expiration;
 	if (undefined === login && undefined === email || undefined === hashPW)
-		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, '(username || email) && pw');
+		sendJsonError(res, 400, 'Bad request. Missing parameters', 'login', '(username || email) && pw');
 	else
 	{
 		hashPW = hasher(hashPW);
@@ -151,12 +151,13 @@ function modifyProfile(req, res)
 		modification : true,
 		newValues : {}
 	}, callback;
-	if (undefined === login && undefined === email && undefined === fName && undefined === lName && undefined === hashPW)
-		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email || firstname || name || pw');
 	callback = function(err, result)
 	{
 		if (err)
-			console.error(err)
+		{
+			console.error(err);
+			sendJsonError(res, 500, JSON.stringify(err), 'modify Profile');
+		}
 		else if (true === result)
 		{
 			if (login)
@@ -191,16 +192,22 @@ function modifyProfile(req, res)
 				connection.query(query, function(err, rows, fields)
 				{
 					if (err)
-						sendJsonError(res, 500, err, 'Modify'); // TODO Voir pour gérer les conflits de clés uniques
+						sendJsonError(res, 500, err, 'modify Profile'); // TODO Voir pour gérer les conflits de clés uniques
 					else
 						res.json(200, jsonReturned);
 				});
 			}
 		}
 		else
-			sendJsonError(res, 401, 'Unauthorized', 'Modify Profile');
+		{
+			console.error(err);
+			sendJsonError(res, 401, 'Unauthorized', 'modify Profile');
+		}
 	}
-	checkValidityForUser(callback, uuid);
+	if (undefined === login && undefined === email && undefined === fName && undefined === lName && undefined === hashPW)
+		sendJsonError(res, 400, 'Bad request. Missing parameters', 'modify Profile', 'username || email || firstname || name || pw');
+	else
+		checkValidityForUser(callback, uuid);
 }
 
 function getKey(req, res)
@@ -209,7 +216,10 @@ function getKey(req, res)
 	callback = function(err, result)
 	{
 		if (err)
+		{
+			console.error(err);
 			sendJsonError(res, 500, JSON.stringify(err), 'private Key');
+		}
 		else if (true === result)
 			fs.readFile(pathTo, 'utf-8', function(err, file)
 			{
@@ -222,14 +232,14 @@ function getKey(req, res)
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'private Key');
 	};
-	checkValidityForUser(callback, uuid, login);
+	if (undefined === login)
+		sendJsonError(res, 400, 'Bad request. Missing parameter', 'private Key', 'username');
+	else
+		checkValidityForUser(callback, uuid, login);
 }
 
 function getPubKey(req, res)
 {
-	var callback, uuid = res.cookies.sessId, login = req.query.username;
-	if (undefined === login || null === login)
-		sendJsonError(res, 400, 'Bad request. Missing parameter', undefined, 'username');
 	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + login + '/id_rsa.pub';
 	callback = function(err, result)
 	{
@@ -260,14 +270,15 @@ function getPubKey(req, res)
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'public Key');
 	};
-	checkValidityForUser(callback, uuid);
+	if (undefined === login || null === login)
+		sendJsonError(res, 400, 'Bad request. Missing parameter', undefined, 'username');
+	else
+		checkValidityForUser(callback, uuid);
 }
 
 function getCliIP(req, res)
 {
 	var callback, uuid = res.cookies.sessId, user = req.params.user, query = 'Select user_ip From user Where login = ' + user.toLowerCase();
-	if (undefined === login || null === login)
-		sendJsonError(res, 400, 'Bad request. Missing parameter', undefined, 'username');
 	callback = function(err, result)
 	{
 		function callbackFl(err, result)
@@ -307,14 +318,15 @@ function getCliIP(req, res)
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'get IP');
 	};
-	checkValidityForUser(callback, uuid);
+	if (undefined === login || null === login)
+		sendJsonError(res, 400, 'Bad request. Missing parameter', 'get IP', 'username');
+	else
+		checkValidityForUser(callback, uuid);
 }
 
 function addFriend(req, res)
 {
 	var callbackValidity, callbackFl, callbackAskFriend, uuid = res.cookies.sessId, user = req.query.username, email = req.query.email, query;
-	if (undefined === user && undefined === email)
-		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email');
 	query = 'Insert Into ami (id_user_emitter, id_user_receiver, valide) Values ((Select id From user Where id In (Select user_id From cookie Where value = "' + uuid + '")), (Select id From user Where ' + (undefined !== user ? 'login' : 'email') + ' ="' + (undefined !== user ? user : email) + '" ), 0);';
 	callbackAskFriend = function(err, result)
 	{
@@ -362,14 +374,17 @@ function addFriend(req, res)
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'add Friend');
 	};
-	checkValidityForUser(callbackValidity, uuid);
+	if (undefined === user && undefined === email)
+		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email');
+	else
+		checkValidityForUser(callbackValidity, uuid);
 }
 
 function answerRequest(req, res)
 {
 	var callbackValidity, uuid = res.cookies.sessId, user = req.query.username, validationStatus = 'true' === req.query.validate, queryAccept, queryRefuse;
-	queryAccept = 'Update ami\nSet valide = 1\nWhere id_user_receiver In\n(\n\tSelect user_di\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n)\nAnd id_user_emitter In\n(\n\tSelect id\n\tFrom user\n\tWhere login = "' + user + '"\n);';
-	queryRefuse = 'Delete From ami\nWhere id_user_receiver In\n(\n\tSelect user_di\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n)\nAnd id_user_emitter In\n(\n\tSelect id\n\tFrom user\n\tWhere login = "' + user + '"\n);';
+	queryAccept = 'Update ami\nSet valide = 1\nWhere id_user_receiver In\n(\n\tSelect user_id\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n)\nAnd id_user_emitter In\n(\n\tSelect id\n\tFrom user\n\tWhere login = "' + user + '"\n);';
+	queryRefuse = 'Delete From ami\nWhere id_user_receiver In\n(\n\tSelect user_id\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n)\nAnd id_user_emitter In\n(\n\tSelect id\n\tFrom user\n\tWhere login = "' + user + '"\n);';
 	callbackValidity = function(err, result)
 	{
 		if (err)
@@ -411,7 +426,10 @@ function answerRequest(req, res)
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'answer Request');
 	};
-	checkValidityForUser(callbackValidity, uuid)
+	if (undefined === user && undefined === validationStatus)
+		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || validate');
+	else
+		checkValidityForUser(callbackValidity, uuid)
 }
 
 function stayAlive(req, res)
@@ -541,8 +559,6 @@ function stayAlive(req, res)
 function search(req, res)
 {
 	var callback, uuid = res.cookies.sessId, user = req.query.username, lName = req.query.name, fName = req.query.firstname, email = req.query.email, query, columns, where, jsonReturned;
-	if (undefined === user && undefined === email && undefined === fName && undefined === lName)
-		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email || firstname || name');
 	callback = function(err, result)
 	{
 		if (err)
@@ -624,7 +640,10 @@ function search(req, res)
 	};
 	columns = 'display_login As displayLogin, nom, prenom';
 	where = '';
-	checkValidityForUser(callback, uuid);
+	if (undefined === user && undefined === email && undefined === fName && undefined === lName)
+		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email || firstname || name');
+	else
+		checkValidityForUser(callback, uuid);
 }
 
 function showProfile(req, res)
@@ -688,7 +707,10 @@ function showProfile(req, res)
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'show Profile');
 	}
-	checkValidityForUser(callbackValidity, uuid)
+	if (undefined === user)
+		sendJsonError(res, 400, 'Bad request. Missing parameters', 'show Profile', 'username');
+	else
+		checkValidityForUser(callbackValidity, uuid)
 }
 
 module.exports =
