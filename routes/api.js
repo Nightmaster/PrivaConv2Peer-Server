@@ -787,7 +787,7 @@ function createCookieInDB(req, res, uuid, exp, id)
 				sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 			}
 			else
-				getFriendList(callbackAskFriend, uuid, false);
+				getFriendList(callbackAskFriend, uuid, false, true);
 		};
 		if (err)
 			sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
@@ -802,7 +802,7 @@ function createCookieInDB(req, res, uuid, exp, id)
 					sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 				}
 				else
-					getFriendList(callbackFl, uuid, true, true);
+					getFriendList(callbackFl, uuid, true);
 			});
 		}
 	});
@@ -1022,7 +1022,8 @@ function getFriendList(cb, uuid, alreadyFriend, emitterOnly)
 			if (err)
 				cb(err);
 			else
-				result.push(rows[i].display_login);
+				for (var i = 0; i < rows.length; i++)
+					result.push(rows[i].display_login);
 		});
 	}
 }
