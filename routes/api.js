@@ -563,7 +563,7 @@ function stayAlive(req, res)
 					sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
 				}
 				else
-					getFriendList(callbackAskFriend, uuid, false)
+					getFriendList(callbackAskFriend, uuid, false, true)
 			});
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'stayAlive');
@@ -802,7 +802,7 @@ function createCookieInDB(req, res, uuid, exp, id)
 					sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 				}
 				else
-					getFriendList(callbackFl, uuid, true);
+					getFriendList(callbackFl, uuid, true, true);
 			});
 		}
 	});
@@ -969,48 +969,59 @@ function eraseOldCookie(id)
 * @param uuid {String}: the UUID stored in the sessId cookie
 * @param alreadyFriend {Boolean}: <b>/!\ Required /!\</b> <code>true</code> if you want those who have validated their friendship links (with the current user)
 **/
-function getFriendList(cb, uuid, alreadyFriend)
+function getFriendList(cb, uuid, alreadyFriend, emitterOnly)
 {
 	if (true !== utils.typeVerificator(alreadyFriend, 'Boolean'))
 		cb(new TypeError('alreadyFriend parameter must be a boolean !'));
 	var result = [], req, unfReq = 'Select display_login, user_connected From user Where id In (Select %s From ami Where valide = %d And %s In (Select user_id From cookie Where value = "%s"));';
-	req = util.format(unfReq, 'id_user_emitter', (true === alreadyFriend ? 1 : 0), 'id_user_receiver', uuid);
-	connection.query(req, function(err, rows, field)
+	if (true !== emitterOnly || true === alreadyFriend)
+	{
+		req = util.format(unfReq, 'id_user_emitter', (true === alreadyFriend ? 1 : 0), 'id_user_receiver', uuid);
+		connection.query(req, function(err, rows, field)
+		{
+			req = util.format(unfReq, 'id_user_receiver', (true === alreadyFriend ? 1 : 0), 'id_user_emitter', uuid);
+			if (err)
+				cb(err);
+			else
+			{
+				for (var i = 0; i < rows.length; i++)
+					if (true === alreadyFriend)
+						result.push(
+						{
+							displayLogin : rows[i].display_login,
+							connected : (1 === rows[i].user_connected)
+						});
+					else
+						result.push(rows[i].display_login);
+				connection.query(req, function(err, rows, field)
+				{
+					if (err)
+						cb(err);
+					else
+					{
+						for (var i = 0; i < rows.length; i++)
+							if (true === alreadyFriend)
+								result.push(
+								{
+									displayLogin : rows[i].display_login,
+									connected : (1 === rows[i].user_connected)
+								});
+							else
+								result.push(rows[i].display_login);
+						cb(undefined, result);
+					}
+				});
+			}
+		});
+	}
+	else
 	{
 		req = util.format(unfReq, 'id_user_receiver', (true === alreadyFriend ? 1 : 0), 'id_user_emitter', uuid);
 		if (err)
 			cb(err);
 		else
-		{
-			for (var i = 0; i < rows.length; i++)
-				if (true === alreadyFriend)
-					result.push(
-					{
-						displayLogin : rows[i].display_login,
-						connected : (1 === rows[i].user_connected)
-					});
-				else
-					result.push(rows[i].display_login);
-			connection.query(req, function(err, rows, field)
-			{
-				if (err)
-					cb(err);
-				else
-				{
-					for (var i = 0; i < rows.length; i++)
-						if (true === alreadyFriend)
-							result.push(
-							{
-								displayLogin : rows[i].display_login,
-								connected : (1 === rows[i].user_connected)
-							});
-						else
-							result.push(rows[i].display_login);
-					cb(undefined, result);
-				}
-			});
-		}
-	});
+			result.push(rows[i].display_login);
+	}
 }
 
 /**
