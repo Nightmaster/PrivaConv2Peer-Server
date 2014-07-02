@@ -29,9 +29,9 @@ function register(req, res)
 				{
 					duplication = err[1].substr(1);
 					if (login === duplication.split(' ')[2].replace(/\'/g, ''))
-						sendJsonError(res, 200, 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.', 'register');
+						sendJsonError(res, 400, 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.', 'register');
 					else if (email === duplication.split(' ')[2].replace(/\'/g, ''))
-						sendJsonError(res, 200, 'Cet email est déjà utilisé par un autre utilisateur. Veillez en choisir un autre.', 'register');
+						sendJsonError(res, 400, 'Cet email est déjà utilisé par un autre utilisateur. Veillez en choisir un autre.', 'register');
 				}
 				else
 					sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'register');
@@ -192,7 +192,20 @@ function modifyProfile(req, res)
 				connection.query(query, function(err, rows, fields)
 				{
 					if (err)
-						sendJsonError(res, 500, err, 'modify Profile'); // TODO Voir pour gérer les conflits de clés uniques
+					{
+						err = err.message.split('\n')[0].split(':');
+						var duplication;
+						if ( -1 !== err[1].indexOf('modify Profile'))
+						{
+							duplication = err[1].substr(1);
+							if (login === duplication.split(' ')[2].replace(/\'/g, ''))
+								sendJsonError(res, 400, 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.', 'modify Profile');
+							else if (email === duplication.split(' ')[2].replace(/\'/g, ''))
+								sendJsonError(res, 400, 'Cet email est déjà utilisé par un autre utilisateur. Veillez en choisir un autre.', 'modify Profile');
+						}
+						else
+							sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'modify Profile');
+					}
 					else
 						res.json(200, jsonReturned);
 				});
