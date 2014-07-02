@@ -198,6 +198,7 @@ function modifyProfile(req, res)
 						if ( -1 !== err[1].indexOf('modify Profile'))
 						{
 							duplication = err[1].substr(1);
+							console.log('Split et replace: ' + duplication.split(' ')[2].replace(/\'/g, '')) 
 							if (login === duplication.split(' ')[2].replace(/\'/g, ''))
 								sendJsonError(res, 400, 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.', 'modify Profile');
 							else if (email === duplication.split(' ')[2].replace(/\'/g, ''))
