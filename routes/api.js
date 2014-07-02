@@ -419,13 +419,14 @@ function stayAlive(req, res)
 	var callbackValidity, uuid = res.cookies.sessId;
 	callbackValidity = function(err, result)
 	{
+		var query = 'Update cookie\nSet validity = "' + getMySQLDate(new Date(new Date().getTime() + 15 * 60000)) + '"\nWhere user_id In\n(\n\tSelect user_id\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n);';
 		if (err)
 		{
 			console.error(err);
 			sendJsonError(res, 500, JSON.stringify(err), 'stayAlive');
 		}
 		else if (true === result)
-			connection.query('Update cookie\nSet validity = "' + getMySQLDate(new Date(new Date().getTime() + 15 * 60000)) + '"\nWhere user_id In\n;', function(err, result, field)
+			connection.query(query, function(err, result, field)
 			{
 				function callbackAskFriend(err, askList)
 				{
@@ -903,7 +904,6 @@ function checkValidityForUser(cb, uuid, login)
 function getMySQLDate(datetime)
 {
 	var date = 'Date' === utils.realTypeOf(datetime) ? datetime : new Date(), dateString = '';
-	console.log(date);
 	dateString = date.getFullYear() + '-' + (10 > date.getMonth() ? '0' + date.getMonth() : date.getMonth()) + '-' + (10 > date.getDate() ? '0' + date.getDate() : date.getDate()) + ' ' + (10 > date.getHours() ? '0' + date.getHours() : date.getHours()) + ':' + (10 > date.getMinutes() ? '0' + date.getMinutes() : date.getMinutes()) + ':'
 			+ (10 > date.getSeconds() ? '0' + date.getSeconds() : date.getSeconds());
 	return dateString;
