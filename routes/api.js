@@ -204,7 +204,10 @@ function modifyProfile(req, res)
 								sendJsonError(res, 400, 'Cet email est déjà utilisé par un autre utilisateur. Veillez en choisir un autre.', 'modify Profile');
 						}
 						else
+						{
+							console.error(err);
 							sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'modify Profile');
+						}
 					}
 					else
 						res.json(200, jsonReturned);
