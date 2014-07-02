@@ -317,12 +317,11 @@ function getCliIP(req, res)
 
 function addFriend(req, res)
 {
-	// FIXME traiter erreurs
-	var callbackValidity, callbackFl, uuid = res.cookies.sessId, user = req.query.username, email = req.query.email, query;
+	var callbackValidity, callbackFl, callbackAskFriend, uuid = res.cookies.sessId, user = req.query.username, email = req.query.email, query;
 	if (undefined === user && undefined === email)
 		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email');
 	query = 'Insert Into ami (id_user_emitter, id_user_receiver, valide) Values ((Select id From user Where id In (Select user_id From cookie Where value = "' + uuid + '")), (Select id From user Where ' + (undefined !== user ? 'login' : 'email') + ' ="' + (undefined !== user ? user : email) + '" ), 0);';
-	callbackFl = function(err, result)
+	callbackAskFriend = function(err, result)
 	{
 		if (err)
 		{
@@ -330,7 +329,7 @@ function addFriend(req, res)
 			sendJsonError(res, 500, JSON.stringify(err), 'add friend');
 		}
 		else if ( -1 !== result.indexOf(user))
-			sendJsonError(res, 400, 'Vous êtes déjà ami avec cette personne', 'add friend');
+			sendJsonError(res, 400, 'Vous avez déjà une demande d\'amitié en attente de cette personne', 'add friend');
 		else
 			connection.query(query, function(err, rows, field)
 			{
@@ -346,6 +345,18 @@ function addFriend(req, res)
 						invitation : 'sent'
 					});
 			});
+	};
+	callbackFl = function(err, result)
+	{
+		if (err)
+		{
+			console.error(err);
+			sendJsonError(res, 500, JSON.stringify(err), 'add friend');
+		}
+		else if ( -1 !== result.indexOf(user))
+			sendJsonError(res, 400, 'Vous êtes déjà ami avec cette personne', 'add friend');
+		else
+			getFriendList(callbackAskFriend, uuid, false);
 	};
 	callbackValidity = function(err, validity)
 	{
