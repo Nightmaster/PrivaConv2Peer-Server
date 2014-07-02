@@ -490,25 +490,25 @@ function search(req, res)
 	{
 		while ( -1 !== user.indexOf('%%'))
 			user = user.replace(/%%/g, '%');
-		user = '%' === user ? '' : undefined;
+		user = '%' === user ? '' : user;
 	}
 	if (undefined !== email)
 	{
 		while ( -1 !== email.indexOf('%%'))
 			email = email.replace(/%%/g, '%');
-		email = '%' === email ? '' : undefined;
+		email = '%' === email ? '' : email;
 	}
 	if (undefined !== lName)
 	{
 		while ( -1 !== lName.indexOf('%%'))
 			lName = lName.replace(/%%/g, '%');
-		lName = '%' === lName ? '' : undefined;
+		lName = '%' === lName ? '' : lName;
 	}
 	if (undefined !== fName)
 	{
 		while ( -1 !== fName.indexOf('%%'))
 			fName = fName.replace(/%%/g, '%');
-		fName = '%' === fName ? '' : undefined;
+		fName = '%' === fName ? '' : fName;
 	}
 	jsonReturned =
 	{
