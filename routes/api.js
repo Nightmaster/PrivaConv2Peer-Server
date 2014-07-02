@@ -352,7 +352,7 @@ function addFriend(req, res)
 		if (err)
 			sendJsonError(res, 500, JSON.stringify(err), 'add friend');
 		else if (true === validity)
-			checkValidityForUser(callbackFl, uuid);
+			getSimpleFriendList(callbackFl, uuid);
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'add Friend');
 	};
