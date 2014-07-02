@@ -1,6 +1,6 @@
 {
 	"port": 8080,
-	"MySQL": 
+	"MySQLInformations": 
 	{
 		"host": "localhost",
 		"user": "pc2p",
