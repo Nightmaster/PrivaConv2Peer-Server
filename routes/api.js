@@ -445,16 +445,16 @@ function search(req, res)
 		}
 		else if (true === result)
 		{
-			if (user)
+			if (undefined !== user)
 				where += 'login Like "' + user.toLowerCase() + '"';
-			if (email)
+			if (undefined !== email)
 			{
 				columns = columns.substr(0, 29) + ', email' + columns.substr(29);
 				where += '' === where ? 'email Like "' + email + '"' : ', email Like "' + email + '"';
 			}
-			if (lName)
+			if (undefined !== lName)
 				where += '' === where ? 'nom Like "' + lName + '"' : ', nom Like "' + lName + '"';
-			if (fName)
+			if (undefined !== fName)
 				where += '' === where ? 'prenom Like "' + fName + '"' : ', prenom Like "' + fName + '"';
 			query = 'Select ' + columns + '\nFrom user\nWhere ' + where + '\nLimit 10;';
 			connection.query(query, function(err, rows, fields)
