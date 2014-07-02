@@ -419,7 +419,7 @@ function stayAlive(req, res)
 	var callbackValidity, uuid = res.cookies.sessId;
 	callbackValidity = function(err, result)
 	{
-		var query = 'Update cookie\nSet validity = "' + getMySQLDate(new Date(new Date().getTime() + 15 * 60000)) + '"\nWhere user_id In\n(\n\tSelect user_id\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n);';
+		var query = 'Update cookie\nSet validity = "' + getMySQLDate(new Date(new Date().getTime() + 15 * 60000)) + '"\nWhere value = "' + uuid + '";';
 		if (err)
 		{
 			console.error(err);
