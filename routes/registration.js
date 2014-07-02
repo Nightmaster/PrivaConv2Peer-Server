@@ -7,7 +7,13 @@ var salts = require('../saltsForApp'), // Salts for the passwords
 	mysql = require('mysql'), // MySQL Connector
 	utils = require('../lib/utils'), // utils lib
 	title = 'PriveConv2Peer';
-
+/**
+* Display registration view
+*
+* @param req {Object}: request Express object
+* @param res {Object}: response Express object
+* @author Gaël B.
+**/
 exports.registration = function(req, res)
 {
 	var body = req.query, connection = mysql.createConnection(
@@ -49,6 +55,17 @@ exports.registration = function(req, res)
 		notAllParamDefined(res, username, fName, lName, email, pw);
 };
 
+/**
+* Check all the parameters with different RegEx
+*
+* @param res {Object}: response Express object
+* @param username {String}: username of the user
+* @param fName {String}: firstname of the user
+* @param lName {String}: lastname of the user
+* @param email {String}: email of the user
+* @param pw {String}: hashed password of the user
+* @return {Boolean}: <code>false</code> if there is an error, <code>true</code> otherwise
+**/
 function regexVerif(res, username, fName, lName, email, pw)
 {
 	if (/[-a-zA-Z ]*/.test(fName))
@@ -117,6 +134,16 @@ function regexVerif(res, username, fName, lName, email, pw)
 	return true;
 }
 
+/**
+* Display the registration view with an error message if not all the parameters have been
+*
+* @param res {Object}: response Express object
+* @param username {String}: username of the user
+* @param fName {String}: firstname of the user
+* @param lName {String}: lastname of the user
+* @param email {String}: email of the user
+* @param pw {String}: hashed password of the user
+**/
 function notAllParamDefined(res, username, fName, lName, email, pw)
 {
 	var json =
@@ -135,6 +162,16 @@ function notAllParamDefined(res, username, fName, lName, email, pw)
 	res.render('register', json);
 }
 
+/**
+* Register informations in the database
+*
+* @param res {Object}: response Express object
+* @param username {String}: username of the user
+* @param fName {String}: firstname of the user
+* @param lName {String}: lastname of the user
+* @param email {String}: email of the user
+* @param pw {String}: hashed password of the user
+**/
 function sendToDB(res, username, fName, lName, email, pw)
 {
 	connection.connect(function(err)

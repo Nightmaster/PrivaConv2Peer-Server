@@ -1,7 +1,10 @@
 /**
 * Define routes in app.js.
+*
+* @param req {Object}: request Express object
+* @param res {Object}: response Express object
+* @author Gaël B.
 **/
-
 module.exports =
 {
 	index : function index(req, res)

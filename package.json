@@ -23,8 +23,7 @@
 		"ejs": ">=1.0.0",
 		"express": "3.6.0",
 		"mysql": "~2.1.0",
-		"node-uuid": "1.4.x",
-		"socket.io": "1.0.x"
+		"node-uuid": "1.4.x"
 	},
 	"repository": 
 	{

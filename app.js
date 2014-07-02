@@ -59,7 +59,7 @@ app.get('/webAPI/getPubKey/:user', api.getPubKey);
 app.get('/webAPI/getCliIP/:user', api.getCliIP);
 app.get('/webAPI/showProfile/:user', api.showProfile);
 
-/* Erreur '404 not found', en cas de besoin */
+/* Error '404 not found', can be useful */
 app.use(routes._404);
 
 http.createServer(app).listen(app.get('port'), function()

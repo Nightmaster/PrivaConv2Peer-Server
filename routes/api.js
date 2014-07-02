@@ -10,6 +10,14 @@ var fs = require('fs'), // File System library
 	infos = require('../config').MySQLInformations, // Retrieve informations stored in the config file
 	connection = mysql.createConnection(infos);
 
+/**
+* Registration web API<br/>
+* Need those parameters: username && email && pw && firstname && name && pw && pwK && length
+*
+* @param req {Object}: request Express object
+* @param res {Object}: response Express object
+* @author Gaël B.
+**/
 function register(req, res)
 {
 	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPw = req.query.pw, hashPwK = req.query.pwK, lengthKey = req.query.length, query;
@@ -47,6 +55,14 @@ function register(req, res)
 	}
 }
 
+/**
+* Connection web API<br/>
+* Need those parameters: (username || email) && pw
+*
+* @param req {Object}: request Express object
+* @param res {Object}: response Express object
+* @author Gaël B.
+**/
 function connect(req, res)
 {
 	var login = req.query.username, email = req.query.email, hashPW = req.query.pw, query = 'Select hash_pw\nFrom user\nWhere %s = "%s";', connecQuery, uuid = res.cookies.sessId, expiration = res.cookies.expiration;
@@ -112,6 +128,13 @@ function connect(req, res)
 	}
 }
 
+/**
+* Disconnection web API
+*
+* @param req {Object}: request Express object
+* @param res {Object}: response Express object
+* @author Gaël B.
+**/
 function disconnect(req, res)
 {
 	var callback, uuid = res.cookies.sessId, queryDel = 'Delete From cookie\nWhere value="' + uuid + '";', queryDisco = 'Update user\nSet user_ip = "", user_connected = 0\nWhere id In \n(\n\tSelect user_id\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n);';
@@ -143,6 +166,14 @@ function disconnect(req, res)
 	checkValidityForUser(callback, uuid);
 }
 
+/**
+* Profile modification web API<br/>
+* Need those parameters: username || email || firstname || name || pw
+*
+* @param req {Object}: request Express object
+* @param res {Object}: response Express object
+* @author Gaël B.
+**/
 function modifyProfile(req, res)
 {
 	var uuid = res.cookies.sessId, displayLogin = req.query.username, login = undefined !== displayLogin ? displayLogin.toLowercase() : undefined, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = req.query.pw, values = '', query, jsonReturned =
@@ -226,6 +257,13 @@ function modifyProfile(req, res)
 		checkValidityForUser(callback, uuid);
 }
 
+/**
+* Private key provider web API
+*
+* @param req {Object}: request Express object
+* @param res {Object}: response Express object
+* @author Gaël B.
+**/
 function getKey(req, res)
 {
 	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + login + '/id_rsa.pem';
@@ -254,6 +292,13 @@ function getKey(req, res)
 		checkValidityForUser(callback, uuid, login);
 }
 
+/**
+* Public Key provider web API
+*
+* @param req {Object}: request Express object
+* @param res {Object}: response Express object
+* @author Gaël B.
+**/
 function getPubKey(req, res)
 {
 	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + login + '/id_rsa.pub';
@@ -292,6 +337,13 @@ function getPubKey(req, res)
 		checkValidityForUser(callback, uuid);
 }
 
+/**
+* User's IP provider web API
+*
+* @param req {Object}: request Express object
+* @param res {Object}: response Express object
+* @author Gaël B.
+**/
 function getCliIP(req, res)
 {
 	var callback, uuid = res.cookies.sessId, user = req.params.user, query = 'Select user_ip From user Where login = ' + user.toLowerCase();
@@ -340,6 +392,14 @@ function getCliIP(req, res)
 		checkValidityForUser(callback, uuid);
 }
 
+/**
+* Add friend web API<br/>
+* Need those parameters: username || email
+*
+* @param req {Object}: request Express object
+* @param res {Object}: response Express object
+* @author Gaël B.
+**/
 function addFriend(req, res)
 {
 	var callbackValidity, callbackFl, callbackAskFriend, uuid = res.cookies.sessId, user = req.query.username, email = req.query.email, query;
@@ -396,6 +456,14 @@ function addFriend(req, res)
 		checkValidityForUser(callbackValidity, uuid);
 }
 
+/**
+* Friendship request answer web API<br/>
+* Need those parameters: username && validate
+*
+* @param req {Object}: request Express object
+* @param res {Object}: response Express object
+* @author Gaël B.
+**/
 function answerRequest(req, res)
 {
 	var callbackValidity, uuid = res.cookies.sessId, user = req.query.username, validationStatus = 'true' === req.query.validate, queryAccept, queryRefuse;
@@ -448,6 +516,14 @@ function answerRequest(req, res)
 		checkValidityForUser(callbackValidity, uuid)
 }
 
+/**
+* Stay alive web API<br/>
+* Return updated informations in it answer (JSON)
+*
+* @param req {Object}: request Express object
+* @param res {Object}: response Express object
+* @author Gaël B.
+**/
 function stayAlive(req, res)
 {
 	var callbackValidity, uuid = res.cookies.sessId;
@@ -572,6 +648,14 @@ function stayAlive(req, res)
 	checkValidityForUser(callbackValidity, uuid);
 }
 
+/**
+* Search web API<br/>
+* Need those parameters: username || email || firstname || name
+*
+* @param req {Object}: request Express object
+* @param res {Object}: response Express object
+* @author Gaël B.
+**/
 function search(req, res)
 {
 	var callback, uuid = res.cookies.sessId, user = req.query.username, lName = req.query.name, fName = req.query.firstname, email = req.query.email, query, columns, where, jsonReturned;
@@ -662,6 +746,14 @@ function search(req, res)
 		checkValidityForUser(callback, uuid);
 }
 
+/**
+* Show profile web API<br/>
+* Need those parameters: username
+*
+* @param req {Object}: request Express object
+* @param res {Object}: response Express object
+* @author Gaël B.
+**/
 function showProfile(req, res)
 {
 	var callbackValidity, callbackAskFriend, callbackFl, arrAskFriend, uuid = res.cookies.sessId, user = req.params.user, query = 'Select display_login As displayLogin, email, nom, prenom\nFrom user\nWhere login = "' + user.toLowerCase() + '";';;
@@ -968,6 +1060,7 @@ function eraseOldCookie(id)
 * @param cb {Function}: the callback function that accept both error and result objects
 * @param uuid {String}: the UUID stored in the sessId cookie
 * @param alreadyFriend {Boolean}: <b>/!\ Required /!\</b> <code>true</code> if you want those who have validated their friendship links (with the current user)
+* @param emitterOnly {Boolean}: In the case that you want only the list of people that ask you to be friend with them, set this parameter to <code>true</code>
 **/
 function getFriendList(cb, uuid, alreadyFriend, emitterOnly)
 {
