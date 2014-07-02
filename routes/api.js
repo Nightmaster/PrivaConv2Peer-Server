@@ -1016,7 +1016,7 @@ function getFriendList(cb, uuid, alreadyFriend, emitterOnly)
 	}
 	else
 	{
-		req = util.format(unfReq, 'id_user_receiver', 0, 'id_user_emitter', uuid);
+		req = util.format(unfReq, 'id_user_emitter', 0, 'id_user_receiver', uuid);
 		connection.query(req, function(err, rows, field)
 		{
 			if (err)
