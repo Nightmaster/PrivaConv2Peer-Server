@@ -10,7 +10,7 @@ var express = require('express'), // Express module
 	path = require('path'), // Path module
 	api = routes.api, // API module
 	sessCookie = require('./lib/defineCookie').defineSessCookie, // Cookie definition module
-config = require('./config'); // Config informations
+	config = require('./config'); // Config informations
 // End module dependencies \\
 
 var app = express(), options =
@@ -22,6 +22,8 @@ var app = express(), options =
 		database : 'session'
 	}
 };
+
+console.log(JSON.stringify(config));
 
 global.app = app;
 global.config = config;
