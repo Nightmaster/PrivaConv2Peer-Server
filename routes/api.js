@@ -1,5 +1,5 @@
 /**
-* GET all APIi pages
+* @author Gaël B.
 **/
 var fs = require('fs'), // File System library
 	mysql = require('mysql'), // MySQL connection module
@@ -37,7 +37,6 @@ function register(req, res)
 						sendJsonError(res, 200, 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.', 'register');
 					else if (email === duplication.split(' ')[2].replace(/\'/g, ''))
 						sendJsonError(res, 200, 'Cet email est déjà utilisé par un autre utilisateur. Veillez en choisir un autre.', 'register');
-					// TODO (---) recommander récup de MdP quand implémenté
 				}
 				else
 					sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'register');
@@ -318,16 +317,21 @@ function getCliIP(req, res)
 
 function addFriend(req, res)
 {
-	// FIXME Vérifier liens déjà existants et traiter erreurs
-	var callback, uuid = res.cookies.sessId, login = req.query.username, email = req.query.email, query;
-	if (undefined === login && undefined === email)
+	// FIXME traiter erreurs
+	var callbackValidity, callbackFl, uuid = res.cookies.sessId, user = req.query.username, email = req.query.email, query;
+	if (undefined === user && undefined === email)
 		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email');
-	query = 'Insert Into ami (id_user_emitter, id_user_receiver, valide) Values ((Select id From user Where id In (Select user_id From cookie Where value = "' + uuid + '")), (Select id From user Where ' + (undefined !== login ? 'login' : 'email') + ' ="' + (undefined !== login ? login : email) + '" ), 0);';
-	callback = function(err, validity)
+	query = 'Insert Into ami (id_user_emitter, id_user_receiver, valide) Values ((Select id From user Where id In (Select user_id From cookie Where value = "' + uuid + '")), (Select id From user Where ' + (undefined !== user ? 'login' : 'email') + ' ="' + (undefined !== user ? user : email) + '" ), 0);';
+	callbackFl = function(err, result)
 	{
 		if (err)
+		{
+			console.error(err);
 			sendJsonError(res, 500, JSON.stringify(err), 'add friend');
-		else if (true === validity)
+		}
+		else if ( -1 !== result.indexOf(user))
+			sendJsonError(res, 400, 'Vous êtes déjà ami avec cette personne', 'add friend');
+		else
 			connection.query(query, function(err, rows, field)
 			{
 				if (err)
@@ -342,10 +346,17 @@ function addFriend(req, res)
 						invitation : 'sent'
 					});
 			});
+	};
+	callbackValidity = function(err, validity)
+	{
+		if (err)
+			sendJsonError(res, 500, JSON.stringify(err), 'add friend');
+		else if (true === validity)
+			checkValidityForUser(callbackFl, uuid);
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'add Friend');
 	};
-	checkValidityForUser(callback, uuid);
+	checkValidityForUser(callbackValidity, uuid);
 }
 
 function stayAlive(req, res)
