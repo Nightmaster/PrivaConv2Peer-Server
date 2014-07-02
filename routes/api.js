@@ -145,7 +145,7 @@ function disconnect(req, res)
 
 function modifyProfile(req, res)
 {
-	var uuid = res.cookies.sessId, login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = req.query.pw, values = '', query, jsonReturned =
+	var uuid = res.cookies.sessId, displayLogin = req.query.username, login = undefined !== displayLogin ? displayLogin.toLowercase() : undefined, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPW = req.query.pw, values = '', query, jsonReturned =
 	{
 		error : false,
 		modification : true,
@@ -162,8 +162,8 @@ function modifyProfile(req, res)
 		{
 			if (login)
 			{
-				values += 'login = "' + login.toLowerCase() + '", display_login = "' + login + '"';
-				jsonReturned.newValues.login = login;
+				values += 'login = "' + login + '", display_login = "' + displayLogin + '"';
+				jsonReturned.newValues.login = displayLogin;
 			}
 			if (email)
 			{
@@ -198,7 +198,7 @@ function modifyProfile(req, res)
 						if ( -1 !== err[1].indexOf('Duplicate'))
 						{
 							duplication = err[1].substr(1);
-							if (login.toLowerCase() === duplication.split(' ')[2].replace(/\'/g, ''))
+							if (login === duplication.split(' ')[2].replace(/\'/g, ''))
 								sendJsonError(res, 400, 'Ce nom d\'utilisateur existe déjà. Veillez en choisir un autre.', 'modify Profile');
 							else if (email === duplication.split(' ')[2].replace(/\'/g, ''))
 								sendJsonError(res, 400, 'Cet email est déjà utilisé par un autre utilisateur. Veillez en choisir un autre.', 'modify Profile');
