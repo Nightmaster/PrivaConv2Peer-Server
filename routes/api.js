@@ -118,7 +118,6 @@ function connect(req, res)
 	}
 }
 
-
 function disconnect(req, res)
 {
 	var callback, uuid = res.cookies.sessId, queryDel = 'Delete From cookie\nWhere value="' + uuid + '";', queryDisco = 'Update user\nSet user_ip = "", user_connected = 0\nWhere id In \n(\n\tSelect user_id\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n);';
@@ -149,7 +148,6 @@ function disconnect(req, res)
 	}
 	checkValidityForUser(callback, uuid);
 }
-
 
 function modifyProfile(req, res)
 {
@@ -211,7 +209,6 @@ function modifyProfile(req, res)
 	checkValidityForUser(callback, uuid);
 }
 
-
 function getKey(req, res)
 {
 	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + login + '/id_rsa.pem';
@@ -233,7 +230,6 @@ function getKey(req, res)
 	};
 	checkValidityForUser(callback, uuid, login);
 }
-
 
 function getPubKey(req, res)
 {
@@ -272,7 +268,6 @@ function getPubKey(req, res)
 	};
 	checkValidityForUser(callback, uuid);
 }
-
 
 function getCliIP(req, res)
 {
@@ -321,7 +316,6 @@ function getCliIP(req, res)
 	checkValidityForUser(callback, uuid);
 }
 
-
 function addFriend(req, res)
 {
 	// FIXME Vérifier liens déjà existants et traiter erreurs
@@ -353,7 +347,6 @@ function addFriend(req, res)
 	};
 	checkValidityForUser(callback, uuid);
 }
-
 
 function stayAlive(req, res)
 {
@@ -466,8 +459,6 @@ function search(req, res)
 			query = 'Select ' + columns + '\nFrom user\nWhere ' + where + '\nLimit 10;';
 			connection.query(query, function(err, rows, fields)
 			{
-				console.log('where: ' + where);
-				console.log('query: ' + query);
 				if (err)
 				{
 					console.error(err);
@@ -496,21 +487,29 @@ function search(req, res)
 	fName = undefined !== fName ? fName.replace(/\*/g, '%') : undefined;
 
 	if (undefined !== user)
+	{
 		while ( -1 !== user.indexOf('%%'))
 			user = user.replace(/%%/g, '%');
-	user = '%' === user ? '' : undefined;
+		user = '%' === user ? '' : undefined;
+	}
 	if (undefined !== email)
+	{
 		while ( -1 !== email.indexOf('%%'))
 			email = email.replace(/%%/g, '%');
-	email = '%' === email ? '' : undefined;
+		email = '%' === email ? '' : undefined;
+	}
 	if (undefined !== lName)
+	{
 		while ( -1 !== lName.indexOf('%%'))
 			lName = lName.replace(/%%/g, '%');
-	lName = '%' === lName ? '' : undefined;
+		lName = '%' === lName ? '' : undefined;
+	}
 	if (undefined !== fName)
+	{
 		while ( -1 !== fName.indexOf('%%'))
 			fName = fName.replace(/%%/g, '%');
-	fName = '%' === fName ? '' : undefined;
+		fName = '%' === fName ? '' : undefined;
+	}
 	jsonReturned =
 	{
 		error : false,
@@ -520,7 +519,6 @@ function search(req, res)
 	where = '';
 	checkValidityForUser(callback, uuid);
 }
-
 
 function showProfile(req, res)
 {
@@ -586,7 +584,6 @@ function showProfile(req, res)
 	checkValidityForUser(callbackValidity, uuid)
 }
 
-
 module.exports =
 {
 	register : register,
@@ -601,7 +598,6 @@ module.exports =
 	addFriend : addFriend,
 	showProfile : showProfile
 };
-
 
 /**
 * Insert the UUID value stored in the cookie for the current user 
@@ -665,7 +661,6 @@ function createCookieInDB(req, res, uuid, exp, id)
 		}
 	});
 }
-
 
 /**
 * Send a JSON with the given error code and add informations based on calling function, if source parameter is provided
@@ -745,7 +740,6 @@ function sendJsonError(res, code, message, source, paramList)
 		res.json(code, result);
 }
 
-
 /**
 * Check if the given UUID value is still valide (validity datetime is inferior to the current datetime)
 *
@@ -788,7 +782,6 @@ function checkValidityForUser(cb, uuid, login)
 	}
 }
 
-
 /**
 * Return a MySQL compliant formated String of the date received. If no date is supplied, it return the current datetime 
 *
@@ -802,7 +795,6 @@ function getMySQLDate(date)
 	else
 		return new Date().toISOString().slice(0, 19).replace('T', ' ');
 }
-
 
 /**
 * Erase all the old cookies stored in the database for the current user 
@@ -818,7 +810,6 @@ function eraseOldCookie(id)
 			console.error(err);
 	});
 }
-
 
 /**
 * Return an array with the friend list inside: username, and connection status (only if you ask for those who have validated their friendship links)
@@ -867,7 +858,6 @@ function getFriendList(cb, uuid, alreadyFriend)
 		}
 	});
 }
-
 
 /**
 * Return an array of String, where each one is the username of a friend of the current user
