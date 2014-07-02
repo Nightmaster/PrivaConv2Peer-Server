@@ -181,7 +181,7 @@ function modifyProfile(req, res)
 			}
 			if (hashPW)
 			{
-				hasPW = hasher(hashPW);
+				hashPW = hasher(hashPW);
 				values += '' === values ? 'hash_pw = "' + hashPW + '"' : ', hash_pw = "' + hashPW + '"';
 				jsonReturned.pwChanged = true;
 			}

@@ -52,7 +52,7 @@ app.get('/webAPI/disconnect', api.disconnect);
 app.get('/webAPI/updateInfos', api.modifyProfile);
 app.get('/webAPI/search', api.search);
 app.get('/webAPI/addFriend', api.addFriend);
-app.get('webAPI/answerRequest', api.answerRequest);
+app.get('/webAPI/answerRequest', api.answerRequest);
 app.get('/webAPI/getPrivateKey/:user', api.getKey);
 app.get('/webAPI/getPubKey/:user', api.getPubKey);
 app.get('/webAPI/getCliIP/:user', api.getCliIP);
