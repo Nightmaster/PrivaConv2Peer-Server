@@ -27,11 +27,12 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(function(req, res, next)
-{
-	require('child_process').exec('mysql -u ' + config.MySQL.user + ' -p' + config.MySQL.pw + ' ' + config.MySQL.database + '  < ' + config.sqlFile);
-	next();
-});
+// app.use(function(req, res, next)
+// {
+// require('child_process').exec('mysql -u ' + config.MySQL.user + ' -p' + config.MySQL.pw + ' ' + config.MySQL.database + ' < ' + config.sqlFile);
+// next();
+// });
+// TODO voir pourquoi la requête SQL ne fonctionne pas !
 
 if ('development' == app.get('env'))
 	app.use(express.errorHandler());
