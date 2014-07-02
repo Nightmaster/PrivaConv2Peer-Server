@@ -6,10 +6,11 @@
 // Module dependencies \\
 var express = require('express'), // Express module
 	routes = require('./routes'), // Router module
+	http = require('http'), // HTTP Server module
+	path = require('path'), // Path module
 	api = routes.api, // API module
 	sessCookie = require('./lib/defineCookie').defineSessCookie, // Cookie definition module
-	http = require('http'), // HTTP Server module
-	path = require('path'); // Path module
+config = require('./config'); // Config informations
 // End module dependencies \\
 
 var app = express(), options =
@@ -23,9 +24,10 @@ var app = express(), options =
 };
 
 global.app = app;
+global.config = config;
 
 // all environments
-app.set('port', process.env.PORT || 8080);
+app.set('port', process.env.PORT || config.port);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(express.favicon());
@@ -57,9 +59,10 @@ app.get('/webAPI/disconnect', api.disconnect);
 app.get('/webAPI/updateInfos', api.modifyProfile);
 app.get('/webAPI/search', api.search);
 app.get('/webAPI/addFriend', api.addFriend);
+app.get('webAPI/answerRequest', api.answerRequest);
 app.get('/webAPI/getPrivateKey/:user', api.getKey);
 app.get('/webAPI/getPubKey/:user', api.getPubKey);
-app.get('/webAPI/getCliIP/:user' ,api.getCliIP);
+app.get('/webAPI/getCliIP/:user', api.getCliIP);
 app.get('/webAPI/showProfile/:user', api.showProfile);
 
 /* Erreur '404 not found', en cas de besoin */

@@ -1,0 +1,21 @@
+{
+	"port": 8080,
+	"MySQL": 
+	{
+		"host": "localhost",
+		"user": "pc2p",
+		"password": "esgi@123",
+		"database": "PC2P"
+	},
+	"bash": 
+	{
+		"pathTo": "./MySQLStarter.sh",
+		"MySQL": 
+		{
+			"user": "root",
+			"pw": "esgi@123",
+			"database": "PC2P"
+		},
+		"sqlFile": "disconnectOutDated.sql"
+	}
+}

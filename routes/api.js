@@ -1,19 +1,14 @@
-/**
+/*!
 * @author Gaël B.
-**/
+!*/
 var fs = require('fs'), // File System library
 	mysql = require('mysql'), // MySQL connection module
 	util = require('util'), // Native util module
 	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
 	rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
 	utils = require('../lib/utils'), // Personnal utils module
-	infos =
-	{
-		host : 'localhost',
-		user : 'pc2p',
-		password : 'esgi@123',
-		database : 'PC2P'
-	}, connection = mysql.createConnection(infos);
+	infos = global.config.MySQL, // Retrieve informations stored in the config file
+	connection = mysql.createConnection(infos);
 
 function register(req, res)
 {
@@ -370,6 +365,55 @@ function addFriend(req, res)
 	checkValidityForUser(callbackValidity, uuid);
 }
 
+function answerRequest(req, res)
+{
+	var callbackValidity, uuid = res.cookies.sessId, user = req.query.username, validationStatus = 'true' === req.query.validate, queryAccept, queryRefuse;
+	queryAccept = 'Update ami\nSet valide = 1\nWhere id_user_receiver In\n(\n\tSelect user_di\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n)\nAnd id_user_emitter In\n(\n\tSelect id\n\tFrom user\n\tWhere login = "' + user + '"\n);';
+	queryRefuse = 'Delete From ami\nWhere id_user_receiver In\n(\n\tSelect user_di\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n)\nAnd id_user_emitter In\n(\n\tSelect id\n\tFrom user\n\tWhere login = "' + user + '"\n);';
+	callbackValidity = function(err, result)
+	{
+		if (err)
+		{
+			console.error(err);
+			sendJsonError(res, 500, JSON.stringify(err), 'answer Request');
+		}
+		else if (true === result)
+			if (true === validationStatus)
+				connection.query(queryAccept, function(err, rows, field)
+				{
+					if (err)
+					{
+						console.error(err);
+						sendJsonError(res, 500, JSON.stringify(err), 'answer Request');
+					}
+					else
+						res.json(
+						{
+							error : false,
+							friendshipStatus : 'validated'
+						});
+				});
+			else
+				connection.query(queryRefuse, function(err, rows, field)
+				{
+					if (err)
+					{
+						console.error(err);
+						sendJsonError(res, 500, JSON.stringify(err), 'answer Request');
+					}
+					else
+						res.json(
+						{
+							error : false,
+							friendshipStatus : 'refused'
+						});
+				});
+		else
+			sendJsonError(res, 401, 'Unauthorized', 'answer Request');
+	};
+	checkValidityForUser(callbackValidity, uuid)
+}
+
 function stayAlive(req, res)
 {
 	var callbackValidity, uuid = res.cookies.sessId;
@@ -652,12 +696,13 @@ module.exports =
 	connection : connect,
 	disconnect : disconnect,
 	modifyProfile : modifyProfile,
+	addFriend : addFriend,
+	answerRequest : answerRequest,
 	getKey : getKey,
 	getPubKey : getPubKey,
 	getCliIP : getCliIP,
 	stayAlive : stayAlive,
 	search : search,
-	addFriend : addFriend,
 	showProfile : showProfile
 };
 
@@ -788,9 +833,14 @@ function sendJsonError(res, code, message, source, paramList)
 		result.invitation = 'unsent';
 		res.json(code, result);
 	}
+	else if ('answer Request' === source)
+	{
+		result.friendshipStatus = 'unchanged';
+		res.json(code, result);
+	}
 	else if ('search' === source)
 	{
-		;
+		result.profiles = null;
 		res.json(code, result);
 	}
 	else if ('show Profile' === source)
@@ -850,12 +900,12 @@ function checkValidityForUser(cb, uuid, login)
 * @param date {Date}: the date to format
 * @return {String} the MySQL format compliant of the date received
 **/
-function getMySQLDate(date)
+function getMySQLDate(datetime)
 {
-	if ('Date' === utils.realTypeOf(date))
-		return date.toISOString().slice(0, 19).replace('T', ' ');
-	else
-		return new Date().toISOString().slice(0, 19).replace('T', ' ');
+	var date = 'Date' === utils.realTypeOf(date) ? date : new Date(), dateString = '';
+	dateString = date.getFullYear() + '-' + (10 > date.getMonth() ? '0' + date.getMonth() : date.getMonth()) + '-' + (10 > date.getDate() ? '0' + date.getDate() : date.getDate()) + ' ' + (10 > date.getHours() ? '0' + date.getHours() : date.getHours()) + ':' + (10 > date.getMinutes() ? '0' + date.getMinutes() : date.getMinutes()) + ':'
+			+ (10 > date.getSeconds() ? '0' + date.getSeconds() : date.getSeconds());
+	return dateString;
 }
 
 /**
