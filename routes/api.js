@@ -1022,8 +1022,11 @@ function getFriendList(cb, uuid, alreadyFriend, emitterOnly)
 			if (err)
 				cb(err);
 			else
+			{
 				for (var i = 0; i < rows.length; i++)
 					result.push(rows[i].display_login);
+				cb(undefined, result);
+			}
 		});
 	}
 }
