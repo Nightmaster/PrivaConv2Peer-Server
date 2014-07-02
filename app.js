@@ -29,7 +29,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(function(req, res, next)
 {
-	require('child_process').exec('mysql -u ' + config.bash.MySQL.user + ' -p' + config.bash.MySQL.pw + ' ' + config.bash.MySQL.database + '  < ' + config.bash.sqlFile);
+	require('child_process').exec('mysql -u ' + config.MySQL.user + ' -p' + config.MySQL.pw + ' ' + config.MySQL.database + '  < ' + config.sqlFile);
 	next();
 });
 
