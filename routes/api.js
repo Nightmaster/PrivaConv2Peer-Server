@@ -7,7 +7,7 @@ var fs = require('fs'), // File System library
 	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
 	rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
 	utils = require('../lib/utils'), // Personnal utils module
-	infos = require('../config').MySQL, // Retrieve informations stored in the config file
+	infos = require('../config').MySQLInformations, // Retrieve informations stored in the config file
 	connection = mysql.createConnection(infos);
 
 function register(req, res)
@@ -1016,11 +1016,14 @@ function getFriendList(cb, uuid, alreadyFriend, emitterOnly)
 	}
 	else
 	{
-		req = util.format(unfReq, 'id_user_receiver', (true === alreadyFriend ? 1 : 0), 'id_user_emitter', uuid);
-		if (err)
-			cb(err);
-		else
-			result.push(rows[i].display_login);
+		req = util.format(unfReq, 'id_user_receiver', 0, 'id_user_emitter', uuid);
+		connection.query(req, function(err, rows, field)
+		{
+			if (err)
+				cb(err);
+			else
+				result.push(rows[i].display_login);
+		});
 	}
 }
 

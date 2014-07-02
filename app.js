@@ -29,8 +29,8 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(function(req, res, next)
 {
+	require('child_process').exec('mysql -u ' + config.bash.MySQL.user + ' -p' + config.bash.MySQL.pw + ' ' + config.bash.MySQL.database + '  < ' + config.bash.sqlFile);
 	next();
-	require('child_process').exec('./' + config.bash.pathTo + ' ' + config.bash.MySQL.user + ' ' + config.bash.MySQL.pw + ' ' + config.bash.MySQL.database + ' ' + config.bash.sqlFile);
 });
 
 if ('development' == app.get('env'))

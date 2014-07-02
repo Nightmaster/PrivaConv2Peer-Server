@@ -7,15 +7,11 @@
 		"password": "esgi@123",
 		"database": "PC2P"
 	},
-	"bash": 
+	"MySQL": 
 	{
-		"pathTo": "./MySQLStarter.sh",
-		"MySQL": 
-		{
-			"user": "root",
-			"pw": "esgi@123",
-			"database": "PC2P"
-		},
-		"sqlFile": "disconnectOutDated.sql"
-	}
+		"user": "root",
+		"pw": "esgi@123",
+		"database": "PC2P"
+	},
+	"sqlFile": "disconnectOutDated.sql"
 }
