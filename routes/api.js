@@ -425,7 +425,7 @@ function addFriend(req, res)
 					res.json(
 					{
 						error : false,
-						invitation : 'sent'
+						invitationSent : true
 					});
 			});
 	};
@@ -961,7 +961,7 @@ function sendJsonError(res, code, message, source, paramList)
 	}
 	else if ('add Friend' === source)
 	{
-		result.invitation = 'unsent';
+		result.invitationSent = false;
 		res.json(code, result);
 	}
 	else if ('answer Request' === source)
