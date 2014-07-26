@@ -4,9 +4,9 @@
 !*/
 
 var salts = require('../saltsForApp'), // Salts for the passwords
-	mysql = require('mysql'), // MySQL Connector
-	utils = require('../lib/utils'), // utils lib
-	title = 'PriveConv2Peer';
+mysql = require('mysql'), // MySQL Connector
+utils = require('../lib/utils'), // utils lib
+title = 'PriveConv2Peer';
 /**
 * Display registration view
 *
@@ -95,7 +95,7 @@ function regexVerif(res, username, fName, lName, email, pw)
 		});
 		return false;
 	}
-	else if (3 > username.length)
+	else if (2 > username.length)
 	{
 		res.render('register',
 		{
