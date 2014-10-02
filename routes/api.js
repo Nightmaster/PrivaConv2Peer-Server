@@ -346,7 +346,7 @@ function getPubKey(req, res)
 **/
 function getCliIP(req, res)
 {
-	var callback, uuid = res.cookies.sessId, user = req.params.user, query = 'Select user_ip From user Where login = ' + user.toLowerCase();
+	var callback, uuid = res.cookies.sessId, user = req.params.user, query = 'Select user_ip From user Where login = "' + user.toLowerCase() + '"';
 	callback = function(err, result)
 	{
 		function callbackFl(err, result)
@@ -356,7 +356,7 @@ function getCliIP(req, res)
 				console.error(err);
 				sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'get IP');
 			}
-			else if ( -1 !== result.indexOf(user))
+			else if ( -1 !== result.indexOf(user.toLowerCase()))
 				connection.query(query, function(err, rows, fields)
 				{
 					if (err)
