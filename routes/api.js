@@ -386,7 +386,7 @@ function getCliIP(req, res)
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'get IP');
 	};
-	if (undefined === login || null === login)
+	if (undefined === user || null === user)
 		sendJsonError(res, 400, 'Bad request. Missing parameter', 'get IP', 'username');
 	else
 		checkValidityForUser(callback, uuid);
@@ -689,6 +689,7 @@ function search(req, res)
 				}
 				else
 				{
+					jsonReturned.error = false;
 					for (var i = 0; i < rows.length; i++)
 						jsonReturned.profiles.push(
 						{
@@ -838,10 +839,10 @@ module.exports =
 };
 
 /**
-* Insert the UUID value stored in the cookie for the current user 
+* Insert the UUID value stored in the cookie for the current user
 *
 * @param req {Object}: Express' request object
-* @param res {Object}: Express' response object 
+* @param res {Object}: Express' response object
 * @param uuid {String}: the UUID corresponding to the user, as a String
 * @param id {String}: the username of the current user
 **/
@@ -904,9 +905,9 @@ function createCookieInDB(req, res, uuid, exp, id)
 * Send a JSON with the given error code and add informations based on calling function, if source parameter is provided
 *
 * @param res {Object}: the response object provided by Express
-* @param code {Number}: HTTP error code for the response 
+* @param code {Number}: HTTP error code for the response
 * @param message {String}: the message to display in the response
-* @param source {String}: indicator that allow to map the function that call this one  
+* @param source {String}: indicator that allow to map the function that call this one
 **/
 function sendJsonError(res, code, message, source, paramList)
 {
@@ -1026,7 +1027,7 @@ function checkValidityForUser(cb, uuid, login)
 }
 
 /**
-* Return a MySQL compliant formated String of the date received. If no date is supplied, it return the current datetime 
+* Return a MySQL compliant formated String of the date received. If no date is supplied, it return the current datetime
 *
 * @param date {Date}: the date to format
 * @return {String} the MySQL format compliant of the date received
@@ -1040,7 +1041,7 @@ function getMySQLDate(datetime)
 }
 
 /**
-* Erase all the old cookies stored in the database for the current user 
+* Erase all the old cookies stored in the database for the current user
 *
 * @param id {String}: email or username of the current user
 **/
