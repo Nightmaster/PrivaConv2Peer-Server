@@ -143,12 +143,12 @@ function disconnect(req, res)
 		if (err)
 			sendJsonError(res, 500, JSON.stringify(err), 'disctonnect');
 		else if (true === result)
-			connection.query(queryDel, function(err, rows, fields)
+			connection.query(queryDisco, function(err, rows, fields)
 			{
 				if (err)
 					sendJsonError(res, 500, JSON.stringify(err), 'disctonnect');
 				else
-					connection.query(queryDisco, function(err, rows, fields)
+					connection.query(queryDel, function(err, rows, fields)
 					{
 						if (err)
 							sendJsonError(res, 500, JSON.stringify(err), 'disctonnect');
