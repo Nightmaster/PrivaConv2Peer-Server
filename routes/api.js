@@ -22,7 +22,7 @@ function register(req, res)
 {
 	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPw = req.query.pw, hashPwK = req.query.pwK, lengthKey = req.query.length, query;
 	if (undefined === login || undefined === email || undefined === hashPw || undefined === lName || undefined === fName || undefined === hashPwK || undefined === lengthKey)
-		sendJsonError(res, 400, 'Bad request. Missing parameters', 'register', 'username && email && pw && firstname && name && pw && pwK && length');
+		sendJsonError(res, 400, 'Bad request. Missing parameters', 'register', 'username && email && pw && firstname && name && pwK && length');
 	else
 	{
 		hashPw = hasher(hashPw);
@@ -148,7 +148,7 @@ function disconnect(req, res)
 				if (err)
 					sendJsonError(res, 500, JSON.stringify(err), 'disctonnect');
 				else
-					connection.query(queryDel, function(err, rows, fields)
+					connection.query(queryDisco, function(err, rows, fields)
 					{
 						if (err)
 							sendJsonError(res, 500, JSON.stringify(err), 'disctonnect');
@@ -510,7 +510,7 @@ function answerRequest(req, res)
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'answer Request');
 	};
-	if (undefined === user && undefined === validationStatus)
+	if (undefined === user || undefined === validationStatus)
 		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || validate');
 	else
 		checkValidityForUser(callbackValidity, uuid)

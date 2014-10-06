@@ -32,14 +32,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 // require('child_process').exec('mysql -u ' + config.MySQL.user + ' -p' + config.MySQL.pw + ' ' + config.MySQL.database + ' < ' + config.sqlFile);
 // next();
 // });
-// TODO voir pourquoi la requête SQL ne fonctionne pas !
+// FIXME Transformer la requête SQL en action entierrement Node.js !
 
 if ('development' == app.get('env'))
 	app.use(express.errorHandler());
 
 /* Partie serveur web */
 app.get('/', routes.index);
-// TODO Modifier les pages en prenant en compte le fait que les formulaires sont envoyés en POST
+// XXX Modifier les pages en prenant en compte le fait que les formulaires sont envoyés en POST
 app.get('/signin', routes.registration);
 app.get('/login', routes.login);
 app.get('/verifAuth', routes.verifyAuth);
