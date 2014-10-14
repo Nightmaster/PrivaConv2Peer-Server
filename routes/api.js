@@ -138,7 +138,7 @@ function connect(req, res)
 **/
 function setListeningPort(req, res)
 {
-	var callback, uuid = res.cookies.sessId, port = parseInt(req.query.port), user = req.params.user, query = 'Update user Set user_port=' + port + ' Where login = "' + user + '";';
+	var callback, uuid = res.cookies.sessId, port = parseInt(req.query.port), user = req.params.user, query = 'Update user Set user_port=' + port + ' Where  id In\n(\n\tSelect user_id\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n);';
 	callback = function(err, result)
 	{
 		if (err)

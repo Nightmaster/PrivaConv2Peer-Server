@@ -48,7 +48,7 @@ app.get('/logout', routes.logout);
 /* Partie API web */
 app.get('/webAPI/register', api.register);
 app.get('/webAPI/connect', api.connection);
-app.get('webAPI/setListeningPort/:user', api.setListeningPort);
+app.get('webAPI/setListeningPort', api.setListeningPort);
 app.get('/webAPI/stayAlive', api.stayAlive);
 app.get('/webAPI/disconnect', api.disconnect);
 app.get('/webAPI/updateInfos', api.modifyProfile);
