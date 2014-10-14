@@ -701,6 +701,12 @@ function stayAlive(req, res)
 function search(req, res)
 {
 	var callback, uuid = res.cookies.sessId, user = req.query.username, lName = req.query.name, fName = req.query.firstname, email = req.query.email, query, columns, where, jsonReturned;
+
+	if (undefined === user && undefined === email && undefined === fName && undefined === lName)
+	{
+		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email || firstname || name');
+		return;
+	}
 	callback = function(err, result)
 	{
 		if (err)
@@ -710,16 +716,16 @@ function search(req, res)
 		}
 		else if (true === result)
 		{
-			if (undefined !== user)
+			if (undefined !== user && '' !== user)
 				where += 'login Like "' + user.toLowerCase() + '"';
-			if (undefined !== email)
+			if (undefined !== email && '' !== email)
 			{
 				columns = columns.substr(0, 29) + ', email' + columns.substr(29);
 				where += '' === where ? 'email Like "' + email + '"' : ', email Like "' + email + '"';
 			}
-			if (undefined !== lName)
+			if (undefined !== lName && '' !== lName)
 				where += '' === where ? 'nom Like "' + lName + '"' : ', nom Like "' + lName + '"';
-			if (undefined !== fName)
+			if (undefined !== fName && '' !== fName)
 				where += '' === where ? 'prenom Like "' + fName + '"' : ', prenom Like "' + fName + '"';
 			query = 'Select ' + columns + '\nFrom user\nWhere ' + where + '\nLimit 10;';
 			connection.query(query, function(err, rows, fields)
@@ -753,11 +759,8 @@ function search(req, res)
 	fName = undefined !== fName ? fName.replace(/\*/g, '%') : undefined;
 
 	if (undefined !== user)
-	{
 		while ( -1 !== user.indexOf('%%'))
 			user = user.replace(/%%/g, '%');
-		user = '%' === user ? '' : user;
-	}
 	if (undefined !== email)
 	{
 		while ( -1 !== email.indexOf('%%'))
@@ -765,17 +768,11 @@ function search(req, res)
 		email = '%' === email ? '' : email;
 	}
 	if (undefined !== lName)
-	{
 		while ( -1 !== lName.indexOf('%%'))
 			lName = lName.replace(/%%/g, '%');
-		lName = '%' === lName ? '' : lName;
-	}
 	if (undefined !== fName)
-	{
 		while ( -1 !== fName.indexOf('%%'))
 			fName = fName.replace(/%%/g, '%');
-		fName = '%' === fName ? '' : fName;
-	}
 	jsonReturned =
 	{
 		error : false,
@@ -783,10 +780,7 @@ function search(req, res)
 	};
 	columns = 'display_login As displayLogin, nom, prenom';
 	where = '';
-	if (undefined === user && undefined === email && undefined === fName && undefined === lName)
-		sendJsonError(res, 400, 'Bad request. Missing parameters', undefined, 'username || email || firstname || name');
-	else
-		checkValidityForUser(callback, uuid);
+	checkValidityForUser(callback, uuid);
 }
 
 /**
