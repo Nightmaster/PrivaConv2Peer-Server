@@ -129,6 +129,42 @@ function connect(req, res)
 }
 
 /**
+* Set Listening port web API<br/>
+* Need this parameter: port (Integer [1; 65 635])
+*
+* @param req {Object}: request Express object
+* @param res {Object}: response Express object
+* @author Gaël B.
+**/
+function setListeningPort(req, res)
+{
+	var callback, uuid = res.cookies.sessId, port = parseInt(req.query.port), user = req.params.user, query = 'Update user Set user_port=' + port + ' Where login = "' + user + '";';
+	callback = function(err, result)
+	{
+		if (err)
+			sendJsonError(res, 500, JSON.stringify(err), 'setPort');
+		else if (true === result)
+			connection.query(query, function(err, rows, fields)
+			{
+				if (err)
+					sendJsonError(res, 500, JSON.stringify(err), 'setPort');
+				else
+				res.json(
+				{
+					error: false,
+					portRegistered : true
+				});
+			});
+	};
+	if(undefined === port)
+		sendJsonError(res, 400, 'Bad request. Missing parameter', 'setPort', 'port');
+	else if (isNaN(port) || 0 > port || 65636 < port)
+		sendJsonError(res, 400, 'Port must be a Integer. The accepted interval is: [1; 65635]', 'setPort');
+	else
+		checkValidityForUser(callback, uuid);
+}
+
+/**
 * Disconnection web API
 *
 * @param req {Object}: request Express object
@@ -137,7 +173,7 @@ function connect(req, res)
 **/
 function disconnect(req, res)
 {
-	var callback, uuid = res.cookies.sessId, queryDel = 'Delete From cookie\nWhere value="' + uuid + '";', queryDisco = 'Update user\nSet user_ip = "", user_connected = 0\nWhere id In \n(\n\tSelect user_id\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n);';
+	var callback, uuid = res.cookies.sessId, queryDel = 'Delete From cookie\nWhere value="' + uuid + '";', queryDisco = 'Update user\nSet user_ip = "", user_port = -1, user_connected = 0\nWhere id In \n(\n\tSelect user_id\n\tFrom cookie\n\tWhere value = "' + uuid + '"\n);';
 	callback = function(err, result)
 	{
 		if (err)
@@ -346,7 +382,7 @@ function getPubKey(req, res)
 **/
 function getCliIP(req, res)
 {
-	var callback, uuid = res.cookies.sessId, user = req.params.user, query = 'Select user_ip From user Where login = "' + user.toLowerCase() + '"';
+	var callback, uuid = res.cookies.sessId, user = req.params.user, query = 'Select user_ip, user_port From user Where login = "' + user.toLowerCase() + '"';
 	callback = function(err, result)
 	{
 		function callbackFl(err, result)
@@ -368,7 +404,11 @@ function getCliIP(req, res)
 						res.json(
 						{
 							error : false,
-							ip : rows[0].user_ip
+							infos:
+							{
+								ip : rows[0].user_ip,
+								port : rows[0].user_port
+							}
 						});
 					else
 						sendJsonError(res, 200, 'Le contact demandé n\'existe pas', 'get IP');
@@ -826,6 +866,7 @@ module.exports =
 {
 	register : register,
 	connection : connect,
+	setListeningPort: setListeningPort,
 	disconnect : disconnect,
 	modifyProfile : modifyProfile,
 	addFriend : addFriend,
@@ -923,6 +964,11 @@ function sendJsonError(res, code, message, source, paramList)
 	{
 		result.connection = false;
 		result.validity = -1;
+		res.json(code, result);
+	}
+	else if('setPort' === source)
+	{
+		result.portRegistered = false;
 		res.json(code, result);
 	}
 	else if ('register' === source)
