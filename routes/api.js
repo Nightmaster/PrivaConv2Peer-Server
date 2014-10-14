@@ -149,12 +149,14 @@ function setListeningPort(req, res)
 				if (err)
 					sendJsonError(res, 500, JSON.stringify(err), 'setPort');
 				else
-				res.json(
-				{
-					error: false,
-					portRegistered : true
-				});
+					res.json(
+					{
+						error: false,
+						portRegistered : true
+					});
 			});
+		else
+			sendJsonError(res, 401, 'Unauthorized', 'setPort');
 	};
 	if(undefined === port)
 		sendJsonError(res, 400, 'Bad request. Missing parameter', 'setPort', 'port');
