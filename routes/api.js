@@ -901,7 +901,7 @@ function createCookieInDB(req, res, uuid, exp, id, hashPw)
 					sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 				else
 				{
-					rsa.decryptTemp(pass,  rows[0].display_login.toLowerCase(), function()
+					rsa.decryptTemp(hashPw,  rows[0].display_login.toLowerCase(), function()
 					{
 						res.json(
 						{
