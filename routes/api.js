@@ -20,9 +20,9 @@ var fs = require('fs'), // File System library
 **/
 function register(req, res)
 {
-	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPw = req.query.pw, hashPwK = req.query.pwK, lengthKey = req.query.length, query;
-	if (undefined === login || undefined === email || undefined === hashPw || undefined === lName || undefined === fName || undefined === hashPwK || undefined === lengthKey)
-		sendJsonError(res, 400, 'Bad request. Missing parameters', 'register', 'username && email && pw && firstname && name && pwK && length');
+	var login = req.query.username, email = req.query.email, fName = req.query.firstname, lName = req.query.name, hashPw = req.query.pw, lengthKey = 2048, query;
+	if (undefined === login || undefined === email || undefined === hashPw || undefined === lName || undefined === fName)
+		sendJsonError(res, 400, 'Bad request. Missing parameters', 'register', 'username && email && pw && firstname && name');
 	else
 	{
 		hashPw = hasher(hashPw);
@@ -50,7 +50,7 @@ function register(req, res)
 					error : false,
 					validation : true
 				});
-			rsa(hashPwK, lengthKey, login);
+			rsa(hashPw, lengthKey, login);
 		});
 	}
 }
