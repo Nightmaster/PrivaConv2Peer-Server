@@ -33,7 +33,6 @@ exports.registration = function(req, res)
 			username = mysql.escape(body.username);
 			email = body.email;
 			pw = require('../lib/password').saltAndHash(connection.escape(body.password));
-			// TODO mise en place de regex pour username, mail & PW
 			sendToDB(res, username, fName, lName, email, pw);
 		}
 		else
@@ -177,7 +176,7 @@ function sendToDB(res, username, fName, lName, email, pw)
 	connection.connect(function(err)
 	{
 		if (err)
-			console.error('error connecting: ' + err.stack); // TODO renvoyer un message d'erreur !
+			console.error('error connecting: ' + err.stack);
 	});
 	var query = 'Insert Into User (nom, prenom, login, email, hash_pw) Values (' + fName + ', ' + lName + ', ' + username + ', ' + email + ', ' + pw + ';';
 	connection.query(query, function(err, rows, fields)

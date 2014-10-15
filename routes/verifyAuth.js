@@ -50,12 +50,12 @@ exports.verifyAuth = function(req, res)
 						if (err)
 							throw err;
 						else
-							; // TODO renvoyer un validation de connexion
+							;
 					});
 				else
-					; // TODO renvoyer un message d'erreur de PW
+					;
 			else
-				; // TODO renvoyer un message d'erreur d'identifiant
+				;
 	});
 	connection.end(function(err)
 	{
