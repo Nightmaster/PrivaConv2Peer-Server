@@ -50,7 +50,12 @@ function register(req, res)
 					error : false,
 					validation : true
 				});
-			rsa.genRSA(hashPw, lengthKey, login);
+			rsa.genRSA(hashPw, lengthKey,
+			{
+				username: login.toLowerCase(),
+				fullname: lName + ' ' + fName,
+				email: email
+			});
 		});
 	}
 }
@@ -901,7 +906,7 @@ function createCookieInDB(req, res, uuid, exp, id, hashPw)
 					sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 				else
 				{
-					rsa.decryptTemp(hashPw,  rows[0].display_login.toLowerCase(), function()
+					rsa.decryptTemp(hashPw, rows[0].display_login.toLowerCase(), function()
 					{
 						res.json(
 						{
