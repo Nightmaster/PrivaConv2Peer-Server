@@ -320,7 +320,7 @@ function getKey(req, res)
 		}
 		else if (true === result)
 		{
-			cp.exec('base64 ' + pathTo + '> ' + pathTo + '.b64', function()
+			cp.exec('base64 ' + pathTo + ' > ' + pathTo + '.b64', function()
 			{
 				fs.readFile(pathTo + '.b64', 'utf-8', function(err, file)
 				{
@@ -368,10 +368,12 @@ function getPubKey(req, res)
 			if (err)
 				sendJsonError(res, 500, JSON.stringify(err), 'public Key');
 			else if ( -1 !== result.indexOf(login))
-				cp.exec('base64 ' + pathTo + '> ' + pathTo + '.b64', function()
+				cp.exec('base64 ' + pathTo + ' > ' + pathTo + '.b64', function()
 				{
+					console.log('base64 ' + pathTo + ' > ' + pathTo + '.b64')
 					fs.readFile(pathTo + '.b64', 'utf-8', function (err, file)
 					{
+						console.log(err)
 						res.json(
 							{
 								error : false,
