@@ -368,7 +368,6 @@ function getPubKey(req, res)
 			if (err)
 				sendJsonError(res, 500, JSON.stringify(err), 'public Key');
 			else if ( -1 !== result.indexOf(login))
-
 				cp.exec('base64 ' + pathTo + '> ' + pathTo + '.b64', function()
 				{
 					fs.readFile(pathTo + '.b64', 'utf-8', function (err, file)
@@ -387,7 +386,7 @@ function getPubKey(req, res)
 								console.error(err);
 						});
 					});
-				}
+				});
 			else
 				sendJsonError(res, 401, 'Vous n\'êtes pas ami avec cette personne, ou il n\a pas encore accepté votre demande !', 'public Key')
 		}
