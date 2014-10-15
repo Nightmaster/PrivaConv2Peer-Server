@@ -310,7 +310,7 @@ function modifyProfile(req, res)
 **/
 function getKey(req, res)
 {
-	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + login.toLowerCase() + '/tmp.der';
+	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + login + '/tmp.der';
 	callback = function(err, result)
 	{
 		if (err)
@@ -361,7 +361,7 @@ function getKey(req, res)
 **/
 function getPubKey(req, res)
 {
-	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + .toLowerCase() + '/pub.der';
+	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + login + '/pub.der';
 	callback = function(err, result)
 	{
 		function callbackFriendList(err, result)
