@@ -324,7 +324,10 @@ function getKey(req, res)
 			fs.readFile(pathTo + '.b64', 'utf-8', function(err, file)
 			{
 				if(err)
+				{
+					console.error(err);
 					sendJsonError(res, 401, 'Délai d\'attente dépassé. Veuillez vous reconnecter', 'private Key')
+				}
 				else
 				{
 					res.json(
@@ -358,7 +361,7 @@ function getKey(req, res)
 **/
 function getPubKey(req, res)
 {
-	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + login + '/pub.der';
+	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + .toLowerCase() + '/pub.der';
 	callback = function(err, result)
 	{
 		function callbackFriendList(err, result)
