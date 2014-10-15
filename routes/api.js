@@ -5,7 +5,7 @@ var fs = require('fs'), // File System library
 	mysql = require('mysql'), // MySQL connection module
 	util = require('util'), // Native util module
 	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
-	rsa = require('../lib/genRSA').genRSA, // RSA Key generator module
+	rsa = require('../lib/genRSA'), // RSA Key generator module
 	utils = require('../lib/utils'), // Personnal utils module
 	infos = require('../config').MySQLInformations, // Retrieve informations stored in the config file
 	connection = mysql.createConnection(infos);
@@ -50,7 +50,7 @@ function register(req, res)
 					error : false,
 					validation : true
 				});
-			rsa(hashPw, lengthKey, login);
+			rsa.genRSA(hashPw, lengthKey, login);
 		});
 	}
 }
@@ -304,7 +304,7 @@ function modifyProfile(req, res)
 **/
 function getKey(req, res)
 {
-	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + login + '/id_rsa.pem';
+	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + login + '/tmp.der';
 	callback = function(err, result)
 	{
 		if (err)
@@ -313,14 +313,19 @@ function getKey(req, res)
 			sendJsonError(res, 500, JSON.stringify(err), 'private Key');
 		}
 		else if (true === result)
+		{
 			fs.readFile(pathTo, 'utf-8', function(err, file)
 			{
-				res.json(
-				{
-					error : false,
-					prKey : file
-				});
+				if(err)
+					sendJsonError(res, 401, 'Délai d\'attente dépassé. Veuillez vous reconnecter', 'private Key')
+				else
+					res.json(
+					{
+						error : false,
+						prKey : file
+					});
 			});
+		}
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'private Key');
 	};
@@ -339,7 +344,7 @@ function getKey(req, res)
 **/
 function getPubKey(req, res)
 {
-	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + login + '/id_rsa.pub';
+	var callback, uuid = res.cookies.sessId, login = req.params.user.toLowerCase(), pathTo = '/PrivaConv2Peer/' + login + '/pub.der';
 	callback = function(err, result)
 	{
 		function callbackFriendList(err, result)
@@ -883,7 +888,7 @@ module.exports =
 * @param uuid {String}: the UUID corresponding to the user, as a String
 * @param id {String}: the username of the current user
 **/
-function createCookieInDB(req, res, uuid, exp, id)
+function createCookieInDB(req, res, uuid, exp, id, hashPw)
 {
 	var callbackFl, callbackAskFriend, idType = -1 === id.indexOf('@') ? 'login' : 'email', user_idQuery = 'Select id, nom, prenom, display_login, email\nFrom user\nWhere ' + idType + ' = "' + id + '";', cookieQuery;
 	connection.query(user_idQuery, function(err, rows, field)
@@ -895,21 +900,26 @@ function createCookieInDB(req, res, uuid, exp, id)
 				if (err)
 					sendJsonError(res, 500, 'err: ' + JSON.stringify(err), 'connection');
 				else
-					res.json(
+				{
+					rsa.decryptTemp(pass,  rows[0].display_login.toLowerCase(), function()
 					{
-						error : false,
-						connection : true,
-						validity : 15,
-						user :
+						res.json(
 						{
-							login : rows[0].display_login,
-							email : rows[0].email,
-							name : rows[0].nom,
-							firstname : rows[0].prenom
-						},
-						friends : result,
-						askFriend : askList
+							error : false,
+							connection : true,
+							validity : 15,
+							user :
+							{
+								login : rows[0].display_login,
+								email : rows[0].email,
+								name : rows[0].nom,
+								firstname : rows[0].prenom
+							},
+							friends : result,
+							askFriend : askList
+						});
 					});
+				}
 			};
 			if (err)
 			{
