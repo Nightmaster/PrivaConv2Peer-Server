@@ -320,27 +320,30 @@ function getKey(req, res)
 		}
 		else if (true === result)
 		{
-			cp.exec('base64 ' + pathTo + ' > ' + pathTo + '.b64', function()
-			{
-				fs.readFile(pathTo + '.b64', 'utf-8', function(err, file)
+			if(fs.exists(pathTo))
+				cp.exec('base64 ' + pathTo + ' > ' + pathTo + '.b64', function()
 				{
-					if(err)
-						sendJsonError(res, 401, 'Délai d\'attente dépassé. Veuillez vous reconnecter', 'private Key')
-					else
+					fs.readFile(pathTo + '.b64', 'utf-8', function(err, file)
 					{
-						res.json(
-							{
-								error : false,
-								prKey : file
-							});
-						fs.unlink(pathTo + '.b64', function(err)
+						if(err)
+							sendJsonError(res, 401, 'Délai d\'attente dépassé. Veuillez vous reconnecter', 'private Key')
+						else
 						{
-							if(err)
-								console.error(err);
-						});
-					}
+							res.json(
+								{
+									error : false,
+									prKey : file
+								});
+							fs.unlink(pathTo + '.b64', function(err)
+							{
+								if(err)
+									console.error(err);
+							});
+						}
+					});
 				});
-			});
+			else
+				sendJsonError(res, 401, 'Unauthorized', 'private Key');
 		}
 		else
 			sendJsonError(res, 401, 'Unauthorized', 'private Key');
