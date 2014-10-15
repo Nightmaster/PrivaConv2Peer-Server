@@ -1,7 +1,8 @@
 /*!
 * @author Gaël B.
 !*/
-var fs = require('fs'), // File System library
+var cp = require('child_process'), //Child Process System library
+	fs = require('fs'), // File System library
 	mysql = require('mysql'), // MySQL connection module
 	util = require('util'), // Native util module
 	hasher = require('../lib/password').saltAndHash, // saltAndHash for passwords
@@ -319,16 +320,26 @@ function getKey(req, res)
 		}
 		else if (true === result)
 		{
-			fs.readFile(pathTo, 'utf-8', function(err, file)
+			cp.exec('base64 ' + pathTo + '> ' + pathTo + '.b64', function()
 			{
-				if(err)
-					sendJsonError(res, 401, 'Délai d\'attente dépassé. Veuillez vous reconnecter', 'private Key')
-				else
-					res.json(
+				fs.readFile(pathTo + '.b64', 'utf-8', function(err, file)
+				{
+					if(err)
+						sendJsonError(res, 401, 'Délai d\'attente dépassé. Veuillez vous reconnecter', 'private Key')
+					else
 					{
-						error : false,
-						prKey : file
-					});
+						res.json(
+							{
+								error : false,
+								prKey : file
+							});
+						fs.unlink(pathTo + '.b64', function(err)
+						{
+							if(err)
+								console.error(err);
+						});
+					}
+				});
 			});
 		}
 		else
@@ -357,18 +368,26 @@ function getPubKey(req, res)
 			if (err)
 				sendJsonError(res, 500, JSON.stringify(err), 'public Key');
 			else if ( -1 !== result.indexOf(login))
-				fs.readFile(pathTo, 'utf-8', function(err, file)
+
+				cp.exec('base64 ' + pathTo + '> ' + pathTo + '.b64', function()
 				{
-					res.json(
+					fs.readFile(pathTo + '.b64', 'utf-8', function (err, file)
 					{
-						error : false,
-						user :
+						res.json(
+							{
+								error : false,
+								user : {
+									username : login,
+									pubKey : file
+								}
+							});
+						fs.unlink(pathTo + '.b64', function(err)
 						{
-							username : login,
-							pubKey : file
-						}
+							if(err)
+								console.error(err);
+						});
 					});
-				});
+				}
 			else
 				sendJsonError(res, 401, 'Vous n\'êtes pas ami avec cette personne, ou il n\a pas encore accepté votre demande !', 'public Key')
 		}
