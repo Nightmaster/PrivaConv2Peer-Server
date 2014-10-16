@@ -1,4 +1,4 @@
-﻿/*!
+?/*!
 * @auth : Gael B.
 !*/
 
@@ -27,19 +27,13 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-// app.use(function(req, res, next)
-// {
-// require('child_process').exec('mysql -u ' + config.MySQL.user + ' -p' + config.MySQL.pw + ' ' + config.MySQL.database + ' < ' + config.sqlFile);
-// next();
-// });
-// FIXME Transformer la requête SQL en action entierrement Node.js !
 
 if ('development' == app.get('env'))
 	app.use(express.errorHandler());
 
 /* Partie serveur web */
 app.get('/', routes.index);
-// XXX Modifier les pages en prenant en compte le fait que les formulaires sont envoyés en POST
+// XXX Modifier les pages en prenant en compte le fait que les formulaires sont envoy�s en POST
 app.get('/signin', routes.registration);
 app.get('/login', routes.login);
 app.get('/verifAuth', routes.verifyAuth);

@@ -1,31 +1,31 @@
 {
 	"name": "PrivaConv2Peer-Server",
 	"description": "Server part of the PrivaConv2Peer application",
-	"version": "0.0.1",
+	"version": "1.0",
 	"author": "PrivaConv2Peer",
-	"contributors": 
+	"contributors":
 	[
 		"gblaise <blaise_g12@myges.fr>"
 	],
 	"private": false,
-	"scripts": 
+	"scripts":
 	{
 		"start": "node app.js"
 	},
-	"engines": 
+	"engines":
 	{
 		"node": ">= 0.10.0"
 	},
-	"dependencies": 
+	"dependencies":
 	{
 		"connect-mysql": "~2.0.0",
 		"connect": "2.15.0",
 		"ejs": ">=1.0.0",
-		"express": "3.17.x",
+		"express": "~3.6",
 		"mysql": "~2.1.0",
 		"node-uuid": "1.4.x"
 	},
-	"repository": 
+	"repository":
 	{
 		"type": "git",
 		"url": "git://github.com/Nightmaster/PrivaConv2Peer-Server"

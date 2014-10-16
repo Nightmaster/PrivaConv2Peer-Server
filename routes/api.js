@@ -371,7 +371,6 @@ function getPubKey(req, res)
 			else if ( -1 !== result.indexOf(login))
 				cp.exec('base64 ' + pathTo + ' > ' + pathTo + '.b64', function()
 				{
-					console.log('base64 ' + pathTo + ' > ' + pathTo + '.b64')
 					fs.readFile(pathTo + '.b64', 'utf-8', function (err, file)
 					{
 						console.log(err)
